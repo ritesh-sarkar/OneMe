@@ -72,57 +72,6 @@
   --font-display: var(--font-display);
 }
 
-/* Semantic utilities for application surfaces and content. */
-.bg-surface-page { background-color: var(--bg-primary); }
-.bg-surface-panel { background-color: var(--bg-secondary); }
-.bg-surface-secondary { background-color: var(--bg-secondary); }
-.bg-surface-deep { background-color: var(--bg-tertiary); }
-.bg-surface-dark { background-color: var(--bg-quaternary); }
-.bg-glass-soft { background: var(--bg-glass-light); }
-.bg-glass { background: var(--bg-glass); }
-.text-primary { color: var(--text-primary); }
-.text-secondary { color: var(--text-secondary); }
-.text-tertiary { color: var(--text-tertiary); }
-.text-muted { color: var(--text-muted); }
-.text-surface-dark { color: var(--bg-quaternary); }
-.text-accent { color: var(--accent-primary); }
-.text-cyan { color: var(--accent-cyan); }
-.text-success { color: var(--accent-emerald); }
-.text-danger { color: var(--accent-rose); }
-.text-warning { color: var(--accent-amber); }
-.bg-accent { background-color: var(--accent-primary); }
-.bg-accent-soft { background: rgba(99, 102, 241, 0.1); }
-.bg-cyan-soft { background: rgba(0, 242, 254, 0.1); }
-.bg-success-soft { background: rgba(16, 185, 129, 0.1); }
-.bg-danger-soft { background: rgba(244, 63, 94, 0.1); }
-.bg-warning-soft { background: rgba(245, 158, 11, 0.1); }
-.bg-warning { background: var(--accent-amber); }
-.bg-pink-soft { background: rgba(236, 72, 153, 0.1); }
-.text-pink { color: var(--accent-pink); }
-.border-pink { border-color: var(--accent-pink); }
-.border-accent-soft { border-color: rgba(99, 102, 241, 0.3); }
-.bg-success { background: var(--accent-emerald); }
-.bg-cyan { background: var(--accent-cyan); }
-.border-accent { border-color: var(--accent-primary); }
-.border-success { border-color: var(--accent-emerald); }
-.border-cyan { border-color: var(--accent-cyan); }
-.gradient-brand {
-  background: linear-gradient(135deg, var(--accent-cyan) 0%, var(--accent-primary) 50%, var(--accent-pink) 100%);
-}
-.gradient-brand-text {
-  background: linear-gradient(135deg, var(--accent-cyan), var(--accent-primary), var(--accent-pink));
-  -webkit-background-clip: text;
-  background-clip: text;
-  color: transparent;
-}
-.gradient-accent-soft { background: linear-gradient(135deg, rgba(99, 102, 241, .2), rgba(236, 72, 153, .1)); }
-.gradient-cyan-soft { background: linear-gradient(135deg, rgba(0, 242, 254, .2), rgba(99, 102, 241, .2)); }
-.gradient-success { background: linear-gradient(90deg, var(--accent-cyan), var(--accent-primary), var(--accent-emerald)); }
-.text-accent-muted { color: var(--text-tertiary); }
-.fill-danger-soft { fill: rgba(244, 63, 94, .3); }
-.border-subtle { border-color: var(--border-subtle); }
-.border-light { border-color: var(--border-light); }
-
 /* ============================================
    GLOBAL BASE STYLES
    ============================================ */
