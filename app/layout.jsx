@@ -1,6 +1,9 @@
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 
+//custom libs
+import { ToastProvider } from "@/context/ToastContext";
+
 const geistSans = Geist({
   variable: "--font-geist-sans",
   subsets: ["latin"],
@@ -21,15 +24,23 @@ export const metadata = {
     "One link for your digital identity. Create, customize, and share your personal profile, social links, and contact information.",
 };
 
-
-
 export default function RootLayout({ children }) {
   return (
     <html
       lang="en"
-      className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
+      className={`
+        ${geistSans.variable} 
+        ${geistMono.variable} 
+        h-full 
+        antialiased
+        text-sans
+        bg-bg-primary
+        text-text-primary
+        `}
     >
-      <body className="min-h-full flex flex-col">{children}</body>
+      <body className="min-h-full flex flex-col">
+        <ToastProvider>{children}</ToastProvider>
+      </body>
     </html>
   );
 }
