@@ -26,7 +26,6 @@ export function Hero() {
         overflow-hidden
       "
     >
-      
       {/* Background Glow Spheres */}
       <div
         className="
@@ -35,8 +34,8 @@ export function Hero() {
           left-1/2
           -translate-x-1/2
           -translate-y-1/2
-          w-[600px]
-          h-[600px]
+          w-150
+          h-150
           gradient-cyan-soft
           rounded-full
           blur-[130px]
@@ -63,7 +62,7 @@ export function Hero() {
           max-w-7xl
           mx-auto
           px-4
-          sm:px-6
+          md:px-6
           lg:px-8
           relative
           z-10
@@ -80,7 +79,6 @@ export function Hero() {
           "
         >
           {/* Left Column: Copy & Actions */}
-
           <div
             className="
               lg:col-span-6
@@ -90,7 +88,6 @@ export function Hero() {
             "
           >
             {/* Pill Tag */}
-
             <motion.div
               initial={{
                 opacity: 0,
@@ -134,7 +131,6 @@ export function Hero() {
             </motion.div>
 
             {/* Hero Headline */}
-
             <motion.div
               initial={{
                 opacity: 0,
@@ -155,7 +151,7 @@ export function Hero() {
               <h1
                 className="
                   text-4xl
-                  sm:text-6xl
+                  md:text-6xl
                   lg:text-6xl
                   font-extrabold
                   tracking-tight
@@ -177,22 +173,23 @@ export function Hero() {
               <p
                 className="
                   text-base
-                  sm:text-lg
+                  md:text-lg
                   text-secondary
                   max-w-xl
                   mx-auto
                   lg:mx-0
                   leading-relaxed
+                  font-semibold
                 "
               >
-                Create a beautiful digital identity that brings your profile,
-                portfolio, socials, and contact card together in one place.
-                Instant OneMe Flow exchange and real-time vCard download.
+                Everything that represents you. One beautiful identity. Bring
+                your profile, work, socials, and contact information together in
+                one place - ready to share, connect, and exchange instantly.
               </p>
             </motion.div>
 
-            {/* Action Buttons */}
 
+            {/* Action Buttons */}
             <motion.div
               initial={{
                 opacity: 0,
@@ -209,7 +206,7 @@ export function Hero() {
               className="
                 flex
                 flex-col
-                sm:flex-row
+                md:flex-row
                 items-center
                 justify-center
                 lg:justify-start
@@ -220,7 +217,7 @@ export function Hero() {
                 href="/login"
                 className="
                   w-full
-                  sm:w-auto
+                  md:w-auto
                 "
               >
                 <Button
@@ -229,7 +226,7 @@ export function Hero() {
                   icon={FiZap}
                   className="
                     w-full
-                    sm:w-auto
+                    md:w-auto
                     px-8
                     glow-cyan
                   "
@@ -239,10 +236,10 @@ export function Hero() {
               </Link>
 
               <Link
-                href="/"
+                href="/discover"
                 className="
                   w-full
-                  sm:w-auto
+                  md:w-auto
                 "
               >
                 <Button
@@ -251,7 +248,7 @@ export function Hero() {
                   icon={FiCompass}
                   className="
                     w-full
-                    sm:w-auto
+                    md:w-auto
                   "
                 >
                   Explore profiles
@@ -259,8 +256,8 @@ export function Hero() {
               </Link>
             </motion.div>
 
-            {/* Social Proof & Features List */}
 
+            {/* Social Proof & Features List */}
             <motion.div
               initial={{
                 opacity: 0,
@@ -337,8 +334,8 @@ export function Hero() {
             </motion.div>
           </div>
 
-          {/* Right Column: Interactive Phone / Desktop Preview Mockup */}
 
+          {/* Right Column: Interactive Phone / Desktop Preview Mockup */}
           <motion.div
             initial={{
               opacity: 0,
@@ -361,8 +358,8 @@ export function Hero() {
               justify-center
             "
           >
-            {/* Ambient Backlight */}
 
+            {/* Ambient Backlight */}
             <div
               className="
                 absolute
@@ -374,13 +371,13 @@ export function Hero() {
               "
             />
 
-            {/* Device Container Frame */}
 
+            {/* Device Container Frame */}
             <div
               className="
                 w-full
                 max-w-sm
-                sm:max-w-md
+                md:max-w-md
                 rounded-[38px]
                 p-3.5
                 bg-surface-dark/90
@@ -390,11 +387,11 @@ export function Hero() {
                 backdrop-blur-2xl
               "
             >
-              {/* Speaker Notch / Dynamic Island */}
 
+              {/* Speaker Notch / Dynamic Island */}
               <div
                 className="
-                  w-28
+                  w-20
                   h-4
                   bg-surface-deep
                   rounded-full
@@ -426,12 +423,12 @@ export function Hero() {
                 />
               </div>
 
-              {/* Scrollable Preview Screen */}
 
+              {/* Scrollable Preview Screen */}
               <div
                 className="
-                  h-[520px]
-                  sm:h-[580px]
+                  h-130
+                  md:h-145
                   overflow-y-auto
                   rounded-[26px]
                   bg-surface-dark
