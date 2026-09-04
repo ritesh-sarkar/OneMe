@@ -26,8 +26,8 @@ export function Hero() {
         overflow-hidden
       "
     >
+      
       {/* Background Glow Spheres */}
-
       <div
         className="
           absolute
@@ -239,7 +239,7 @@ export function Hero() {
               </Link>
 
               <Link
-                href="/discover"
+                href="/"
                 className="
                   w-full
                   sm:w-auto

@@ -27,6 +27,7 @@ export const metadata = {
 export default function RootLayout({ children }) {
   return (
     <html
+      suppressHydrationWarning
       lang="en"
       className={`
         ${geistSans.variable} 
@@ -38,7 +39,12 @@ export default function RootLayout({ children }) {
         text-text-primary
         `}
     >
-      <body className="min-h-full flex flex-col">
+      <body
+        className="
+          min-h-full 
+          flex flex-col
+        "
+      >
         <ToastProvider>{children}</ToastProvider>
       </body>
     </html>
