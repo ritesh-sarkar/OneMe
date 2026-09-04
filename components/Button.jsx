@@ -21,17 +21,17 @@ export function Button({
     "btn-base focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-surface-dark select-none disabled:opacity-50 disabled:cursor-not-allowed disabled:pointer-events-none";
 
   const variants = {
-    primary: "btn-primary focus:ring-accent active:scale-0.85",
+    primary: "btn-primary focus:ring-0 focus:ring-offset-0 active:scale-0.85",
 
     secondary: "btn-secondary active:scale-0.85",
 
     outline: "btn-outline focus:ring-0 focus:ring-offset-0 active:scale-0.85",
 
-    ghost: "btn-ghost focus:ring-accent",
+    ghost: "btn-ghost focus:ring-0 focus:ring-offset-0",
 
     glow: "btn-glow active:scale-0.85",
 
-    danger: "btn-danger focus:ring-accent",
+    danger: "btn-danger focus:ring-0 focus:ring-offset-0",
   };
 
   const sizes = {
