@@ -58,7 +58,7 @@ export function HowItWorks() {
           max-w-7xl
           mx-auto
           px-4
-          sm:px-6
+          md:px-6
           lg:px-8
         "
       >
@@ -87,7 +87,7 @@ export function HowItWorks() {
           <h2
             className="
               text-3xl
-              sm:text-4xl
+              md:text-4xl
               font-extrabold
               text-primary
               tracking-tight
@@ -99,7 +99,7 @@ export function HowItWorks() {
           <p
             className="
               text-sm
-              sm:text-base
+              md:text-base
               text-secondary
             "
           >
@@ -158,16 +158,16 @@ export function HowItWorks() {
                     items-center
                     justify-between
                     mb-4
-                  "
+                  " 
                 >
                   <div
                     className={`
                       w-12
                       h-12
                       rounded-xl
-                      bg-gradient-to-tr
+                      bg-linear-to-tr
                       ${item.color}
-                      p-0.5
+                      p-0.75
                       shadow-lg
                       group-hover:scale-110
                       transition-transform
@@ -178,7 +178,7 @@ export function HowItWorks() {
                         w-full
                         h-full
                         bg-surface-dark
-                        rounded-[10px]
+                        rounded-lg
                         flex
                         items-center
                         justify-center
@@ -214,6 +214,7 @@ export function HowItWorks() {
                     font-bold
                     text-primary
                     mb-2
+                    md:text-xl
                   "
                 >
                   {item.title}
@@ -221,8 +222,8 @@ export function HowItWorks() {
 
                 <p
                   className="
-                    text-xs
-                    sm:text-sm
+                    text-sm
+                    md:text-base
                     text-secondary
                     leading-relaxed
                   "
