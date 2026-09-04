@@ -3,6 +3,10 @@ import "./globals.css";
 
 //custom libs
 import { ToastProvider } from "@/context/ToastContext";
+import { AuthProvider } from "@/context/AuthContext";
+import { ThemeProvider } from "@/context/ThemeContext";
+import { ProfileProvider } from "@/context/ProfileContext";
+import { ConnectionsProvider } from "@/context/ConnectionsContext";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -45,7 +49,15 @@ export default function RootLayout({ children }) {
           flex flex-col
         "
       >
-        <ToastProvider>{children}</ToastProvider>
+        <ToastProvider>
+          <AuthProvider>
+            <ProfileProvider>
+              <ConnectionsProvider>
+                <ThemeProvider>{children}</ThemeProvider>
+              </ConnectionsProvider>
+            </ProfileProvider>
+          </AuthProvider>
+        </ToastProvider>
       </body>
     </html>
   );

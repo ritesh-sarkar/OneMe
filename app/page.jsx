@@ -3,6 +3,7 @@
 import React from "react";
 
 //Custom Components and libs
+import { LandingNavbar } from "@/components/LandingNavbar";
 import { Hero } from "@/components/Hero";
 import { HowItWorks } from "@/components/HowItWorks";
 import { FeaturesGrid } from '@/components/FeaturesGrid';
@@ -21,6 +22,7 @@ export default function LandingPage() {
         selection:text-primary
       "
     >
+      <LandingNavbar />
       <main
         className="
           flex-1
