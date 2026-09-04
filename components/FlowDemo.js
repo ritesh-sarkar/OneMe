@@ -3,8 +3,8 @@
 import React, { useState } from "react";
 import { motion } from "framer-motion";
 import { FiRadio, FiZap, FiArrowRight } from "react-icons/fi";
-import { Button } from "@/components/ui/Button";
-import { ExchangeModal } from "@/components/exchange/ExchangeModal";
+import { Button } from "@/components/Button";
+import { ExchangeModal } from "@/components/ExchangeModal";
 import { DEMO_USER } from "@/libs/mock-data";
 
 export function FlowDemo() {
