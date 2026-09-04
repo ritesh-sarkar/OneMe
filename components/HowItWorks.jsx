@@ -133,7 +133,7 @@ export function HowItWorks() {
                   y: 0,
                 }}
                 viewport={{
-                  once: true,
+                  once: false,
                 }}
                 transition={{
                   duration: 0.4,

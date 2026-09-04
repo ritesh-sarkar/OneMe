@@ -148,14 +148,14 @@ export function FeaturesGrid() {
                 key={feature.title}
                 initial={{
                   opacity: 0,
-                  y: 15,
+                  y: 20,
                 }}
                 whileInView={{
                   opacity: 1,
                   y: 0,
                 }}
                 viewport={{
-                  once: true,
+                  once: false,
                 }}
                 transition={{
                   duration: 0.35,
@@ -164,7 +164,7 @@ export function FeaturesGrid() {
                 className="
                   p-6
                   rounded-2xl
-                  border
+                  border-2
                   border-subtle
                   bg-surface-deep
                   hover:border-light
