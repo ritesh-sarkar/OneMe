@@ -6,6 +6,7 @@ import React from "react";
 import { Hero } from "@/components/Hero";
 import { HowItWorks } from "@/components/HowItWorks";
 import { FeaturesGrid } from '@/components/FeaturesGrid';
+import { ThemeShowcase } from "@/components/ThemeShowcase";
 
 export default function LandingPage() {
   return (
@@ -28,6 +29,7 @@ export default function LandingPage() {
         <Hero />
         <HowItWorks />
         <FeaturesGrid />
+        <ThemeShowcase />
       </main>
     </div>
   );
