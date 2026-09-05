@@ -16,12 +16,12 @@ import {
   FiPhone,
   FiShare2,
 } from 'react-icons/fi';
-import { Modal } from '@/components/ui/Modal';
-import { Button } from '@/components/ui/Button';
-import { Toggle } from '@/components/ui/Toggle';
+import { Modal } from '@/components/Modal';
+import { Button } from '@/components/Button';
+import { Toggle } from '@/components/Toggle';
 import { RadarScan } from './RadarScan';
-import { PeerCard } from './PeerCard';
-import { QrGenerator } from '@/components/qr/QrGenerator';
+import { PeerCard } from './PeerCard.jsx';
+import { QrGenerator } from '@/components/QrGenerator';
 import { useConnections } from '@/context/ConnectionsContext';
 import { useToast } from '@/context/ToastContext';
 

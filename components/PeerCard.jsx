@@ -3,7 +3,7 @@
 import React from 'react';
 import { motion } from 'framer-motion';
 import { FiCheckCircle, FiMapPin, FiBriefcase, FiChevronRight } from 'react-icons/fi';
-import { Badge } from '@/components/ui/Badge';
+import { Badge } from '@/components/Badge';
 
 export function PeerCard({ peer, isSelected, onSelect }) {
   return (

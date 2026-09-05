@@ -8,6 +8,7 @@ import { Hero } from "@/components/Hero";
 import { HowItWorks } from "@/components/HowItWorks";
 import { FeaturesGrid } from '@/components/FeaturesGrid';
 import { ThemeShowcase } from "@/components/ThemeShowcase";
+import { FlowDemo } from "@/components/FlowDemo";
 
 export default function LandingPage() {
   return (
@@ -32,6 +33,7 @@ export default function LandingPage() {
         <HowItWorks />
         <FeaturesGrid />
         <ThemeShowcase />
+        <FlowDemo />
       </main>
     </div>
   );

@@ -3,7 +3,7 @@
 import React, { useState, useEffect } from "react";
 import { generateQrDataUrl } from "@/libs/qr";
 import { FiDownload, FiCopy, FiCheck, FiShare2 } from "react-icons/fi";
-import { Button } from "@/components/ui/Button";
+import { Button } from "@/components/Button";
 import { copyToClipboard } from "@/libs/utils";
 import { useToast } from "@/context/ToastContext";
 
