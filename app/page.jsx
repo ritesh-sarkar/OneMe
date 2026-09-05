@@ -9,6 +9,7 @@ import { HowItWorks } from "@/components/HowItWorks";
 import { FeaturesGrid } from '@/components/FeaturesGrid';
 import { ThemeShowcase } from "@/components/ThemeShowcase";
 import { FlowDemo } from "@/components/FlowDemo";
+import { AnalyticsTeaser } from "@/components/AnalyticsTeaser";
 
 export default function LandingPage() {
   return (
@@ -34,6 +35,7 @@ export default function LandingPage() {
         <FeaturesGrid />
         <ThemeShowcase />
         <FlowDemo />
+        <AnalyticsTeaser />
       </main>
     </div>
   );
