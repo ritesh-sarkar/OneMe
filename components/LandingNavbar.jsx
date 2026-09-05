@@ -214,11 +214,12 @@ export function LandingNavbar() {
                   rounded-xl
                   text-base
                   font-semibold
-                  text-secondary
-                  transition-colors
-                  duration-300
+                  text-text-secondary
+                  transition-all
+                  duration-50
                   ease-in-out
-                  hover:text-primary
+                  hover:bg-bg-secondary
+                  hover:text-text-primary
                   active:scale-95
                 "
               >
