@@ -11,6 +11,7 @@ import { ThemeShowcase } from "@/components/ThemeShowcase";
 import { FlowDemo } from "@/components/FlowDemo";
 import { AnalyticsTeaser } from "@/components/AnalyticsTeaser";
 import { FinalCta } from "@/components/FinalCta";
+import { LandingFooter } from "@/components/LandingFooter";
 
 export default function LandingPage() {
   return (
@@ -25,7 +26,10 @@ export default function LandingPage() {
         selection:text-primary
       "
     >
+      {/* Navbar section */}
       <LandingNavbar />
+
+      {/* Main content section */}
       <main
         className="
           flex-1
@@ -39,6 +43,9 @@ export default function LandingPage() {
         <AnalyticsTeaser />
         <FinalCta />
       </main>
+
+      {/* Footer section */}
+      <LandingFooter />
     </div>
   );
 }
