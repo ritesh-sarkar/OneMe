@@ -1,19 +1,14 @@
 "use client";
 
 import React, { useState } from "react";
-
 import { motion } from "framer-motion";
 
-import {
-  FiRadio,
-  FiZap,
-  FiArrowRight,
-} from "react-icons/fi";
+//icons
+import { FiRadio, FiZap, FiArrowRight } from "react-icons/fi";
 
+//Custom Components and libs
 import { Button } from "@/components/Button";
-
 import { ExchangeModal } from "@/components/ExchangeModal";
-
 import { DEMO_USER } from "@/libs/mock-data";
 
 export function FlowDemo() {
@@ -33,7 +28,7 @@ export function FlowDemo() {
           max-w-7xl
           mx-auto
           px-4
-          sm:px-6
+          md:px-6
           lg:px-8
         "
       >
@@ -41,7 +36,7 @@ export function FlowDemo() {
           className="
             rounded-3xl
             p-8
-            sm:p-14
+            md:p-14
             gradient-bg-primary
             border
             border-light
@@ -50,8 +45,8 @@ export function FlowDemo() {
             overflow-hidden
           "
         >
-          {/* Glowing Ambient Halo */}
 
+          {/* Glowing Ambient Halo */}
           <div
             className="
               absolute
@@ -77,8 +72,8 @@ export function FlowDemo() {
               z-10
             "
           >
-            {/* Left Description */}
 
+            {/* Left Description */}
             <div
               className="
                 lg:col-span-6
@@ -100,6 +95,7 @@ export function FlowDemo() {
                   border-light
                   text-cyan
                   text-xs
+                  md:text-sm
                   font-mono
                 "
               >
@@ -112,15 +108,13 @@ export function FlowDemo() {
                   "
                 />
 
-                <span>
-                  Signature Innovation
-                </span>
+                <span>Signature Innovation</span>
               </div>
 
               <h2
                 className="
                   text-3xl
-                  sm:text-4xl
+                  md:text-4xl
                   font-extrabold
                   text-primary
                   tracking-tight
@@ -133,7 +127,7 @@ export function FlowDemo() {
               <p
                 className="
                   text-sm
-                  sm:text-base
+                  md:text-base
                   text-secondary
                   leading-relaxed
                 "
@@ -141,11 +135,11 @@ export function FlowDemo() {
                 Meet someone at a conference or coffee shop? Open OneMe Flow
                 radar to discover nearby peers, trigger a mutual exchange
                 request, choose what details you want to share, and instantly
-                save each other’s contact card.
+                save each other&#39;s contact card.
               </p>
 
-              {/* Flow Steps Graphic */}
 
+              {/* Flow Steps Graphic */}
               <div
                 className="
                   flex
@@ -156,6 +150,7 @@ export function FlowDemo() {
                   gap-2
                   pt-2
                   text-xs
+                  md:text-sm
                   font-mono
                   text-secondary
                 "
@@ -257,8 +252,8 @@ export function FlowDemo() {
               </div>
             </div>
 
-            {/* Right Interactive Mock Card */}
 
+            {/* Right Interactive Mock Card */}
             <div
               className="
                 lg:col-span-6
@@ -295,6 +290,7 @@ export function FlowDemo() {
                       items-center
                       gap-2
                       text-xs
+                      md:text-sm
                       text-cyan
                       font-mono
                     "
@@ -307,14 +303,14 @@ export function FlowDemo() {
                       "
                     />
 
-                    <span>
-                      OneMe Flow Proximity Radar
-                    </span>
+                    <span>OneMe Flow Proximity Radar</span>
                   </div>
 
                   <span
                     className="
-                      text-[10px]
+                      text-xs
+                      md:text-sm
+                      font-semibold
                       px-2
                       py-0.5
                       rounded-full
@@ -367,6 +363,7 @@ export function FlowDemo() {
                         <div
                           className="
                             text-xs
+                            md:text-sm
                             font-bold
                             text-primary
                           "
@@ -376,7 +373,7 @@ export function FlowDemo() {
 
                         <div
                           className="
-                            text-[10px]
+                            text-xs
                             text-secondary
                           "
                         >
@@ -387,7 +384,8 @@ export function FlowDemo() {
 
                     <span
                       className="
-                        text-[11px]
+                        text-xs
+                        md:text-sm
                         font-semibold
                         text-success
                       "
@@ -439,7 +437,8 @@ export function FlowDemo() {
 
                         <div
                           className="
-                            text-[10px]
+                            text-xs
+                            md:text-sm
                             text-secondary
                           "
                         >
@@ -450,7 +449,8 @@ export function FlowDemo() {
 
                     <span
                       className="
-                        text-[11px]
+                        text-xs
+                        md:text-sm
                         font-semibold
                         text-cyan
                       "
@@ -470,6 +470,7 @@ export function FlowDemo() {
                     hover:bg-cyan
                     text-surface-dark
                     text-xs
+                    md:text-sm
                     font-bold
                     flex
                     items-center
@@ -480,9 +481,7 @@ export function FlowDemo() {
                     glow-cyan
                   "
                 >
-                  <span>
-                    Launch OneMe Flow Radar
-                  </span>
+                  <span>Launch OneMe Flow Radar</span>
 
                   <FiArrowRight
                     className="
@@ -505,4 +504,3 @@ export function FlowDemo() {
     </section>
   );
 }
-
