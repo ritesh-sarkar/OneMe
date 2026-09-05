@@ -4,6 +4,7 @@ import React from "react";
 
 import { motion } from "framer-motion";
 
+//icons
 import {
   FiTrendingUp,
   FiEye,
@@ -13,6 +14,7 @@ import {
   FiUserCheck,
 } from "react-icons/fi";
 
+//Custom Components and libs
 import { DEMO_ANALYTICS } from "@/libs/mock-data";
 
 export function AnalyticsTeaser() {
@@ -33,7 +35,7 @@ export function AnalyticsTeaser() {
           max-w-7xl
           mx-auto
           px-4
-          sm:px-6
+          md:px-6
           lg:px-8
         "
       >
@@ -49,6 +51,7 @@ export function AnalyticsTeaser() {
           <span
             className="
               text-xs
+              md:text-sm
               font-semibold
               uppercase
               tracking-wider
@@ -62,7 +65,7 @@ export function AnalyticsTeaser() {
           <h2
             className="
               text-3xl
-              sm:text-4xl
+              md:text-4xl
               font-extrabold
               text-primary
               tracking-tight
@@ -74,7 +77,7 @@ export function AnalyticsTeaser() {
           <p
             className="
               text-sm
-              sm:text-base
+              md:text-base
               text-secondary
             "
           >
@@ -115,6 +118,7 @@ export function AnalyticsTeaser() {
               <span
                 className="
                   text-xs
+                  md:text-sm
                   font-medium
                 "
               >
@@ -133,7 +137,7 @@ export function AnalyticsTeaser() {
             <div
               className="
                 text-2xl
-                sm:text-3xl
+                md:text-3xl
                 font-black
                 text-primary
                 font-mono
@@ -144,7 +148,8 @@ export function AnalyticsTeaser() {
 
             <div
               className="
-                text-[11px]
+                text-xs
+                md:text-sm
                 text-success
                 font-medium
                 mt-1
@@ -176,6 +181,7 @@ export function AnalyticsTeaser() {
               <span
                 className="
                   text-xs
+                  md:text-sm
                   font-medium
                 "
               >
@@ -194,7 +200,7 @@ export function AnalyticsTeaser() {
             <div
               className="
                 text-2xl
-                sm:text-3xl
+                md:text-3xl
                 font-black
                 text-primary
                 font-mono
@@ -205,7 +211,8 @@ export function AnalyticsTeaser() {
 
             <div
               className="
-                text-[11px]
+                text-xs
+                md:text-sm
                 text-success
                 font-medium
                 mt-1
@@ -237,6 +244,7 @@ export function AnalyticsTeaser() {
               <span
                 className="
                   text-xs
+                  md:text-sm
                   font-medium
                 "
               >
@@ -255,7 +263,7 @@ export function AnalyticsTeaser() {
             <div
               className="
                 text-2xl
-                sm:text-3xl
+                md:text-3xl
                 font-black
                 text-primary
                 font-mono
@@ -266,7 +274,8 @@ export function AnalyticsTeaser() {
 
             <div
               className="
-                text-[11px]
+                text-xs
+                md:text-sm
                 text-accent
                 font-medium
                 mt-1
@@ -298,6 +307,7 @@ export function AnalyticsTeaser() {
               <span
                 className="
                   text-xs
+                  md:text-sm
                   font-medium
                 "
               >
@@ -316,7 +326,7 @@ export function AnalyticsTeaser() {
             <div
               className="
                 text-2xl
-                sm:text-3xl
+                md:text-3xl
                 font-black
                 text-primary
                 font-mono
@@ -327,7 +337,8 @@ export function AnalyticsTeaser() {
 
             <div
               className="
-                text-[11px]
+                text-xs
+                md:text-sm
                 text-success
                 font-medium
                 mt-1
@@ -356,6 +367,7 @@ export function AnalyticsTeaser() {
               items-center
               justify-between
               text-xs
+              md:text-sm
               text-secondary
             "
           >
@@ -368,9 +380,7 @@ export function AnalyticsTeaser() {
               Top Traffic Channels
             </span>
 
-            <span>
-              Last 30 Days
-            </span>
+            <span>Last 30 Days</span>
           </div>
 
           <div
@@ -408,6 +418,7 @@ export function AnalyticsTeaser() {
               justify-between
               gap-3
               text-xs
+              md:text-sm
             "
           >
             {trafficSources.map((source, i) => (
