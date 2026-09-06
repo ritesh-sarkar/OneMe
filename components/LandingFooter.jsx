@@ -1,21 +1,30 @@
 "use client";
 
 import React from "react";
-
 import Link from "next/link";
 
+//icons
 import { FiHeart, FiGithub, FiTwitter, FiLinkedin } from "react-icons/fi";
 
 export function LandingFooter() {
   return (
     <footer
       className="
+        w-full
         border-t
         border-subtle
         bg-surface-dark
         py-12
         text-secondary
         text-xs
+        md:text-sm
+        flex
+        items-center
+        justify-center
+        gap-4
+        md:gap-6
+        flex-col
+        md:flex-row
       "
     >
       <div
@@ -23,9 +32,14 @@ export function LandingFooter() {
           max-w-7xl
           mx-auto
           px-4
-          sm:px-6
+          md:px-6
           lg:px-8
-          space-y-8
+          flex
+          flex-col
+          md:flex-row
+          items-center
+          justify-center
+          gap-6
         "
       >
         <div
@@ -38,7 +52,7 @@ export function LandingFooter() {
             gap-6
           "
         >
-          {/* Brand */}
+          {/* Branding */}
           <div
             className="
               flex
@@ -46,33 +60,11 @@ export function LandingFooter() {
               gap-3
             "
           >
-            <div
-              className="
-                w-8
-                h-8
-                rounded-xl
-                bg-gradient-to-tr
-                gradient-brand
-                p-0.5
-              "
-            >
-              <div
-                className="
-                  w-full
-                  h-full
-                  bg-surface-dark
-                  rounded-[10px]
-                  flex
-                  items-center
-                  justify-center
-                  font-black
-                  text-primary
-                  text-xs
-                "
-              >
-                1M
-              </div>
-            </div>
+            <img
+              src="/logo.jpg"
+              alt="OneMe Logo"
+              className="w-10 h-10 rounded-xl"
+            />
 
             <div>
               <div
@@ -80,6 +72,7 @@ export function LandingFooter() {
                   font-extrabold
                   text-primary
                   text-sm
+                  md:text-base
                 "
               >
                 OneMe
@@ -87,197 +80,43 @@ export function LandingFooter() {
 
               <div
                 className="
-                  text-[11px]
-                  text-muted
+                  text-xs
+                  md:text-sm
+                  text-tertiary
                 "
               >
                 Your identity. One link.
               </div>
             </div>
           </div>
-
-          {/* Nav */}
-          <div
-            className="
-              flex
-              flex-wrap
-              items-center
-              justify-center
-              gap-6
-            "
-          >
-            <a
-              href="#how-it-works"
-              className="
-                hover:text-primary
-                transition-colors
-              "
-            >
-              How it works
-            </a>
-
-            <a
-              href="#features"
-              className="
-                hover:text-primary
-                transition-colors
-              "
-            >
-              Features
-            </a>
-
-            <a
-              href="#themes"
-              className="
-                hover:text-primary
-                transition-colors
-              "
-            >
-              Themes
-            </a>
-
-            <a
-              href="#flow"
-              className="
-                hover:text-primary
-                transition-colors
-              "
-            >
-              OneMe Flow
-            </a>
-
-            <Link
-              href="/discover"
-              className="
-                hover:text-primary
-                transition-colors
-              "
-            >
-              Discover
-            </Link>
-
-            <Link
-              href="/login"
-              className="
-                hover:text-primary
-                transition-colors
-              "
-            >
-              Demo Login
-            </Link>
-          </div>
-
-          {/* Socials */}
-          <div
-            className="
-              flex
-              items-center
-              gap-4
-              text-secondary
-            "
-          >
-            <a
-              href="https://github.com/riteshsarkar"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="
-                hover:text-primary
-                transition-colors
-              "
-            >
-              <FiGithub
-                className="
-                  w-4
-                  h-4
-                "
-              />
-            </a>
-
-            <a
-              href="https://linkedin.com/in/riteshsarkar"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="
-                hover:text-primary
-                transition-colors
-              "
-            >
-              <FiLinkedin
-                className="
-                  w-4
-                  h-4
-                "
-              />
-            </a>
-
-            <a
-              href="https://x.com/riteshsarkar"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="
-                hover:text-primary
-                transition-colors
-              "
-            >
-              <FiTwitter
-                className="
-                  w-4
-                  h-4
-                "
-              />
-            </a>
-          </div>
         </div>
 
         <div
           className="
-            pt-6
-            border-t
-            border-subtle
-            flex
-            flex-col
-            sm:flex-row
-            items-center
-            justify-between
-            gap-4
-            text-muted
-            text-[11px]
+            w-full
+            text-center
+            md:text-left
+            text-tertiary
+            text-sm
+            md:text-base
           "
         >
           <div>
-            © {new Date().getFullYear()} OneMe. All rights reserved. Built as a
-            high-fidelity frontend prototype.
-          </div>
-
-          <div
-            className="
-              flex
-              items-center
-              gap-1.5
-            "
-          >
-            <span>Crafted with</span>
-
-            <FiHeart
+            © {new Date().getFullYear()} OneMe. All rights reserved by{" "}
+            <a
+              href="https://ritesh-sarkar.vercel.app"
+              target="_blank"
+              rel="noopener noreferrer"
               className="
-                w-3
-                h-3
-                text-danger
-                fill-danger-soft
-              "
-            />
-
-            <span>
-              by{" "}
-              <a
-                href="https://ritesh-sarkar.vercel.app"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="hover:text-primary transition-colors"
-              >
-                Ritesh Sarkar
-              </a>
-            </span>
+                font-bold
+                hover:text-text-primary 
+                transition-colors
+                duration-300
+                ease-in-out
+                "
+            >
+              Ritesh Sarkar
+            </a>
           </div>
         </div>
       </div>
