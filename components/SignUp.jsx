@@ -1,23 +1,18 @@
 "use client";
 
 import React, { useState } from "react";
-
 import Link from "next/link";
-
 import { useRouter } from "next/navigation";
-
 import { motion } from "framer-motion";
 
+// Icons
 import { FiUser, FiMail, FiLock, FiArrowRight } from "react-icons/fi";
-
 import { FcGoogle } from "react-icons/fc";
 
+// Custom Components and libs
 import { Button } from "@/components/Button";
-
 import { Input } from "@/components/Input";
-
 import { useAuth } from "@/context/AuthContext";
-
 import { useToast } from "@/context/ToastContext";
 
 export default function SignupPage() {
@@ -80,6 +75,7 @@ export default function SignupPage() {
         overflow-hidden
       "
     >
+      {/* bg shadow blob */}
       <div
         className="
           absolute
@@ -87,11 +83,11 @@ export default function SignupPage() {
           left-1/2
           -translate-x-1/2
           -translate-y-1/2
-          w-[500px]
-          h-[500px]
+          w-125
+          h-125
           bg-accent/15
           rounded-full
-          blur-[120px]
+          blur-3xl
           pointer-events-none
         "
       />
@@ -108,6 +104,9 @@ export default function SignupPage() {
         transition={{
           duration: 0.4,
         }}
+        viewport={{
+          once: false,
+        }}
         className="
           w-full
           max-w-md
@@ -116,12 +115,14 @@ export default function SignupPage() {
           z-10
         "
       >
+        {/* Branding  */}
         <div
           className="
             text-center
             space-y-2
           "
         >
+          {/* logo part */}
           <Link
             href="/"
             className="
@@ -130,33 +131,13 @@ export default function SignupPage() {
               gap-2.5
             "
           >
-            <div
+            <img
+              src="/logo.jpg"
+              alt="OneMe Logo"
               className="
-                w-10
-                h-10
-                rounded-xl
-                gradient-brand
-                p-0.5
-                shadow-lg
-              "
-            >
-              <div
-                className="
-                  w-full
-                  h-full
-                  bg-surface-page
-                  rounded-[10px]
-                  flex
-                  items-center
-                  justify-center
-                  font-black
-                  text-primary
-                  text-base
-                "
-              >
-                1M
-              </div>
-            </div>
+                w-10 
+                h-10"
+            />
 
             <span
               className="
@@ -183,7 +164,8 @@ export default function SignupPage() {
 
           <p
             className="
-              text-xs
+              text-sm
+              md:text-base
               text-secondary
             "
           >
@@ -213,7 +195,7 @@ export default function SignupPage() {
             <Input
               label="Full Name"
               type="text"
-              placeholder="e.g. Ritesh Sarkar"
+              placeholder="e.g. John Doe"
               value={name}
               onChange={(e) => setName(e.target.value)}
               required
@@ -223,7 +205,7 @@ export default function SignupPage() {
             <Input
               label="Email Address"
               type="email"
-              placeholder="ritesh@example.com"
+              placeholder="john@example.com"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               required
@@ -263,23 +245,19 @@ export default function SignupPage() {
               justify-center
             "
           >
-            <div
-              className="
-                border-t
-                border-subtle
-                w-full
-              "
-            />
-
             <span
               className="
+                w-full
+                text-center
                 bg-surface-deep
                 px-3
-                text-[11px]
+                text-xs
+                md:text-sm
                 font-mono
                 text-muted
                 uppercase
                 shrink-0
+                mt-2
               "
             >
               Or continue with
@@ -293,18 +271,21 @@ export default function SignupPage() {
             size="md"
             className="
               w-full
+              flex
+              items-center
               justify-center
-              gap-2.5
-              bg-surface-panel
-              hover:bg-surface-panel
+              gap-2
+              bg-bg-secondary
+              hover:bg-bg-tertiary
+
             "
           >
             <FcGoogle
-              className="
-                w-4
-                h-4
-                shrink-0
-              "
+              className=" 
+                w-4 
+                h-4 
+                block 
+            "
             />
 
             <span>Sign up with Google</span>
@@ -314,7 +295,8 @@ export default function SignupPage() {
         <p
           className="
             text-center
-            text-xs
+            text-sm
+            md:text-base
             text-secondary
           "
         >

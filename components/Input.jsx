@@ -28,6 +28,8 @@ export const Input = forwardRef(function Input(
         <label
           className="
             form-label
+            text-base
+            
           "
         >
           {label}
@@ -46,8 +48,11 @@ export const Input = forwardRef(function Input(
             className="
               absolute
               left-3.5
-              text-secondary
+              text-text-secondary
               pointer-events-none
+              flex
+              items-center
+              pt-1.5
             "
           >
             <Icon
@@ -68,6 +73,11 @@ export const Input = forwardRef(function Input(
               placeholder:text-muted
               focus:outline-none
               disabled:cursor-not-allowed
+              text-base
+              mt-1
+              flex
+              items-center
+              justify-center
             `,
             Icon && "pl-10",
             IconRight && "pr-10",

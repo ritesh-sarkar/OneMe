@@ -657,12 +657,11 @@
    ============================================ */
 .input-base {
   width: 100%;
-  padding: 0.625rem 1rem;
+  padding: 0.625rem 2.5rem;
   background: rgba(24, 24, 27, 0.9);
   border: 1px solid rgba(63, 63, 70, 0.6);
   border-radius: 0.75rem;
   color: #f8fafc;
-  font-size: 0.875rem;
   transition: all 200ms ease;
   font-family: var(--font-sans);
 }
@@ -720,7 +719,6 @@
 }
 
 .form-label {
-  font-size: 0.875rem;
   font-weight: 500;
   color: #d4d4d8;
 }
