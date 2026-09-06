@@ -214,7 +214,7 @@ export function Hero() {
               "
             >
               <Link
-                href="/login"
+                href="/signup"
                 className="
                   w-full
                   md:w-auto

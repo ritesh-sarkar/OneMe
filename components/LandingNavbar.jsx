@@ -34,7 +34,7 @@ export function LandingNavbar() {
           max-w-7xl
           mx-auto
           px-4
-          sm:px-6
+          md:px-6
           lg:px-8
           h-16
           flex
@@ -171,7 +171,7 @@ export function LandingNavbar() {
         <div
           className="
             hidden
-            sm:flex
+            md:flex
             items-center
             gap-3
           "
@@ -207,7 +207,7 @@ export function LandingNavbar() {
           ) : (
             <>
               <Link
-                href="/"
+                href="/login"
                 className="
                   px-3.5
                   py-1.5
@@ -236,7 +236,7 @@ export function LandingNavbar() {
                   px-4
                   py-2
                   rounded-xl
-                  text-sm
+                  text-base
                   font-semibold
                   shadow-md
                   transition-all
@@ -260,7 +260,7 @@ export function LandingNavbar() {
         <button
           onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
           className="
-            sm:hidden
+            md:hidden
             p-2
             text-secondary
             hover:text-primary
@@ -302,7 +302,7 @@ export function LandingNavbar() {
               height: 0,
             }}
             className="
-              sm:hidden
+              md:hidden
               border-b
               border-subtle
               bg-surface-page
@@ -402,8 +402,12 @@ export function LandingNavbar() {
                   rounded-xl
                   bg-accent
                   text-primary
-                  text-xs
+                  text-base
                   font-semibold
+                  transition-all
+                  duration-300
+                  ease-in-out
+                  active:scale-95
                 "
               >
                 Create your OneMe
