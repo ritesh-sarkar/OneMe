@@ -1,17 +1,17 @@
 "use client";
 
 import React from "react";
-
 import Link from "next/link";
-
 import { motion } from "framer-motion";
 
+//icons
 import {
   FiZap,
   FiArrowRight,
   FiShield,
 } from "react-icons/fi";
 
+//Custom Components and libs
 import { Button } from "@/components/Button";
 
 export function FinalCta() {
@@ -28,7 +28,7 @@ export function FinalCta() {
           max-w-5xl
           mx-auto
           px-4
-          sm:px-6
+          md:px-6
           lg:px-8
           text-center
           relative
@@ -38,7 +38,7 @@ export function FinalCta() {
         <div
           className="
             p-10
-            sm:p-16
+            md:p-16
             rounded-3xl
             gradient-bg-primary
             border
@@ -60,6 +60,7 @@ export function FinalCta() {
               border-light
               text-accent
               text-xs
+              md:text-sm
               font-mono
             "
           >
@@ -71,7 +72,7 @@ export function FinalCta() {
           <h2
             className="
               text-3xl
-              sm:text-5xl
+              md:text-5xl
               font-black
               text-primary
               tracking-tight
@@ -98,7 +99,7 @@ export function FinalCta() {
               pt-4
               flex
               flex-col
-              sm:flex-row
+              md:flex-row
               items-center
               justify-center
               gap-4
@@ -108,7 +109,7 @@ export function FinalCta() {
               href="/login"
               className="
                 w-full
-                sm:w-auto
+                md:w-auto
               "
             >
               <Button
@@ -117,7 +118,7 @@ export function FinalCta() {
                 icon={FiZap}
                 className="
                   w-full
-                  sm:w-auto
+                  md:w-auto
                   px-10
                 "
               >
@@ -129,7 +130,7 @@ export function FinalCta() {
               href="/discover"
               className="
                 w-full
-                sm:w-auto
+                md:w-auto
               "
             >
               <Button
@@ -137,7 +138,7 @@ export function FinalCta() {
                 size="lg"
                 className="
                   w-full
-                  sm:w-auto
+                  md:w-auto
                 "
               >
                 Explore Directory
