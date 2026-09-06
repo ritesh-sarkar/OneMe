@@ -30,15 +30,9 @@ export default function LoginPage() {
   const [errorMsg, setErrorMsg] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const {
-    login,
-    loginWithGoogle,
-  } = useAuth();
+  const { login, loginWithGoogle } = useAuth();
 
-  const {
-    success,
-    error: toastError,
-  } = useToast();
+  const { success, error: toastError } = useToast();
 
   const router = useRouter();
 
@@ -50,10 +44,7 @@ export default function LoginPage() {
     setErrorMsg("");
     setIsSubmitting(true);
 
-    const res = await login(
-      email,
-      password,
-    );
+    const res = await login(email, password);
 
     setIsSubmitting(false);
 
@@ -65,14 +56,9 @@ export default function LoginPage() {
 
       router.push("/dashboard");
     } else {
-      setErrorMsg(
-        res.error || "Invalid credentials.",
-      );
+      setErrorMsg(res.error || "Invalid credentials.");
 
-      toastError(
-        res.error || "Invalid credentials.",
-        "Login Failed",
-      );
+      toastError(res.error || "Invalid credentials.", "Login Failed");
     }
   };
 
@@ -84,10 +70,7 @@ export default function LoginPage() {
     setIsSubmitting(false);
 
     if (res.success) {
-      success(
-        "Logged in with Google!",
-        "Welcome",
-      );
+      success("Logged in with Google!", "Welcome");
 
       router.push("/dashboard");
     }
@@ -116,11 +99,11 @@ export default function LoginPage() {
           left-1/2
           -translate-x-1/2
           -translate-y-1/2
-          w-[500px]
-          h-[500px]
+          w-125
+          h-125
           bg-accent/15
           rounded-full
-          blur-[120px]
+          blur-3xl
           pointer-events-none
         "
       />
@@ -152,45 +135,22 @@ export default function LoginPage() {
             space-y-2
           "
         >
+          {/* logo part */}
           <Link
             href="/"
             className="
               inline-flex
               items-center
               gap-2.5
-              group
             "
           >
-            <div
+            <img
+              src="/logo.jpg"
+              alt="OneMe Logo"
               className="
-                w-10
-                h-10
-                rounded-xl
-                gradient-brand
-                p-0.5
-                shadow-lg
-                glow-indigo
-                group-hover:scale-105
-                transition-transform
-              "
-            >
-              <div
-                className="
-                  w-full
-                  h-full
-                  bg-surface-page
-                  rounded-[10px]
-                  flex
-                  items-center
-                  justify-center
-                  font-black
-                  text-primary
-                  text-base
-                "
-              >
-                1M
-              </div>
-            </div>
+                w-10 
+                h-10"
+            />
 
             <span
               className="
@@ -217,12 +177,12 @@ export default function LoginPage() {
 
           <p
             className="
-              text-xs
+              text-sm
+              md:text-base
               text-secondary
             "
           >
-            Log in to manage your digital identity,
-            projects, and contacts
+            Log in to manage your digital identity, projects, and contacts
           </p>
         </div>
 
@@ -230,7 +190,7 @@ export default function LoginPage() {
         <div
           className="
             p-6
-            sm:p-8
+            md:p-8
             rounded-3xl
             bg-surface-deep
             border
@@ -249,7 +209,8 @@ export default function LoginPage() {
                 border
                 border-light
                 text-danger
-                text-xs
+                text-sm
+                md:text-base
                 flex
                 items-center
                 gap-2
@@ -264,9 +225,7 @@ export default function LoginPage() {
                 "
               />
 
-              <span>
-                {errorMsg}
-              </span>
+              <span>{errorMsg}</span>
             </div>
           )}
 
@@ -279,31 +238,26 @@ export default function LoginPage() {
             <Input
               label="Email Address"
               type="email"
-              placeholder="demo@oneme.app"
+              placeholder="john@example.com"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               required
               icon={FiMail}
             />
 
-            <div
-              className="
-                space-y-1.5
-              "
-            >
+            <div className="space-y-1.5">
               <div
                 className="
-                  flex
-                  items-center
+                  flex 
+                  items-center 
                   justify-between
-                "
+              "
               >
                 <label
                   className="
-                    text-xs
-                    font-medium
-                    text-secondary
-                  "
+                    text-base 
+                    text-primary
+                    "
                 >
                   Password
                 </label>
@@ -311,7 +265,8 @@ export default function LoginPage() {
                 <Link
                   href="/forgot-password"
                   className="
-                    text-xs
+                    text-sm
+                    md:text-base
                     text-accent
                     hover:text-accent
                     transition-colors
@@ -321,87 +276,36 @@ export default function LoginPage() {
                 </Link>
               </div>
 
-              <div
-                className="
-                  relative
-                  flex
-                  items-center
-                "
-              >
-                <div
-                  className="
-                    absolute
-                    left-3.5
-                    text-secondary
-                    pointer-events-none
-                    flex
-                    items-center
-                  "
-                >
-                  <FiLock
+              <Input
+                type={showPassword ? "text" : "password"}
+                placeholder="••••••••"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                required
+                icon={FiLock}
+                iconRight={
+                  <button
+                    type="button"
+                    onClick={() => setShowPassword(!showPassword)}
                     className="
-                      w-4
-                      h-4
+                      text-secondary
+                      hover:text-primary
+                      focus:outline-none
+                      cursor-pointer
                     "
-                  />
-                </div>
-
-                <input
-                  type={
-                    showPassword
-                      ? "text"
-                      : "password"
-                  }
-                  placeholder="••••••••"
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  required
-                  className="
-                    w-full
-                    rounded-xl
-                    bg-surface-deep
-                    border
-                    border-subtle
-                    pl-10
-                    pr-10
-                    py-2.5
-                    text-sm
-                    text-primary
-                    placeholder:text-muted
-                    focus:border-accent
-                    focus:outline-none
-                    focus:ring-2
-                    focus:ring-accent/20
-                  "
-                />
-
-                <button
-                  type="button"
-                  onClick={() => setShowPassword(!showPassword)}
-                  className="
-                    absolute
-                    right-3.5
-                    text-secondary
-                    hover:text-primary
-                  "
-                >
-                  {showPassword ? (
-                    <FiEyeOff
-                      className="
-                        w-4
-                        h-4
-                      "
-                    />
-                  ) : (
-                    <FiEye
-                      className="
-                        w-4
-                        h-4
-                      "
-                    />
-                  )}
-                </button>
-              </div>
+                    aria-label={
+                      showPassword ? "Hide password" : "Show password"
+                    }
+                  >
+                    {showPassword ? (
+                      <FiEyeOff className="w-4 h-4" />
+                    ) : (
+                      <FiEye className="w-4 h-4" />
+                    )}
+                  </button>
+                }
+                className="mt-0"
+              />
             </div>
 
             <Button
@@ -437,13 +341,18 @@ export default function LoginPage() {
 
             <span
               className="
+                w-full
+                text-center
                 bg-surface-deep
                 px-3
-                text-[11px]
+                text-xs
+                md:text-sm
                 font-mono
+                font-semibold
                 text-muted
                 uppercase
                 shrink-0
+                mt-2
               "
             >
               Or continue with
@@ -472,9 +381,7 @@ export default function LoginPage() {
               "
             />
 
-            <span>
-              Continue with Google
-            </span>
+            <span>Continue with Google</span>
           </Button>
         </div>
 
@@ -482,18 +389,18 @@ export default function LoginPage() {
         <p
           className="
             text-center
-            text-xs
+            text-sm
+            md:text-base
             text-secondary
           "
         >
           Don&apos;t have an account?{" "}
-
           <Link
             href="/signup"
             className="
               font-semibold
               text-accent
-              hover:text-accent
+              active:scale-95
             "
           >
             Create OneMe
@@ -503,4 +410,3 @@ export default function LoginPage() {
     </div>
   );
 }
-

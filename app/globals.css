@@ -85,7 +85,7 @@
 .text-tertiary { color: var(--text-tertiary); }
 .text-muted { color: var(--text-muted); }
 .text-surface-dark { color: var(--bg-quaternary); }
-.text-accent { color: var(--accent-primary); }
+/* .text-accent { color: var(--accent-primary); } */
 .text-cyan { color: var(--accent-cyan); }
 .text-success { color: var(--accent-emerald); }
 .text-danger { color: var(--accent-rose); }

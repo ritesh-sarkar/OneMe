@@ -254,6 +254,7 @@ export default function SignupPage() {
                 text-xs
                 md:text-sm
                 font-mono
+                font-semibold
                 text-muted
                 uppercase
                 shrink-0
@@ -306,7 +307,7 @@ export default function SignupPage() {
             className="
               font-semibold
               text-accent
-              hover:text-accent
+              active:scale-0.95
             "
           >
             Sign in
