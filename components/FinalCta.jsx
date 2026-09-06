@@ -106,7 +106,7 @@ export function FinalCta() {
             "
           >
             <Link
-              href="/login"
+              href="/signup"
               className="
                 w-full
                 md:w-auto
