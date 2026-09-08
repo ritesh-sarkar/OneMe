@@ -1,9 +1,10 @@
 "use client";
 
 import React from "react";
-
 import { motion } from "framer-motion";
 
+
+//custom Components and libs
 import { getThemeById } from "@/libs/themes";
 
 import { ProfileHeader } from "@/components/ProfileHeader";
@@ -17,6 +18,8 @@ import { AchievementsSection } from "@/components/AchievementsSection";
 import { ResumeViewer } from "@/components/ResumeViewer";
 import { CustomCtaBanner } from "@/components/CustomCtaBanner";
 
+
+//icons
 import {
   FiMail,
   FiPhone,
@@ -128,7 +131,8 @@ export function PublicProfileView({
           >
             <h3
               className="
-                text-xs
+                text-base
+                md:text-lg
                 font-semibold
                 uppercase
                 tracking-wider
@@ -141,7 +145,7 @@ export function PublicProfileView({
             <div
               className={`
                 p-4
-                sm:p-5
+                md:p-5
                 rounded-2xl
                 border
                 ${computedCardClass}
@@ -149,8 +153,8 @@ export function PublicProfileView({
             >
               <p
                 className="
-                  text-xs
-                  sm:text-sm
+                  text-sm
+                  md:text-base
                   text-secondary
                   leading-relaxed
                   whitespace-pre-line
@@ -254,7 +258,8 @@ export function PublicProfileView({
           >
             <h3
               className="
-                text-xs
+                text-sm
+                md:text-base
                 font-semibold
                 uppercase
                 tracking-wider
@@ -271,9 +276,10 @@ export function PublicProfileView({
                 border
                 grid
                 grid-cols-1
-                sm:grid-cols-2
+                md:grid-cols-2
                 gap-3
-                text-xs
+                text-sm
+                md:text-base
                 ${computedCardClass}
               `}
             >
@@ -287,10 +293,11 @@ export function PublicProfileView({
                       gap-2.5
                       p-2
                       rounded-xl
-                      hover:bg-glass-soft
                       text-secondary
-                      hover:text-primary
-                      transition-colors
+                      transition-all
+                      duration-300
+                      ease-in-out
+                      active:scale-90
                     "
                   >
                     <div
@@ -332,10 +339,11 @@ export function PublicProfileView({
                       gap-2.5
                       p-2
                       rounded-xl
-                      hover:bg-glass-soft
                       text-secondary
-                      hover:text-primary
-                      transition-colors
+                      transition-all
+                      duration-300
+                      ease-in-out
+                      active:scale-90
                     "
                   >
                     <div
@@ -394,11 +402,11 @@ export function PublicProfileView({
           max-w-xl
           mx-auto
           px-3.5
-          sm:px-6
+          md:px-6
           py-6
-          sm:py-10
+          md:py-10
           space-y-6
-          sm:space-y-8
+          md:space-y-8
         "
       >
         {/* Profile Header */}
@@ -454,7 +462,8 @@ export function PublicProfileView({
               bg-surface-panel
               border
               border-subtle
-              text-[11px]
+              text-xs
+              md:text-base
               text-secondary
             "
           >
