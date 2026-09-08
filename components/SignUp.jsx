@@ -176,7 +176,7 @@ export default function SignupPage() {
         <div
           className="
             p-6
-            sm:p-8
+            md:p-8
             rounded-3xl
             bg-surface-deep
             border
