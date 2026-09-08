@@ -60,12 +60,12 @@ export function ProfileHeader({
         className="
           w-full
           h-32
-          sm:h-44
+          md:h-44
           rounded-2xl
           overflow-hidden
           relative
-          mb-[-44px]
-          sm:mb-[-50px]
+          -mb-11
+          md:-mb-12.5
           border
           border-light
           shadow-inner
@@ -96,7 +96,7 @@ export function ProfileHeader({
           className="
             absolute
             inset-0
-            bg-gradient-to-t
+            bg-linear-to-t
             from-black/80
             via-black/20
             to-transparent
@@ -117,8 +117,8 @@ export function ProfileHeader({
             relative
             w-24
             h-24
-            sm:w-32
-            sm:h-32
+            md:w-32
+            md:h-32
             rounded-full
             p-1
             bg-surface-dark/90
@@ -157,7 +157,7 @@ export function ProfileHeader({
               bottom-1
               right-1
               p-1
-              sm:p-1.5
+              md:p-1.5
               rounded-full
               text-primary
               shadow-lg
@@ -173,8 +173,8 @@ export function ProfileHeader({
               className="
                 w-3.5
                 h-3.5
-                sm:w-4
-                sm:h-4
+                md:w-4
+                md:h-4
                 text-surface-dark
               "
             />
@@ -186,7 +186,7 @@ export function ProfileHeader({
       <div
         className="
           mt-3
-          sm:mt-4
+          md:mt-4
           space-y-1
         "
       >
@@ -201,27 +201,27 @@ export function ProfileHeader({
           <h1
             className="
               text-xl
-              sm:text-3xl
+              md:text-3xl
               font-bold
               tracking-tight
               text-primary
             "
           >
-            {user?.name || "Ritesh Sarkar"}
+            {user?.name || ""}
           </h1>
         </div>
 
         <p
           className="
-            text-xs
-            sm:text-sm
+            text-sm
+            md:text-base
             font-medium
           "
           style={{
             color: accentColor,
           }}
         >
-          @{user?.username || "ritesh"}
+          @{user?.username || ""}
         </p>
       </div>
 
@@ -236,8 +236,8 @@ export function ProfileHeader({
       >
         <h2
           className="
-            text-xs
-            sm:text-base
+            text-sm
+            md:text-base
             font-semibold
             text-primary
           "
@@ -248,8 +248,8 @@ export function ProfileHeader({
         {user?.tagline && (
           <p
             className="
-              text-[11px]
-              sm:text-xs
+              text-xs
+              md:text-sm
               text-secondary
               italic
             "
@@ -270,7 +270,7 @@ export function ProfileHeader({
           items-center
           justify-center
           gap-1.5
-          sm:gap-2
+          md:gap-2
         "
       >
         {user?.privacy?.showLocation !== false &&
@@ -282,8 +282,8 @@ export function ProfileHeader({
                 gap-1
                 text-secondary
                 bg-glass
-                text-[10px]
-                sm:text-xs
+                text-xs
+                md:text-sm
               "
             >
               <FiMapPin
@@ -304,8 +304,8 @@ export function ProfileHeader({
             size="sm"
             className="
               gap-1.5
-              text-[10px]
-              sm:text-xs
+              text-xs
+              md:text-sm
             "
           >
             <span
@@ -344,7 +344,8 @@ export function ProfileHeader({
           className="
             flex-1
             font-medium
-            text-xs
+            text-sm
+            md:text-base
             py-2
           "
         >
@@ -359,7 +360,8 @@ export function ProfileHeader({
             icon={FiZap}
             className="
               flex-1
-              text-xs
+              text-sm
+              md:text-base
               py-2
             "
           >
