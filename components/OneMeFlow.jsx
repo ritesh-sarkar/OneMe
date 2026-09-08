@@ -80,7 +80,7 @@ export default function PublicExchangePage() {
           w-full
           mx-auto
           px-4
-          sm:px-6
+          md:px-6
           lg:px-8
           py-12
           space-y-10
@@ -106,7 +106,8 @@ export default function PublicExchangePage() {
               border
               border-light
               text-cyan
-              text-xs
+              text-sm
+              md:text-base
               font-mono
             "
           >
@@ -125,7 +126,7 @@ export default function PublicExchangePage() {
           <h1
             className="
               text-3xl
-              sm:text-5xl
+              md:text-5xl
               font-black
               text-primary
               tracking-tight
@@ -137,7 +138,7 @@ export default function PublicExchangePage() {
           <p
             className="
               text-sm
-              sm:text-base
+              md:text-base
               text-secondary
             "
           >
@@ -149,7 +150,7 @@ export default function PublicExchangePage() {
         <div
           className="
             p-8
-            sm:p-12
+            md:p-12
             rounded-3xl
             bg-glass
             border
@@ -178,7 +179,8 @@ export default function PublicExchangePage() {
           >
             <h3
               className="
-                text-xs
+                text-sm
+                md:text-base
                 font-semibold
                 uppercase
                 tracking-wider
@@ -210,8 +212,6 @@ export default function PublicExchangePage() {
           </div>
         </div>
       </main>
-
-      <LandingFooter />
 
       <ExchangeModal
         isOpen={modalOpen}
