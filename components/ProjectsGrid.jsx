@@ -40,7 +40,8 @@ export function ProjectsGrid({
       >
         <h3
           className="
-            text-xs
+            text-base
+            md:text-lg
             font-semibold
             uppercase
             tracking-wider
@@ -52,8 +53,9 @@ export function ProjectsGrid({
 
         <span
           className="
-            text-xs
-            text-muted
+            text-sm
+            md:text-base
+            text-tertiary
             font-mono
           "
         >
@@ -85,13 +87,13 @@ export function ProjectsGrid({
                 border-subtle
                 bg-glass
                 overflow-hidden
-                hover:border-light
                 transition-all
                 duration-300
+                hover:border-light
                 backdrop-blur-md
                 flex
                 flex-col
-                sm:flex-row
+                md:flex-row
                 ${cardClass}
               `}
             >
@@ -99,9 +101,9 @@ export function ProjectsGrid({
               {project.image && (
                 <div
                   className="
-                    sm:w-48
+                    md:w-48
                     h-40
-                    sm:h-auto
+                    md:h-auto
                     shrink-0
                     relative
                     overflow-hidden
@@ -125,11 +127,11 @@ export function ProjectsGrid({
                     className="
                       absolute
                       inset-0
-                      bg-gradient-to-t
+                      bg-linear-to-t
                       from-black/80
                       via-transparent
                       to-transparent
-                      sm:hidden
+                      md:hidden
                     "
                   />
                 </div>
@@ -161,6 +163,7 @@ export function ProjectsGrid({
                     <h4
                       className="
                         text-base
+                        md:text-lg
                         font-bold
                         text-primary
                         group-hover:text-accent
@@ -170,13 +173,15 @@ export function ProjectsGrid({
                       {project.title}
                     </h4>
 
+
                     {project.status && (
                       <Badge
                         variant="indigo"
                         size="sm"
                         className="
                           shrink-0
-                          text-[10px]
+                          text-xs
+                          md:text-sm
                         "
                       >
                         {project.status}
@@ -184,15 +189,18 @@ export function ProjectsGrid({
                     )}
                   </div>
 
+
                   <p
                     className="
-                      text-xs
+                      text-sm
+                      md:text-base
                       text-secondary
                       leading-relaxed
                     "
                   >
                     {project.description}
                   </p>
+
 
                   {/* Tech Tags */}
                   {project.technologies && (
@@ -215,7 +223,8 @@ export function ProjectsGrid({
                               px-2
                               py-0.5
                               rounded-md
-                              text-[10px]
+                              text-xs
+                              md:text-sm
                               font-medium
                               bg-glass-soft
                               text-secondary
@@ -249,6 +258,7 @@ export function ProjectsGrid({
                       items-center
                       gap-3
                       text-xs
+                      md:text-sm
                       text-secondary
                       font-mono
                     "
@@ -311,10 +321,14 @@ export function ProjectsGrid({
                           p-2
                           rounded-lg
                           bg-glass-soft
+                          text-text-secondary
+                          transition-all
+                          duration-200
+                          ease-in-out
                           hover:bg-glass-soft
-                          text-secondary
-                          hover:text-primary
-                          transition-colors
+                          hover:text-text-primary
+                          hover:scale-105
+                          active:scale-95
                         "
                         title="View GitHub Repository"
                       >
@@ -340,12 +354,18 @@ export function ProjectsGrid({
                           py-1.5
                           rounded-lg
                           bg-accent/90
-                          hover:bg-accent
                           text-primary
                           text-xs
+                          md:text-sm
                           font-semibold
                           glow-indigo
                           transition-all
+                          duration-200
+                          ease-in-out
+                          hover:bg-accent
+                          hover:tracking-wide
+                          hover:gap-1.5
+                          active:scale-95
                         "
                       >
                         <span>

@@ -290,7 +290,7 @@ export default function DynamicPublicProfilePage() {
             ease-in-out
             hover:tracking-wider
             hover:gap-2.5
-            active:scale-90
+            active:scale-90 
           "
         >
           <FiZap

@@ -399,7 +399,7 @@ export function PublicProfileView({
     >
       <div
         className="
-          max-w-xl
+          max-w-3xl
           mx-auto
           px-3.5
           md:px-6
