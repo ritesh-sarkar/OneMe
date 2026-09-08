@@ -56,7 +56,7 @@ export default function DiscoverPage() {
     const matchesCategory =
       selectedCategory === "All" || item.category === selectedCategory;
 
-    const q = searchQuery.toLowerCase();
+    const q = searchQuery.trim().toLowerCase();
 
     const matchesSearch =
       item.name.toLowerCase().includes(q) ||
@@ -95,12 +95,13 @@ export default function DiscoverPage() {
           w-full
           mx-auto
           px-4
-          sm:px-6
+          md:px-6
           lg:px-8
           py-12
           space-y-10
         "
       >
+
         {/* Header */}
         <div
           className="
@@ -122,7 +123,8 @@ export default function DiscoverPage() {
               border
               border-light
               text-accent
-              text-xs
+              text-sm
+              md:text-base
               font-mono
             "
           >
@@ -140,7 +142,7 @@ export default function DiscoverPage() {
           <h1
             className="
               text-3xl
-              sm:text-5xl
+              md:text-5xl
               font-black
               text-primary
               tracking-tight
@@ -152,7 +154,7 @@ export default function DiscoverPage() {
           <p
             className="
               text-sm
-              sm:text-base
+              md:text-base
               text-secondary
             "
           >
@@ -160,6 +162,7 @@ export default function DiscoverPage() {
             and startup founders.
           </p>
         </div>
+        
 
         {/* Search & Filters */}
         <div
@@ -175,7 +178,7 @@ export default function DiscoverPage() {
             onChange={(e) => setSearchQuery(e.target.value)}
             icon={FiSearch}
             className="
-              text-sm
+              text-base
               py-3
             "
           />
@@ -199,9 +202,13 @@ export default function DiscoverPage() {
                   px-3.5
                   py-1.5
                   rounded-xl
-                  text-xs
+                  text-sm
+                  md:text-base
                   font-semibold
                   transition-all
+                  duration-300
+                  ease-in-out
+                  cursor-pointer
                   ${
                     selectedCategory === cat
                       ? "bg-accent text-primary shadow-md glow-indigo"
@@ -233,6 +240,7 @@ export default function DiscoverPage() {
             <h3
               className="
                 text-base
+                md:text-lg
                 font-bold
                 text-primary
               "
@@ -242,7 +250,8 @@ export default function DiscoverPage() {
 
             <p
               className="
-                text-xs
+                text-sm
+                md:text-base
                 text-secondary
               "
             >
@@ -336,6 +345,7 @@ export default function DiscoverPage() {
                           <h3
                             className="
                               text-base
+                              md:text-lg
                               font-bold
                               text-primary
                             "
@@ -350,7 +360,7 @@ export default function DiscoverPage() {
                                 rounded-full
                                 bg-accent
                                 text-primary
-                                text-[10px]
+                                text-xs
                               "
                             >
                               <FiCheckCircle
@@ -366,6 +376,7 @@ export default function DiscoverPage() {
                         <p
                           className="
                             text-xs
+                            md:text-sm
                             text-accent
                             font-medium
                           "
@@ -375,8 +386,9 @@ export default function DiscoverPage() {
 
                         <p
                           className="
-                            text-[11px]
-                            text-muted
+                            text-xs
+                            md:text-sm
+                            text-secondary
                             font-mono
                           "
                         >
@@ -389,7 +401,7 @@ export default function DiscoverPage() {
                       variant="outline"
                       size="sm"
                       className="
-                        text-[10px]
+                        text-xs
                         uppercase
                         font-mono
                       "
@@ -402,6 +414,7 @@ export default function DiscoverPage() {
                   <p
                     className="
                       text-xs
+                      md:text-sm
                       text-secondary
                       leading-relaxed
                       italic
@@ -415,6 +428,7 @@ export default function DiscoverPage() {
                     className="
                       space-y-1.5
                       text-xs
+                      md:text-sm
                       text-secondary
                       pt-1
                     "
@@ -480,7 +494,8 @@ export default function DiscoverPage() {
                             rounded-md
                             bg-glass-soft
                             text-secondary
-                            text-[10px]
+                            text-xs
+                            md:text-sm
                             font-mono
                           "
                       >
