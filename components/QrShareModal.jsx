@@ -1,8 +1,8 @@
 'use client';
 
 import React from 'react';
-import { Modal } from '@/components/ui/Modal';
-import { QrGenerator } from './QrGenerator';
+import { Modal } from '@/components/Modal';
+import { QrGenerator } from '@/components/QrGenerator';
 
 export function QrShareModal({ isOpen, onClose, user }) {
   const profileUrl = typeof window !== 'undefined'

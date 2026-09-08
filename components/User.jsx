@@ -3,12 +3,12 @@
 import React, { useState } from 'react';
 import Link from 'next/link';
 import { useParams } from 'next/navigation';
-import { PublicProfileView } from '@/components/profile/PublicProfileView';
-import { QrShareModal } from '@/components/qr/QrShareModal';
-import { ShareModal } from '@/components/profile/ShareModal';
-import { ExchangeModal } from '@/components/exchange/ExchangeModal';
+import { PublicProfileView } from '@/components/PublicProfileView';
+import { QrShareModal } from '@/components/QrShareModal';
+import { ShareModal } from '@/components/ShareModal';
+import { ExchangeModal } from '@/components/ExchangeModal';
 import { useProfile } from '@/context/ProfileContext';
-import { DISCOVER_PROFILES, DEMO_PROJECTS, DEMO_EXPERIENCE, DEMO_EDUCATION, DEMO_CERTIFICATIONS, DEMO_ACHIEVEMENTS, DEMO_RESUME } from '@/lib/mock-data';
+import { DISCOVER_PROFILES, DEMO_PROJECTS, DEMO_EXPERIENCE, DEMO_EDUCATION, DEMO_CERTIFICATIONS, DEMO_ACHIEVEMENTS, DEMO_RESUME } from '@/libs/mock-data';
 import { FiHome, FiCompass, FiZap, FiArrowLeft } from 'react-icons/fi';
 
 export default function DynamicPublicProfilePage() {
