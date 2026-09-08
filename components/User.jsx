@@ -29,9 +29,9 @@ import { FiHome, FiCompass, FiZap, FiArrowLeft } from "react-icons/fi";
 export default function DynamicPublicProfilePage() {
   const params = useParams();
 
-  const rawUsername = params?.username || "ritesh";
+  const rawUsername = params?.username;
 
-  // Strip leading %40 or @ if user visited /@ritesh
+  //TODO: replace with real data
   const username = decodeURIComponent(rawUsername)
     .replace(/^@/, "")
     .toLowerCase();
@@ -61,7 +61,7 @@ export default function DynamicPublicProfilePage() {
   let targetAchievements = achievements;
   let targetResume = resume;
 
-  if (username !== profile?.username?.toLowerCase() && username !== "ritesh") {
+  if (username !== profile?.username?.toLowerCase() && username !== "") {
     const found = DISCOVER_PROFILES.find(
       (p) => p.username.toLowerCase() === username,
     );
@@ -114,7 +114,8 @@ export default function DynamicPublicProfilePage() {
 
         <p
           className="
-            text-xs
+            text-sm
+            md:text-base
             text-secondary
           "
         >
@@ -133,7 +134,8 @@ export default function DynamicPublicProfilePage() {
             rounded-xl
             bg-accent
             text-primary
-            text-xs
+            text-sm
+            md:text-base
             font-semibold
           "
         >
@@ -173,6 +175,7 @@ export default function DynamicPublicProfilePage() {
           href="/"
           className="
             flex
+            justify-center
             items-center
             gap-2
             px-3
@@ -182,13 +185,18 @@ export default function DynamicPublicProfilePage() {
             hover:bg-surface-deep
             border
             border-light
-            text-xs
+            text-sm
+            md:text-base
             font-medium
             text-secondary
             backdrop-blur-md
             transition-all
+            duration-200
+            ease-in-out
             shadow-lg
-            hover:scale-105
+            hover:tracking-wider
+            hover:gap-2.5
+            active:scale-90
           "
         >
           <FiArrowLeft
@@ -227,13 +235,18 @@ export default function DynamicPublicProfilePage() {
             hover:bg-surface-deep
             border
             border-light
-            text-xs
+            text-sm
+            md:text-base
             font-medium
             text-secondary
             backdrop-blur-md
             transition-all
+            duration-200
+            ease-in-out
             shadow-lg
-            hover:scale-105
+            hover:tracking-wider
+            hover:gap-2.5
+            active:scale-90
           "
         >
           <FiCompass
@@ -247,7 +260,7 @@ export default function DynamicPublicProfilePage() {
           <span
             className="
               hidden
-              sm:inline
+              md:inline
             "
           >
             Discover
@@ -265,14 +278,19 @@ export default function DynamicPublicProfilePage() {
             rounded-full
             bg-accent
             hover:bg-accent
-            text-xs
+            text-sm
+            md:text-base
             font-semibold
             text-primary
             shadow-lg
             glow-indigo
             backdrop-blur-md
             transition-all
-            hover:scale-105
+            duration-200
+            ease-in-out
+            hover:tracking-wider
+            hover:gap-2.5
+            active:scale-90
           "
         >
           <FiZap
