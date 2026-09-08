@@ -1,8 +1,11 @@
 "use client";
 
 import React from "react";
+
 import { motion } from "framer-motion";
+
 import { getThemeById } from "@/libs/themes";
+
 import { ProfileHeader } from "@/components/ProfileHeader";
 import { SocialLinksGrid } from "@/components/SocialLinksGrid";
 import { ProjectsGrid } from "@/components/ProjectsGrid";
@@ -13,7 +16,14 @@ import { CertificationsSection } from "@/components/CertificationsSection";
 import { AchievementsSection } from "@/components/AchievementsSection";
 import { ResumeViewer } from "@/components/ResumeViewer";
 import { CustomCtaBanner } from "@/components/CustomCtaBanner";
-import { FiMail, FiPhone, FiMapPin, FiShield, FiHeart } from "react-icons/fi";
+
+import {
+  FiMail,
+  FiPhone,
+  FiMapPin,
+  FiShield,
+  FiHeart,
+} from "react-icons/fi";
 
 export function PublicProfileView({
   user,
@@ -30,67 +40,122 @@ export function PublicProfileView({
   isLivePreview = false,
   className = "",
 }) {
-  const activeThemeId = themeId || user?.themeId || "cyberpunk";
-  const theme = getThemeById(activeThemeId);
+  const activeThemeId =
+    themeId ||
+    user?.themeId ||
+    "cyberpunk";
+
+  const theme = getThemeById(
+    activeThemeId,
+  );
 
   // Allow custom theme overrides (custom color, font, card style)
-  const customFont = user?.customTheme?.fontFamily || theme.fontFamily;
-  const customAccent = user?.customTheme?.accentColor || theme.accentColor;
-  const customCardStyle = user?.customTheme?.cardStyle;
+  const customFont =
+    user?.customTheme?.fontFamily ||
+    theme.fontFamily;
 
-  let computedCardClass = theme.cardClass;
+  const customAccent =
+    user?.customTheme?.accentColor ||
+    theme.accentColor;
+
+  const customCardStyle =
+    user?.customTheme?.cardStyle;
+
+  let computedCardClass =
+    theme.cardClass;
+
   if (customCardStyle === "solid") {
-    computedCardClass = "bg-surface-secondary border border-subtle shadow-md";
-  } else if (customCardStyle === "minimal") {
-    computedCardClass = "bg-surface-dark/40 border border-subtle shadow-none";
-  } else if (customCardStyle === "glass") {
+    computedCardClass =
+      "bg-surface-secondary border border-subtle shadow-md";
+  } else if (
+    customCardStyle === "minimal"
+  ) {
+    computedCardClass =
+      "bg-surface-dark/40 border border-subtle shadow-none";
+  } else if (
+    customCardStyle === "glass"
+  ) {
     computedCardClass =
       "bg-white/[0.04] border border-light backdrop-blur-xl shadow-xl";
   }
 
-  const sectionVisibility = user?.sectionVisibility || {
-    about: true,
-    cta: true,
-    socials: true,
-    projects: true,
-    skills: true,
-    experience: true,
-    education: true,
-    certifications: true,
-    achievements: true,
-    resume: true,
-    contact: true,
-  };
+  const sectionVisibility =
+    user?.sectionVisibility || {
+      about: true,
+      cta: true,
+      socials: true,
+      projects: true,
+      skills: true,
+      experience: true,
+      education: true,
+      certifications: true,
+      achievements: true,
+      resume: true,
+      contact: true,
+    };
 
-  const sectionOrder = user?.sectionOrder || [
-    "about",
-    "cta",
-    "socials",
-    "projects",
-    "skills",
-    "experience",
-    "education",
-    "certifications",
-    "achievements",
-    "resume",
-    "contact",
-  ];
+  const sectionOrder =
+    user?.sectionOrder || [
+      "about",
+      "cta",
+      "socials",
+      "projects",
+      "skills",
+      "experience",
+      "education",
+      "certifications",
+      "achievements",
+      "resume",
+      "contact",
+    ];
 
   // Render individual sections
-  const renderSection = (key) => {
-    if (!sectionVisibility[key]) return null;
+  const renderSection = (
+    key,
+  ) => {
+    if (!sectionVisibility[key]) {
+      return null;
+    }
 
     switch (key) {
       case "about":
         return user?.bio ? (
-          <div key="about" className="space-y-2">
-            <h3 className="text-xs font-semibold uppercase tracking-wider text-secondary">
+          <div
+            key="about"
+            className="
+              space-y-2
+            "
+          >
+            <h3
+              className="
+                text-xs
+                font-semibold
+                uppercase
+                tracking-wider
+                text-secondary
+              "
+            >
               About
             </h3>
+
             <div
-              className={`p-4 sm:p-5 rounded-2xl border ${computedCardClass}`}
+              className={`
+                p-4
+                sm:p-5
+                rounded-2xl
+                border
+                ${computedCardClass}
+              `}
             >
-              <p className="text-xs sm:text-sm text-secondary leading-relaxed whitespace-pre-line">
+              <p
+                className="
+                  text-xs
+                  sm:text-sm
+                  text-secondary
+                  leading-relaxed
+                  whitespace-pre-line
+                "
+              >
                 {user.bio}
               </p>
             </div>
@@ -181,47 +246,126 @@ export function PublicProfileView({
 
       case "contact":
         return (
-          <div key="contact" className="space-y-3">
-            <h3 className="text-xs font-semibold uppercase tracking-wider text-secondary">
+          <div
+            key="contact"
+            className="
+              space-y-3
+            "
+          >
+            <h3
+              className="
+                text-xs
+                font-semibold
+                uppercase
+                tracking-wider
+                text-secondary
+              "
+            >
               Direct Contact
             </h3>
+
             <div
-              className={`p-4 rounded-2xl border grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs ${computedCardClass}`}
+              className={`
+                p-4
+                rounded-2xl
+                border
+                grid
+                grid-cols-1
+                sm:grid-cols-2
+                gap-3
+                text-xs
+                ${computedCardClass}
+              `}
             >
-              {user?.privacy?.showEmail !== false && user?.email && (
-                <a
-                  href={`mailto:${user.email}`}
-                  className="flex items-center gap-2.5 p-2 rounded-xl hover:bg-glass-soft text-secondary hover:text-primary transition-colors"
-                >
-                  <div
-                    className="p-2 rounded-lg text-primary"
-                    style={{
-                      backgroundColor: `${customAccent}25`,
-                      color: customAccent,
-                    }}
+              {user?.privacy?.showEmail !== false &&
+                user?.email && (
+                  <a
+                    href={`mailto:${user.email}`}
+                    className="
+                      flex
+                      items-center
+                      gap-2.5
+                      p-2
+                      rounded-xl
+                      hover:bg-glass-soft
+                      text-secondary
+                      hover:text-primary
+                      transition-colors
+                    "
                   >
-                    <FiMail className="w-4 h-4" />
-                  </div>
-                  <span className="truncate">{user.email}</span>
-                </a>
-              )}
-              {user?.privacy?.showPhone !== false && user?.phone && (
-                <a
-                  href={`tel:${user.phone}`}
-                  className="flex items-center gap-2.5 p-2 rounded-xl hover:bg-glass-soft text-secondary hover:text-primary transition-colors"
-                >
-                  <div
-                    className="p-2 rounded-lg text-primary"
-                    style={{
-                      backgroundColor: `${customAccent}25`,
-                      color: customAccent,
-                    }}
+                    <div
+                      className="
+                        p-2
+                        rounded-lg
+                        text-primary
+                      "
+                      style={{
+                        backgroundColor: `${customAccent}25`,
+                        color: customAccent,
+                      }}
+                    >
+                      <FiMail
+                        className="
+                          w-4
+                          h-4
+                        "
+                      />
+                    </div>
+
+                    <span
+                      className="
+                        truncate
+                      "
+                    >
+                      {user.email}
+                    </span>
+                  </a>
+                )}
+
+              {user?.privacy?.showPhone !== false &&
+                user?.phone && (
+                  <a
+                    href={`tel:${user.phone}`}
+                    className="
+                      flex
+                      items-center
+                      gap-2.5
+                      p-2
+                      rounded-xl
+                      hover:bg-glass-soft
+                      text-secondary
+                      hover:text-primary
+                      transition-colors
+                    "
                   >
-                    <FiPhone className="w-4 h-4" />
-                  </div>
-                  <span className="truncate">{user.phone}</span>
-                </a>
-              )}
+                    <div
+                      className="
+                        p-2
+                        rounded-lg
+                        text-primary
+                      "
+                      style={{
+                        backgroundColor: `${customAccent}25`,
+                        color: customAccent,
+                      }}
+                    >
+                      <FiPhone
+                        className="
+                          w-4
+                          h-4
+                        "
+                      />
+                    </div>
+
+                    <span
+                      className="
+                        truncate
+                      "
+                    >
+                      {user.phone}
+                    </span>
+                  </a>
+                )}
             </div>
           </div>
         );
@@ -236,30 +380,101 @@ export function PublicProfileView({
       style={{
         "--theme-accent": customAccent,
       }}
-      className={`min-h-full transition-all duration-300 ${theme.bgClass} ${customFont} ${className}`}
+      className={`
+        min-h-full
+        transition-all
+        duration-300
+        ${theme.bgClass}
+        ${customFont}
+        ${className}
+      `}
     >
-      <div className="max-w-xl mx-auto px-3.5 sm:px-6 py-6 sm:py-10 space-y-6 sm:space-y-8">
+      <div
+        className="
+          max-w-xl
+          mx-auto
+          px-3.5
+          sm:px-6
+          py-6
+          sm:py-10
+          space-y-6
+          sm:space-y-8
+        "
+      >
         {/* Profile Header */}
         <ProfileHeader
           user={user}
           theme={theme}
-          onOpenExchange={onOpenExchange}
-          onOpenQr={onOpenQr}
-          onOpenShare={onOpenShare}
-          isLivePreview={isLivePreview}
+          onOpenExchange={
+            onOpenExchange
+          }
+          onOpenQr={
+            onOpenQr
+          }
+          onOpenShare={
+            onOpenShare
+          }
+          isLivePreview={
+            isLivePreview
+          }
         />
 
         {/* Dynamic Ordered Sections */}
-        <div className="space-y-6">
-          {sectionOrder.map((sectionKey) => renderSection(sectionKey))}
+        <div
+          className="
+            space-y-6
+          "
+        >
+          {sectionOrder.map(
+            (sectionKey) =>
+              renderSection(
+                sectionKey,
+              ),
+          )}
         </div>
 
         {/* Profile Footer */}
-        <div className="pt-6 border-t border-subtle text-center space-y-2">
-          <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-surface-panel border border-subtle text-[11px] text-secondary">
-            <span>Powered by</span>
-            <span className="font-bold text-primary tracking-wide">OneMe</span>
-            <span>• Your identity. One link.</span>
+        <div
+          className="
+            pt-6
+            border-t
+            border-subtle
+            text-center
+            space-y-2
+          "
+        >
+          <div
+            className="
+              inline-flex
+              items-center
+              gap-1.5
+              px-3
+              py-1
+              rounded-full
+              bg-surface-panel
+              border
+              border-subtle
+              text-[11px]
+              text-secondary
+            "
+          >
+            <span>
+              Powered by
+            </span>
+
+            <span
+              className="
+                font-bold
+                text-primary
+                tracking-wide
+              "
+            >
+              OneMe
+            </span>
+
+            <span>
+              • Your identity. One link.
+            </span>
           </div>
         </div>
       </div>
