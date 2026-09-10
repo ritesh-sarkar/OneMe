@@ -1045,7 +1045,7 @@ export default function DashboardOverviewPage() {
 
           <div
             className="
-              rounded-[32px]
+              rounded-4xl
               p-3
               bg-surface-dark
               border
@@ -1055,7 +1055,7 @@ export default function DashboardOverviewPage() {
           >
             <div
               className="
-                h-[620px]
+                h-155
                 overflow-y-auto
                 rounded-[22px]
                 bg-surface-dark
