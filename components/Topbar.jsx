@@ -41,12 +41,8 @@ export function Topbar() {
 
   const profileUrl =
     typeof window !== "undefined"
-      ? `${window.location.origin}/@${
-          profile?.username || "ritesh"
-        }`
-      : `https://oneme.app/@${
-          profile?.username || "ritesh"
-        }`;
+      ? `${window.location.origin}/@${profile?.username || ""}`
+      : `https://oneme.app/@${profile?.username || ""}`;
 
   const handleCopyLink = () => {
     copyToClipboard(profileUrl);
@@ -71,7 +67,7 @@ export function Topbar() {
           bg-surface-page/80
           backdrop-blur-xl
           px-4
-          sm:px-6
+          md:px-6
           lg:px-8
           h-16
           flex
@@ -81,18 +77,32 @@ export function Topbar() {
         "
       >
         {/* Left: Status & Live indicator */}
-
         <div
           className="
             flex
             items-center
             gap-3
-            min-w-0
           "
         >
+
+          {/* logo image  */}
+          <span
+            className="
+              md:hidden
+              w-10
+              h-10
+              overflow-hidden
+              shrink-0
+            "
+          >
+            <img src="/logo.jpg" alt="oneme_logo"/>
+          </span>
+
+          {/* status indicator */}
           <div
             className="
-              flex
+              hidden
+              md:flex
               items-center
               gap-2
               px-3
@@ -119,15 +129,14 @@ export function Topbar() {
               "
             />
 
-            <span>
-              Your OneMe is live
-            </span>
+            <span>Your OneMe is live</span>
           </div>
 
+          {/* username */}
           <span
             className="
               hidden
-              sm:inline
+              md:inline
               text-sm
               md:text-base
               text-tertiary
@@ -135,45 +144,23 @@ export function Topbar() {
               truncate
             "
           >
-            oneme.app/@{profile?.username || "ritesh"}
+            @{profile?.username}
           </span>
         </div>
 
         {/* Right: Actions & Tools */}
-
         <div
           className="
             flex
             items-center
             gap-2
-            sm:gap-3
+            md:gap-3
             shrink-0
+            w-3/4
+            md:w-auto
           "
         >
-          {/* Quick Copy Link */}
-
-          <Button
-            onClick={handleCopyLink}
-            variant="outline"
-            size="sm"
-            icon={copied ? FiCheck : FiCopy}
-            className="
-              hidden
-              sm:inline-flex
-              text-sm
-              md:text-base
-              transition-all
-              duration-200
-              ease-in-out
-              hover:scale-105
-              active:scale-95
-            "
-          >
-            {copied ? "Copied" : "Copy Link"}
-          </Button>
-
           {/* Quick OneMe Flow Trigger */}
-
           <Button
             onClick={() => setExchangeOpen(true)}
             variant="glow"
@@ -190,13 +177,10 @@ export function Topbar() {
               active:scale-95
             "
           >
-            <span>
-              OneMe Flow
-            </span>
+            <span>OneMe Flow</span>
           </Button>
 
           {/* QR Button */}
-
           <Button
             onClick={() => setQrOpen(true)}
             variant="outline"
@@ -214,7 +198,6 @@ export function Topbar() {
           </Button>
 
           {/* Share Button */}
-
           <Button
             onClick={() => setShareOpen(true)}
             variant="outline"
@@ -231,23 +214,23 @@ export function Topbar() {
             <FiShare2 className="w-4 h-4" />
           </Button>
 
-          {/* View Public Profile Link */}
 
+          {/* View Public Profile Link */}
           <Link
-            href={`/@${profile?.username || "ritesh"}`}
+            href={`/@${profile?.username}`}
             target="_blank"
             className="
               p-2
               rounded-xl
               border
               border-subtle
-              bg-surface-panel
-              hover:bg-surface-panel
-              text-secondary
-              hover:text-text-primary
+              bg-bg-primary
+              text-text-secondary
               transition-all
               duration-200
               ease-in-out
+              hover:text-text-primary
+              hover:bg-bg-secondary
               hover:scale-105
               active:scale-95
             "
@@ -257,7 +240,6 @@ export function Topbar() {
           </Link>
 
           {/* Notification Center Popover */}
-
           <NotificationCenter />
         </div>
       </header>

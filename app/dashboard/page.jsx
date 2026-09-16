@@ -1,10 +1,10 @@
 import React from "react";
-import DashboardOverviewPage from "@/components/DashboardMainPage";
+import DashboardMainPage from "@/components/DashboardMainPage";
 
 const page = () => {
   return (
     <div>
-      <DashboardOverviewPage />
+      <DashboardMainPage />
     </div>
   );
 };
