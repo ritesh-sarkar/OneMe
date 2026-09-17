@@ -106,7 +106,7 @@ export default function DashboardOverviewPage() {
           justify-between
           gap-6
           p-6
-          sm:p-8
+          md:p-8
           rounded-3xl
           gradient-accent-soft
           border
@@ -119,7 +119,7 @@ export default function DashboardOverviewPage() {
             <h1
               className="
                 text-2xl
-                sm:text-3xl
+                md:text-3xl
                 font-black
                 text-primary
                 tracking-tight
@@ -214,7 +214,7 @@ export default function DashboardOverviewPage() {
           grid-cols-2
           lg:grid-cols-4
           gap-4
-          sm:gap-6
+          md:gap-6
         "
       >
         <div
@@ -246,7 +246,7 @@ export default function DashboardOverviewPage() {
             <div
               className="
                 text-2xl
-                sm:text-3xl
+                md:text-3xl
                 font-black
                 text-primary
                 font-mono
@@ -286,7 +286,7 @@ export default function DashboardOverviewPage() {
             transition-all
             duration-200
             ease-in-out
-            hover:scale-[1.02]
+            hover:scale-102
           "
         >
           <div className="flex items-center justify-between text-secondary">
@@ -301,7 +301,7 @@ export default function DashboardOverviewPage() {
             <div
               className="
                 text-2xl
-                sm:text-3xl
+                md:text-3xl
                 font-black
                 text-primary
                 font-mono
@@ -358,7 +358,7 @@ export default function DashboardOverviewPage() {
             <div
               className="
                 text-2xl
-                sm:text-3xl
+                md:text-3xl
                 font-black
                 text-primary
                 font-mono
@@ -410,7 +410,7 @@ export default function DashboardOverviewPage() {
             <div
               className="
                 text-2xl
-                sm:text-3xl
+                md:text-3xl
                 font-black
                 text-primary
                 font-mono
@@ -477,7 +477,7 @@ export default function DashboardOverviewPage() {
               className="
                 grid
                 grid-cols-2
-                sm:grid-cols-3
+                md:grid-cols-3
                 gap-3
               "
             >
