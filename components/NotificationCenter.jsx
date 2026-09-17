@@ -124,15 +124,16 @@ export function NotificationCenter() {
           rounded-xl
           border
           border-subtle
-          bg-surface-panel
-          hover:bg-surface-panel
-          text-secondary
-          hover:text-text-primary
+          bg-bg-primary
+          text-text-secondary
           transition-all
           duration-200
           ease-in-out
+          hover:bg-bg-secondary
+          hover:text-text-primary
           hover:scale-105
           active:scale-95
+          cursor-pointer
         "
         title="Notifications"
         aria-label="Notifications"
@@ -174,6 +175,7 @@ export function NotificationCenter() {
           <>
             {/* Backdrop for mobile closing */}
 
+
             <div
               onClick={() => setIsOpen(false)}
               className="
@@ -207,7 +209,7 @@ export function NotificationCenter() {
                 right-0
                 mt-2
                 w-80
-                sm:w-96
+                md:w-96
                 rounded-2xl
                 bg-surface-panel
                 border
