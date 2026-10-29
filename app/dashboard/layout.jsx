@@ -17,7 +17,7 @@ export default function DashboardLayout({
   // If loading, show elegant skeleton loader
   if (isLoading) {
     return (
-      <divF
+      <div
         className="
           min-h-screen
           bg-surface-page
@@ -65,7 +65,7 @@ export default function DashboardLayout({
             Loading OneMe Identity...
           </span>
         </div>
-      </divF>
+      </div>
     );
   }
 
