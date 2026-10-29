@@ -13,7 +13,7 @@ import {
   FiSmartphone,
   FiTrendingUp,
 } from 'react-icons/fi';
-import { Tabs } from '@/components/ui/Tabs';
+import { Tabs } from '@/components/Tabs';
 import { DEMO_ANALYTICS } from '@/lib/mock-data';
 
 const TIMEFRAME_TABS = [
