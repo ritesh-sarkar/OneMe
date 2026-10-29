@@ -2,14 +2,15 @@
 
 import React, { useState } from "react";
 
+
+//icons
 import { FiCpu, FiZap, FiCheck, FiRefreshCw } from "react-icons/fi";
 
+
+//Custom Components and libs
 import { Button } from "@/components/Button";
-
 import { Textarea } from "@/components/Input";
-
 import { useProfile } from "@/context/ProfileContext";
-
 import { useToast } from "@/context/ToastContext";
 
 export default function AiAssistantPage() {
