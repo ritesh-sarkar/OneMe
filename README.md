@@ -69,4 +69,4 @@ There is currently no automated unit, integration, or end-to-end test suite.
 
 Before production deployment, implement and test the server-side account lifecycle, MongoDB persistence, validated and authorized APIs, distributed rate limiting, transactional email, secure image uploads, analytics, privacy controls, and consent-enforced OneMe Flow sessions. Configure service credentials only in the deployment environment; never commit `.env` files or secrets.
 
-The current project does not consume production service environment variables, so deployment instructions for MongoDB Atlas, Brevo, Cloudinary, Upstash, AI, and Vercel would be premature. Document each integration when it is implemented and verified.
+The [`.env.example`](./.env.example) file is a planning template for the requested integrations; the current project does not consume these variables. Deployment instructions for MongoDB Atlas, Brevo, Cloudinary, Upstash, AI, and Vercel would be premature. Document each integration when it is implemented and verified.
