@@ -17,6 +17,7 @@ import {
   FiCheck,
   FiX,
 } from "react-icons/fi";
+import Link from "next/link";
 
 
 //Custom Components and libs
@@ -87,6 +88,26 @@ export function NotificationCenter() {
       success("All notifications marked as read.");
     } catch (error) {
       toastError(error.message || "Notifications could not be updated.");
+    }
+  };
+
+  const markAsRead = async (notification) => {
+    if (notification.read) return;
+    try {
+      const response = await fetch("/api/notifications", {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ id: notification.id, event: notification.event }),
+      });
+      const result = await response.json();
+      if (!response.ok) throw new Error(result.error || "Notification could not be updated.");
+      setStoredNotifications((current) => current.map((item) => (
+        item.id === notification.id && item.event === notification.event
+          ? { ...item, read: true }
+          : item
+      )));
+    } catch (error) {
+      toastError(error.message || "Notification could not be updated.");
     }
   };
 
@@ -413,10 +434,16 @@ export function NotificationCenter() {
                         {getIcon(n.type)}
                       </div>
 
-                      <div
+                      <Link
+                        href="/dashboard/connections"
+                        onClick={() => markAsRead(n)}
                         className="
                           flex-1
                           min-w-0
+                          rounded-md
+                          focus:outline-none
+                          focus-visible:ring-2
+                          focus-visible:ring-accent
                         "
                       >
                         <div
@@ -463,7 +490,7 @@ export function NotificationCenter() {
                         >
                           {n.message}
                         </p>
-                      </div>
+                      </Link>
 
                       <button
                         onClick={() => removeNotification(n)}
