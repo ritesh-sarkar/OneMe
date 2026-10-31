@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 
 import {
   motion,
@@ -20,39 +20,91 @@ import {
 
 
 //Custom Components and libs
-import { DEMO_NOTIFICATIONS } from "@/libs/mock-data"; //TODO: replace with real data
-
 import { formatTimeAgo } from "@/libs/utils";
 import { useToast } from "@/context/ToastContext";
+import { useAuth } from "@/context/AuthContext";
+
+async function requestNotifications() {
+  const response = await fetch("/api/notifications", { cache: "no-store" });
+  const result = await response.json();
+  if (!response.ok) throw new Error(result.error || "Notifications could not be loaded.");
+  return result.notifications || [];
+}
 
 export function NotificationCenter() {
+  const { user } = useAuth();
+  const userId = user?.id;
   const [isOpen, setIsOpen] = useState(false);
+  const [storedNotifications, setStoredNotifications] = useState([]);
+  const [loadedFor, setLoadedFor] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [loadError, setLoadError] = useState("");
+  const { success, error: toastError } = useToast();
+  const notifications = loadedFor === userId ? storedNotifications : [];
+  const isLoading = Boolean(userId && (loadedFor !== userId || loading));
+  const visibleError = loadedFor === userId ? loadError : "";
 
-  const [notifications, setNotifications] = useState(
-    DEMO_NOTIFICATIONS
-  );
-
-  const { success } = useToast();
+  useEffect(() => {
+    if (!userId) return undefined;
+    let active = true;
+    requestNotifications()
+      .then((items) => {
+        if (active) {
+          setStoredNotifications(items);
+          setLoadedFor(userId);
+          setLoadError("");
+        }
+      })
+      .catch((error) => {
+        if (active) {
+          setStoredNotifications([]);
+          setLoadedFor(userId);
+          setLoadError(error.message || "Notifications could not be loaded.");
+        }
+      })
+      .finally(() => {
+        if (active) setLoading(false);
+      });
+    return () => {
+      active = false;
+    };
+  }, [userId, isOpen]);
 
   const unreadCount = notifications.filter(
     (n) => !n.read
   ).length;
 
-  const markAllAsRead = () => {
-    setNotifications((prev) =>
-      prev.map((n) => ({
-        ...n,
-        read: true,
-      }))
-    );
-
-    success("All notifications marked as read.");
+  const markAllAsRead = async () => {
+    try {
+      const response = await fetch("/api/notifications", {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ all: true }),
+      });
+      const result = await response.json();
+      if (!response.ok) throw new Error(result.error || "Notifications could not be updated.");
+      setStoredNotifications((current) => current.map((item) => ({ ...item, read: true })));
+      success("All notifications marked as read.");
+    } catch (error) {
+      toastError(error.message || "Notifications could not be updated.");
+    }
   };
 
-  const removeNotification = (id) => {
-    setNotifications((prev) =>
-      prev.filter((n) => n.id !== id)
-    );
+  const removeNotification = async (notification) => {
+    try {
+      const response = await fetch("/api/notifications", {
+        method: "DELETE",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ id: notification.id, event: notification.event }),
+      });
+      const result = await response.json();
+      if (!response.ok) throw new Error(result.error || "Notification could not be dismissed.");
+      setStoredNotifications((current) => current.filter((item) => (
+        item.id !== notification.id || item.event !== notification.event
+      )));
+    } catch (error) {
+      toastError(error.message || "Notification could not be dismissed.");
+    }
   };
 
   const getIcon = (type) => {
@@ -308,7 +360,15 @@ export function NotificationCenter() {
                   pr-1
                 "
               >
-                {notifications.length === 0 ? (
+                {visibleError ? (
+                  <p role="alert" className="py-4 text-center text-sm text-danger">
+                    {visibleError}
+                  </p>
+                ) : isLoading && notifications.length === 0 ? (
+                  <div className="py-8 text-center text-sm text-tertiary">
+                    Loading notifications…
+                  </div>
+                ) : notifications.length === 0 ? (
                   <div
                     className="
                       py-8
@@ -318,12 +378,12 @@ export function NotificationCenter() {
                       text-tertiary
                     "
                   >
-                    No new notifications
+                    No notifications
                   </div>
                 ) : (
                   notifications.map((n) => (
                     <div
-                      key={n.id}
+                      key={`${n.id}-${n.event}`}
                       className={`
                         p-3
                         rounded-xl
@@ -388,7 +448,7 @@ export function NotificationCenter() {
                               shrink-0
                             "
                           >
-                            {n.time}
+                            {formatTimeAgo(n.createdAt)}
                           </span>
                         </div>
 
@@ -406,9 +466,7 @@ export function NotificationCenter() {
                       </div>
 
                       <button
-                        onClick={() =>
-                          removeNotification(n.id)
-                        }
+                        onClick={() => removeNotification(n)}
                         className="
                           text-tertiary
                           hover:text-secondary

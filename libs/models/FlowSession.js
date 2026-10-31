@@ -41,6 +41,10 @@ const flowSessionSchema = new mongoose.Schema(
     },
     requesterData: { type: contactDataSchema, default: null },
     recipientData: { type: contactDataSchema, default: null },
+    requesterNotificationReadAt: { type: Date, default: null },
+    requesterNotificationDismissedAt: { type: Date, default: null },
+    recipientNotificationReadAt: { type: Date, default: null },
+    recipientNotificationDismissedAt: { type: Date, default: null },
     status: {
       type: String,
       enum: ['pending', 'accepted', 'declined', 'cancelled'],
@@ -57,6 +61,7 @@ const flowSessionSchema = new mongoose.Schema(
 
 flowSessionSchema.index({ purgeAt: 1 }, { expireAfterSeconds: 0 });
 flowSessionSchema.index({ requesterId: 1, status: 1, createdAt: -1 });
+flowSessionSchema.index({ requesterId: 1, status: 1, respondedAt: -1 });
 flowSessionSchema.index({ recipientId: 1, status: 1, createdAt: -1 });
 flowSessionSchema.index({ pairKey: 1 }, {
   unique: true,

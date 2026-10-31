@@ -15,7 +15,7 @@ This is still an early implementation, not a production-ready platform:
 - Connections are persisted as accepted OneMe Flow exchanges. Requests use exact verified usernames; each participant explicitly chooses which contact categories to share, and no contact data is disclosed until the recipient accepts and selects their own fields. Requests expire after seven days; either party can cancel or decline, and saved connections can be removed.
 - OneMe Flow does not scan for nearby devices or use a proximity radar. Exchange requests use verified usernames and explicit, two-sided consent through the dashboard and public profiles.
 - The AI profile assistant uses server-side Gemini requests with bounded prompts and rate limits. Prompts are sent to Google only when a member explicitly requests generation; profile data is not automatically included. Provider credentials and live generation have not been tested here.
-- Notifications still use demo data and are not persisted or connected to OneMe Flow events.
+- The notification center now surfaces and persists read/dismissed state for OneMe Flow requests and responses. Other activity types are not connected yet.
 - Google sign-in is not implemented.
 
 The app also includes baseline security headers and a static/offline-only PWA shell. Do not deploy this version as a production service or enter sensitive personal information. Production use still requires service configuration and end-to-end testing with configured providers.
@@ -92,7 +92,8 @@ npm run build
 - `/api/flow/sessions/[sessionId]` — recipient approval/decline and requester cancellation
 - `/api/connections` — owner-scoped accepted exchanges and connection removal
 - `/api/ai/profile-copy` — authenticated and rate-limited Gemini profile-copy suggestions
+- `/api/notifications` — owner-scoped OneMe Flow notifications, read state, and dismissal
 
 ## Production work still required
 
-Persist real notification events, add Google sign-in, configure and review deployment security, and test the complete lifecycle—including two-account contact exchange and Gemini generation—with real service integrations. Analytics retain events for up to 90 days, deduplicate visitor events into 15-minute windows, and do not store raw IP addresses, referrers, destination URLs, locations, or device details.
+Expand notifications to other activity types, add Google sign-in, configure and review deployment security, and test the complete lifecycle—including two-account contact exchange and Gemini generation—with real service integrations. Analytics retain events for up to 90 days, deduplicate visitor events into 15-minute windows, and do not store raw IP addresses, referrers, destination URLs, locations, or device details.

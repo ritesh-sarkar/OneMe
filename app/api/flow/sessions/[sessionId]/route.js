@@ -73,9 +73,10 @@ export async function PATCH(request, { params }) {
     }
 
     if (parsed.data.action === 'decline') {
+      const purgeAt = new Date(now.getTime() + 30 * 24 * 60 * 60 * 1000);
       const declined = await FlowSession.findOneAndUpdate(
         { _id: sessionId, recipientId: ownerId, status: 'pending', expiresAt: { $gt: now } },
-        { $set: { status: 'declined', respondedAt: now, purgeAt: now } },
+        { $set: { status: 'declined', respondedAt: now, purgeAt } },
         { new: true },
       ).select('_id status').lean();
       if (!declined) {

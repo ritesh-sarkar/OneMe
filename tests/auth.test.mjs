@@ -16,6 +16,7 @@ import {
 } from '../libs/flow-validation.js';
 import { generateVCard } from '../libs/vcard.js';
 import { aiCopyRequestSchema, parseGeneratedAiCopy } from '../libs/ai-validation.js';
+import { markAllNotificationsSchema, notificationActionSchema } from '../libs/notification-validation.js';
 
 test('registration normalizes email, rejects unexpected fields, and enforces a valid name', () => {
   const parsed = registrationSchema.safeParse({
@@ -319,6 +320,24 @@ test('AI profile copy validates bounded prompts and structured model output', ()
     bio: 'A professional bio.',
     cta: 'Contact me',
   })).success, false);
+});
+
+test('notification mutations accept only owner-scoped event identifiers', () => {
+  assert.equal(notificationActionSchema.safeParse({
+    id: '507f1f77bcf86cd799439011',
+    event: 'incoming',
+  }).success, true);
+  assert.equal(notificationActionSchema.safeParse({
+    id: 'not-an-object-id',
+    event: 'response',
+  }).success, false);
+  assert.equal(notificationActionSchema.safeParse({
+    id: '507f1f77bcf86cd799439011',
+    event: 'incoming',
+    ownerId: 'another-account',
+  }).success, false);
+  assert.equal(markAllNotificationsSchema.safeParse({ all: true }).success, true);
+  assert.equal(markAllNotificationsSchema.safeParse({ all: false }).success, false);
 });
 
 test('public profile payload returns only published, privacy-approved contact fields', () => {
