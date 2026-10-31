@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useRef, useState } from "react";
 
 //icons
 import {
@@ -9,6 +9,7 @@ import {
   FiAward,
   FiPlus,
   FiTrash2,
+  FiUploadCloud,
 } from "react-icons/fi";
 
 
@@ -55,9 +56,16 @@ export default function ResumePage() {
     deleteEducation,
     addCertification,
     deleteCertification,
+    addAchievement,
+    deleteAchievement,
+    profile,
+    resume,
+    updateResume,
   } = useProfile();
 
-  const { success, info } = useToast();
+  const { success, info, error: toastError } = useToast();
+  const resumeInputRef = useRef(null);
+  const [resumeUploading, setResumeUploading] = useState(false);
 
   const [activeTab, setActiveTab] = useState("experience");
 
@@ -82,6 +90,12 @@ export default function ResumePage() {
   const [certIssuer, setCertIssuer] = useState("");
   const [certDate, setCertDate] = useState("2024");
   const [certUrl, setCertUrl] = useState("");
+
+  const [achievementModalOpen, setAchievementModalOpen] = useState(false);
+  const [achievementTitle, setAchievementTitle] = useState("");
+  const [achievementOrganization, setAchievementOrganization] = useState("");
+  const [achievementDate, setAchievementDate] = useState("");
+  const [achievementDescription, setAchievementDescription] = useState("");
 
   const handleAddExperience = (e) => {
     e.preventDefault();
@@ -133,6 +147,87 @@ export default function ResumePage() {
     success("Certification credential added!");
   };
 
+  const handleAddAchievement = (event) => {
+    event.preventDefault();
+    addAchievement({
+      title: achievementTitle,
+      organization: achievementOrganization,
+      date: achievementDate,
+      description: achievementDescription,
+    });
+    setAchievementModalOpen(false);
+    setAchievementTitle("");
+    setAchievementOrganization("");
+    setAchievementDate("");
+    setAchievementDescription("");
+    success("Achievement added.");
+  };
+
+  const handleResumeUpload = async (event) => {
+    const input = event.currentTarget;
+    const file = input.files?.[0];
+    input.value = "";
+    if (!file) return;
+    if (file.type !== "application/pdf") {
+      info("Choose a PDF resume.");
+      return;
+    }
+    if (file.size > 10 * 1024 * 1024) {
+      info("Please select a PDF smaller than 10MB.");
+      return;
+    }
+
+    setResumeUploading(true);
+    try {
+      const signatureResponse = await fetch("/api/uploads/signature", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ kind: "resume" }),
+      });
+      const signature = await signatureResponse.json();
+      if (!signatureResponse.ok) {
+        throw new Error(signature.error || "Resume upload is unavailable.");
+      }
+
+      const formData = new FormData();
+      Object.entries(signature.params).forEach(([key, value]) => formData.append(key, String(value)));
+      formData.append("api_key", signature.apiKey);
+      formData.append("signature", signature.signature);
+      formData.append("file", file);
+
+      const uploadResponse = await fetch(
+        `https://api.cloudinary.com/v1_1/${encodeURIComponent(signature.cloudName)}/${signature.resourceType}/upload`,
+        { method: "POST", body: formData },
+      );
+      const result = await uploadResponse.json();
+      const uploadedUrl = new URL(result.secure_url || "");
+      const expectedFolder = `oneme/${profile.id}/resume/`;
+      if (
+        !uploadResponse.ok ||
+        uploadedUrl.protocol !== "https:" ||
+        uploadedUrl.hostname !== "res.cloudinary.com" ||
+        signature.resourceType !== "raw" ||
+        !result.public_id?.startsWith(expectedFolder) ||
+        !/^[a-f0-9]{32}\.pdf$/i.test(result.public_id.slice(expectedFolder.length))
+      ) {
+        throw new Error("The file provider rejected the resume.");
+      }
+
+      updateResume({
+        fileName: file.name,
+        fileSize: `${(file.size / (1024 * 1024)).toFixed(2)} MB`,
+        fileUrl: uploadedUrl.toString(),
+        publicId: result.public_id,
+        updatedAt: new Date().toISOString(),
+      });
+      success("Resume uploaded.");
+    } catch (uploadError) {
+      toastError(uploadError.message || "Resume upload failed. Please try again.");
+    } finally {
+      setResumeUploading(false);
+    }
+  };
+
   return (
     <div
       className="
@@ -175,6 +270,46 @@ export default function ResumePage() {
           </p>
         </div>
       </div>
+
+      <section className="space-y-4 rounded-3xl border border-subtle bg-glass p-6 shadow-xl backdrop-blur-xl sm:p-8">
+        <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+          <div>
+            <h2 className="text-base font-bold text-primary">Resume file</h2>
+            <p className="mt-1 text-xs text-secondary">
+              Upload a PDF up to 10 MB. Public visitors can access it only when resume visibility is enabled.
+            </p>
+            {resume.fileName && (
+              <p className="mt-2 text-sm text-accent">
+                {resume.fileName} {resume.fileSize ? `(${resume.fileSize})` : ""}
+              </p>
+            )}
+          </div>
+          <input
+            ref={resumeInputRef}
+            type="file"
+            accept="application/pdf,.pdf"
+            onChange={handleResumeUpload}
+            className="hidden"
+          />
+          <Button
+            onClick={() => resumeInputRef.current?.click()}
+            variant="outline"
+            size="sm"
+            icon={FiUploadCloud}
+            isLoading={resumeUploading}
+          >
+            {resume.fileUrl ? "Replace PDF" : "Upload PDF"}
+          </Button>
+        </div>
+        <Textarea
+          label="Resume summary"
+          value={resume.summary || ""}
+          maxLength={4000}
+          rows={4}
+          placeholder="Add a short professional summary for your public profile."
+          onChange={(event) => updateResume({ summary: event.target.value })}
+        />
+      </section>
 
       <Tabs tabs={RESUME_TABS} activeTab={activeTab} onChange={setActiveTab} />
 
@@ -680,18 +815,27 @@ export default function ResumePage() {
             sm:p-8
           "
         >
-          <h3
+          <div
             className="
+              flex
+              items-center
+              justify-between
+              gap-3
               border-b
               border-subtle
               pb-4
-              text-base
-              font-bold
-              text-primary
             "
           >
-            Honors & Achievements
-          </h3>
+            <h3 className="text-base font-bold text-primary">Honors & Achievements</h3>
+            <Button
+              onClick={() => setAchievementModalOpen(true)}
+              variant="primary"
+              size="sm"
+              icon={FiPlus}
+            >
+              Add Achievement
+            </Button>
+          </div>
 
           <div
             className="
@@ -784,6 +928,26 @@ export default function ResumePage() {
                     {ach.description}
                   </p>
                 </div>
+
+                <button
+                  type="button"
+                  onClick={() => {
+                    deleteAchievement(ach.id);
+                    info("Achievement removed.");
+                  }}
+                  aria-label={`Delete achievement ${ach.title}`}
+                  className="
+                    rounded-xl
+                    bg-surface-deep
+                    p-2
+                    text-muted
+                    transition-colors
+                    hover:bg-danger-soft
+                    hover:text-danger
+                  "
+                >
+                  <FiTrash2 className="h-4 w-4" />
+                </button>
               </div>
             ))}
           </div>
@@ -1018,6 +1182,53 @@ export default function ResumePage() {
 
             <Button type="submit" variant="primary" size="sm">
               Save
+            </Button>
+          </div>
+        </form>
+      </Modal>
+
+      <Modal
+        isOpen={achievementModalOpen}
+        onClose={() => setAchievementModalOpen(false)}
+        title="Add Achievement"
+        maxWidth="max-w-md"
+      >
+        <form onSubmit={handleAddAchievement} className="space-y-4">
+          <Input
+            label="Achievement"
+            value={achievementTitle}
+            onChange={(event) => setAchievementTitle(event.target.value)}
+            maxLength={160}
+            required
+          />
+          <Input
+            label="Organization"
+            value={achievementOrganization}
+            onChange={(event) => setAchievementOrganization(event.target.value)}
+            maxLength={120}
+            required
+          />
+          <Input
+            label="Date"
+            value={achievementDate}
+            onChange={(event) => setAchievementDate(event.target.value)}
+            maxLength={80}
+            required
+          />
+          <Textarea
+            label="Description"
+            value={achievementDescription}
+            onChange={(event) => setAchievementDescription(event.target.value)}
+            maxLength={2000}
+            rows={4}
+            required
+          />
+          <div className="flex justify-end gap-3 pt-2">
+            <Button variant="outline" size="sm" onClick={() => setAchievementModalOpen(false)}>
+              Cancel
+            </Button>
+            <Button type="submit" variant="primary" size="sm">
+              Save Achievement
             </Button>
           </div>
         </form>

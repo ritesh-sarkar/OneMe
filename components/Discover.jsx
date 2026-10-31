@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import Link from "next/link";
 import { motion } from "framer-motion";
 
@@ -8,13 +8,10 @@ import { motion } from "framer-motion";
 import {
   FiCompass,
   FiSearch,
-  FiFilter,
   FiMapPin,
-  FiBookOpen,
   FiCheckCircle,
   FiDownload,
   FiZap,
-  FiExternalLink,
   FiEye,
 } from "react-icons/fi";
 
@@ -23,50 +20,61 @@ import { LandingNavbar } from "@/components/LandingNavbar";
 import { LandingFooter } from "@/components/LandingFooter";
 import { Button } from "@/components/Button";
 import { Input } from "@/components/Input";
-import { Badge } from "@/components/Badge";
-import { DISCOVER_PROFILES } from "@/libs/mock-data";
 import { downloadVCard } from "@/libs/vcard";
 import { useToast } from "@/context/ToastContext";
 import { ExchangeModal } from "@/components/ExchangeModal";
 import { useProfile } from "@/context/ProfileContext";
 
-const CATEGORIES = [
-  "All",
-  "Developers",
-  "Designers",
-  "Founders",
-  "Creators",
-  "Students",
-];
-
 export default function DiscoverPage() {
-  const [selectedCategory, setSelectedCategory] = useState("All");
-
   const [searchQuery, setSearchQuery] = useState("");
+  const [profiles, setProfiles] = useState([]);
+  const [hasMore, setHasMore] = useState(false);
+  const [page, setPage] = useState(1);
+  const [loadedRequest, setLoadedRequest] = useState("");
+  const [loading, setLoading] = useState(true);
+  const [loadError, setLoadError] = useState("");
 
   const [exchangeOpen, setExchangeOpen] = useState(false);
-
-  const [selectedPeerForExchange, setSelectedPeerForExchange] = useState(null);
 
   const { profile } = useProfile();
 
   const { success } = useToast();
 
-  const filteredProfiles = DISCOVER_PROFILES.filter((item) => {
-    const matchesCategory =
-      selectedCategory === "All" || item.category === selectedCategory;
+  const normalizedQuery = searchQuery.trim();
+  const requestKey = `${normalizedQuery}:${page}`;
+  const isLoading = loading || loadedRequest !== requestKey;
 
-    const q = searchQuery.trim().toLowerCase();
+  useEffect(() => {
+    let active = true;
+    const timer = setTimeout(async () => {
+      try {
+        const query = new URLSearchParams({ q: normalizedQuery, page: String(page) });
+        const response = await fetch(`/api/discover?${query}`, { cache: "no-store" });
+        const result = await response.json();
+        if (!response.ok) throw new Error(result.error || "Discovery is unavailable.");
+        if (active) {
+          setProfiles((current) => page === 1 ? result.profiles || [] : [...current, ...(result.profiles || [])]);
+          setHasMore(result.hasMore === true);
+          setLoadError("");
+        }
+      } catch (error) {
+        if (active) {
+          if (page === 1) setProfiles([]);
+          setLoadError(error.message || "Discovery is unavailable.");
+        }
+      } finally {
+        if (active) {
+          setLoadedRequest(requestKey);
+          setLoading(false);
+        }
+      }
+    }, 250);
 
-    const matchesSearch =
-      item.name.toLowerCase().includes(q) ||
-      item.title.toLowerCase().includes(q) ||
-      item.location.toLowerCase().includes(q) ||
-      item.university?.toLowerCase().includes(q) ||
-      (item.skills || []).some((s) => s.toLowerCase().includes(q));
-
-    return matchesCategory && matchesSearch;
-  });
+    return () => {
+      active = false;
+      clearTimeout(timer);
+    };
+  }, [normalizedQuery, page, requestKey]);
 
   const handleSaveContact = (person) => {
     downloadVCard(person);
@@ -158,8 +166,7 @@ export default function DiscoverPage() {
               text-secondary
             "
           >
-            Explore verified creators, full-stack developers, design leaders,
-            and startup founders.
+            Find verified people who chose to publish their profile and opt into discovery.
           </p>
         </div>
         
@@ -173,9 +180,12 @@ export default function DiscoverPage() {
           "
         >
           <Input
-            placeholder="Search by name, skill (e.g. React, WebGL), university, or city..."
+            placeholder="Search by name, skill, role, or public city..."
             value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
+            onChange={(e) => {
+              setSearchQuery(e.target.value);
+              setPage(1);
+            }}
             icon={FiSearch}
             className="
               text-base
@@ -183,47 +193,18 @@ export default function DiscoverPage() {
             "
           />
 
-          {/* Category Filter Pills */}
-          <div
-            className="
-              flex
-              flex-wrap
-              items-center
-              justify-center
-              gap-2
-              pt-1
-            "
-          >
-            {CATEGORIES.map((cat) => (
-              <button
-                key={cat}
-                onClick={() => setSelectedCategory(cat)}
-                className={`
-                  px-3.5
-                  py-1.5
-                  rounded-xl
-                  text-sm
-                  md:text-base
-                  font-semibold
-                  transition-all
-                  duration-300
-                  ease-in-out
-                  cursor-pointer
-                  ${
-                    selectedCategory === cat
-                      ? "bg-accent text-primary shadow-md glow-indigo"
-                      : "bg-surface-panel border border-subtle text-secondary hover:text-primary hover:bg-surface-panel"
-                  }
-                `}
-              >
-                {cat}
-              </button>
-            ))}
-          </div>
         </div>
 
         {/* Profiles Grid */}
-        {filteredProfiles.length === 0 ? (
+        {isLoading ? (
+          <div className="p-12 text-center text-sm text-secondary animate-pulse">
+            Searching published identities...
+          </div>
+        ) : loadError ? (
+          <div role="alert" className="p-12 text-center text-sm text-danger">
+            {loadError}
+          </div>
+        ) : profiles.length === 0 ? (
           <div
             className="
               p-12
@@ -269,7 +250,7 @@ export default function DiscoverPage() {
               gap-6
             "
           >
-            {filteredProfiles.map((person) => (
+            {profiles.map((person) => (
               <motion.div
                 key={person.id}
                 whileHover={{
@@ -397,17 +378,6 @@ export default function DiscoverPage() {
                       </div>
                     </div>
 
-                    <Badge
-                      variant="outline"
-                      size="sm"
-                      className="
-                        text-xs
-                        uppercase
-                        font-mono
-                      "
-                    >
-                      {person.category}
-                    </Badge>
                   </div>
 
                   {/* Tagline */}
@@ -453,27 +423,19 @@ export default function DiscoverPage() {
                         <span className="truncate">{person.location}</span>
                       </div>
                     )}
-
-                    {person.university && (
-                      <div
-                        className="
-                          flex
-                          items-center
-                          gap-2
-                        "
-                      >
-                        <FiBookOpen
-                          className="
-                            w-3.5
-                            h-3.5
-                            text-warning
-                            shrink-0
-                          "
-                        />
-
-                        <span className="truncate">{person.university}</span>
+                    {!isLoading && hasMore && (
+                      <div className="flex justify-center">
+                        <Button
+                          variant="outline"
+                          size="md"
+                          isLoading={loading}
+                          onClick={() => setPage((current) => current + 1)}
+                        >
+                          Load more
+                        </Button>
                       </div>
                     )}
+
                   </div>
 
                   {/* Skills tags */}
@@ -547,8 +509,6 @@ export default function DiscoverPage() {
 
                   <Button
                     onClick={() => {
-                      setSelectedPeerForExchange(person);
-
                       setExchangeOpen(true);
                     }}
                     variant="glow"

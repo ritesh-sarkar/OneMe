@@ -33,12 +33,14 @@ export default function SettingsPage() {
   const { success, info } = useToast();
 
   const privacy = profile?.privacy || {
-    showEmail: true,
-    showPhone: true,
-    showLocation: true,
-    showResume: true,
-    searchEngineIndexing: true,
-    allowContactExchange: true,
+    showEmail: false,
+    showPhone: false,
+    showLocation: false,
+    showResume: false,
+    searchEngineIndexing: false,
+    allowDiscovery: false,
+    allowContactExchange: false,
+    allowAnalytics: false,
   };
 
   const handlePrivacyToggle = (key, value) => {
@@ -163,7 +165,7 @@ export default function SettingsPage() {
             <Toggle
               label="Public Email Address"
               description="Allow visitors to email you directly from your profile"
-              checked={privacy.showEmail !== false}
+              checked={privacy.showEmail === true}
               onChange={(value) => handlePrivacyToggle("showEmail", value)}
             />
           </div>
@@ -176,7 +178,7 @@ export default function SettingsPage() {
             <Toggle
               label="Public Phone Number"
               description="Display phone number on contact card and vCard downloads"
-              checked={privacy.showPhone !== false}
+              checked={privacy.showPhone === true}
               onChange={(value) => handlePrivacyToggle("showPhone", value)}
             />
           </div>
@@ -189,7 +191,7 @@ export default function SettingsPage() {
             <Toggle
               label="Public Location"
               description="Show city and country badge (e.g. Dhaka, Bangladesh)"
-              checked={privacy.showLocation !== false}
+              checked={privacy.showLocation === true}
               onChange={(value) => handlePrivacyToggle("showLocation", value)}
             />
           </div>
@@ -202,8 +204,21 @@ export default function SettingsPage() {
             <Toggle
               label="Public Resume Download"
               description="Allow visitors to download your attached CV file"
-              checked={privacy.showResume !== false}
+              checked={privacy.showResume === true}
               onChange={(value) => handlePrivacyToggle("showResume", value)}
+            />
+          </div>
+
+          <div
+            className="
+              pt-4
+            "
+          >
+            <Toggle
+              label="OneMe Discover Directory"
+              description="Allow your published identity to appear in OneMe's public discovery results"
+              checked={privacy.allowDiscovery === true}
+              onChange={(value) => handlePrivacyToggle("allowDiscovery", value)}
             />
           </div>
 
@@ -215,10 +230,23 @@ export default function SettingsPage() {
             <Toggle
               label="OneMe Flow Radar Discovery"
               description="Permit nearby OneMe members to discover your device in contact exchanges"
-              checked={privacy.allowContactExchange !== false}
+              checked={privacy.allowContactExchange === true}
               onChange={(value) =>
                 handlePrivacyToggle("allowContactExchange", value)
               }
+            />
+          </div>
+
+          <div
+            className="
+              pt-4
+            "
+          >
+            <Toggle
+              label="Anonymous Profile Analytics"
+              description="Allow privacy-preserving, approximate view and link-click counts for your published profile. Event data is retained for up to 90 days."
+              checked={privacy.allowAnalytics === true}
+              onChange={(value) => handlePrivacyToggle("allowAnalytics", value)}
             />
           </div>
         </div>

@@ -1,465 +1,67 @@
 "use client";
 
 import React from "react";
-
-import { motion } from "framer-motion";
-
-//icons
 import {
-  FiTrendingUp,
   FiEye,
-  FiGrid,
   FiMousePointer,
-  FiDownload,
-  FiUserCheck,
+  FiShield,
+  FiClock,
 } from "react-icons/fi";
 
-//Custom Components and libs
-import { DEMO_ANALYTICS } from "@/libs/mock-data";
+const FEATURES = [
+  {
+    label: "Profile views",
+    detail: "See approximate visits to your published identity.",
+    icon: FiEye,
+    tone: "text-accent",
+  },
+  {
+    label: "Link activity",
+    detail: "Understand which public profile links get attention.",
+    icon: FiMousePointer,
+    tone: "text-success",
+  },
+  {
+    label: "Opt-in by choice",
+    detail: "Analytics stay off until you enable them in privacy settings.",
+    icon: FiShield,
+    tone: "text-warning",
+  },
+  {
+    label: "90-day retention",
+    detail: "Events expire automatically; no location or device tracking.",
+    icon: FiClock,
+    tone: "text-cyan",
+  },
+];
 
 export function AnalyticsTeaser() {
-  const { overview, trafficSources } = DEMO_ANALYTICS;
-
   return (
-    <section
-      className="
-        py-24
-        border-t
-        border-subtle
-        bg-surface-dark/40
-        relative
-      "
-    >
-      <div
-        className="
-          max-w-7xl
-          mx-auto
-          px-4
-          md:px-6
-          lg:px-8
-        "
-      >
-        <div
-          className="
-            text-center
-            max-w-2xl
-            mx-auto
-            space-y-3
-            mb-16
-          "
-        >
-          <span
-            className="
-              text-xs
-              md:text-sm
-              font-semibold
-              uppercase
-              tracking-wider
-              text-accent
-              font-mono
-            "
-          >
-            Actionable Telemetry
+    <section className="relative border-t border-subtle bg-surface-dark/40 py-24">
+      <div className="mx-auto max-w-7xl px-4 md:px-6 lg:px-8">
+        <div className="mx-auto mb-12 max-w-2xl space-y-3 text-center">
+          <span className="font-mono text-xs font-semibold uppercase tracking-wider text-accent md:text-sm">
+            Privacy-first analytics
           </span>
-
-          <h2
-            className="
-              text-3xl
-              md:text-4xl
-              font-extrabold
-              text-primary
-              tracking-tight
-            "
-          >
-            Know Who Engages With Your Work
+          <h2 className="text-3xl font-extrabold tracking-tight text-primary md:text-4xl">
+            Learn how people engage with your identity
           </h2>
-
-          <p
-            className="
-              text-sm
-              md:text-base
-              text-secondary
-            "
-          >
-            Gain transparent insights on link clicks, QR code scans at
-            networking events, and resume downloads.
+          <p className="text-sm text-secondary md:text-base">
+            Get useful activity counts without collecting referrers, raw IP addresses, visitor locations, or device details.
           </p>
         </div>
 
-        {/* Stats Grid */}
-        <div
-          className="
-            grid
-            grid-cols-2
-            md:grid-cols-4
-            gap-4
-            mb-8
-          "
-        >
-          <div
-            className="
-              p-5
-              rounded-2xl
-              bg-glass
-              border
-              border-subtle
-              backdrop-blur-md
-            "
-          >
+        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
+          {FEATURES.map(({ label, detail, icon: Icon, tone }) => (
             <div
-              className="
-                flex
-                items-center
-                justify-between
-                text-secondary
-                mb-2
-              "
+              key={label}
+              className="space-y-3 rounded-2xl border border-subtle bg-glass p-5 backdrop-blur-md"
             >
-              <span
-                className="
-                  text-xs
-                  md:text-sm
-                  font-medium
-                "
-              >
-                Profile Views
-              </span>
-
-              <FiEye
-                className="
-                  w-4
-                  h-4
-                  text-accent
-                "
-              />
+              <Icon className={`h-5 w-5 ${tone}`} />
+              <h3 className="font-bold text-primary">{label}</h3>
+              <p className="text-sm leading-relaxed text-secondary">{detail}</p>
             </div>
-
-            <div
-              className="
-                text-2xl
-                md:text-3xl
-                font-black
-                text-primary
-                font-mono
-              "
-            >
-              1,284
-            </div>
-
-            <div
-              className="
-                text-xs
-                md:text-sm
-                text-success
-                font-medium
-                mt-1
-              "
-            >
-              +24% this week
-            </div>
-          </div>
-
-          <div
-            className="
-              p-5
-              rounded-2xl
-              bg-glass
-              border
-              border-subtle
-              backdrop-blur-md
-            "
-          >
-            <div
-              className="
-                flex
-                items-center
-                justify-between
-                text-secondary
-                mb-2
-              "
-            >
-              <span
-                className="
-                  text-xs
-                  md:text-sm
-                  font-medium
-                "
-              >
-                QR Scans
-              </span>
-
-              <FiGrid
-                className="
-                  w-4
-                  h-4
-                  text-success
-                "
-              />
-            </div>
-
-            <div
-              className="
-                text-2xl
-                md:text-3xl
-                font-black
-                text-primary
-                font-mono
-              "
-            >
-              342
-            </div>
-
-            <div
-              className="
-                text-xs
-                md:text-sm
-                text-success
-                font-medium
-                mt-1
-              "
-            >
-              +18% from meetups
-            </div>
-          </div>
-
-          <div
-            className="
-              p-5
-              rounded-2xl
-              bg-glass
-              border
-              border-subtle
-              backdrop-blur-md
-            "
-          >
-            <div
-              className="
-                flex
-                items-center
-                justify-between
-                text-secondary
-                mb-2
-              "
-            >
-              <span
-                className="
-                  text-xs
-                  md:text-sm
-                  font-medium
-                "
-              >
-                Link Clicks
-              </span>
-
-              <FiMousePointer
-                className="
-                  w-4
-                  h-4
-                  text-accent
-                "
-              />
-            </div>
-
-            <div
-              className="
-                text-2xl
-                md:text-3xl
-                font-black
-                text-primary
-                font-mono
-              "
-            >
-              187
-            </div>
-
-            <div
-              className="
-                text-xs
-                md:text-sm
-                text-accent
-                font-medium
-                mt-1
-              "
-            >
-              14.5% CTR
-            </div>
-          </div>
-
-          <div
-            className="
-              p-5
-              rounded-2xl
-              bg-glass
-              border
-              border-subtle
-              backdrop-blur-md
-            "
-          >
-            <div
-              className="
-                flex
-                items-center
-                justify-between
-                text-secondary
-                mb-2
-              "
-            >
-              <span
-                className="
-                  text-xs
-                  md:text-sm
-                  font-medium
-                "
-              >
-                Contact Saves
-              </span>
-
-              <FiUserCheck
-                className="
-                  w-4
-                  h-4
-                  text-warning
-                "
-              />
-            </div>
-
-            <div
-              className="
-                text-2xl
-                md:text-3xl
-                font-black
-                text-primary
-                font-mono
-              "
-            >
-              73
-            </div>
-
-            <div
-              className="
-                text-xs
-                md:text-sm
-                text-success
-                font-medium
-                mt-1
-              "
-            >
-              vCards downloaded
-            </div>
-          </div>
-        </div>
-
-        {/* Traffic Channels Breakdown Bar */}
-        <div
-          className="
-            p-6
-            rounded-2xl
-            bg-glass-soft
-            border
-            border-subtle
-            backdrop-blur-md
-            space-y-4
-          "
-        >
-          <div
-            className="
-              flex
-              items-center
-              justify-between
-              text-xs
-              md:text-sm
-              text-secondary
-            "
-          >
-            <span
-              className="
-                font-semibold
-                text-primary
-              "
-            >
-              Top Traffic Channels
-            </span>
-
-            <span>Last 30 Days</span>
-          </div>
-
-          <div
-            className="
-              w-full
-              h-3
-              rounded-full
-              bg-surface-panel
-              overflow-hidden
-              flex
-            "
-          >
-            {trafficSources.map((source, i) => (
-              <div
-                key={i}
-                style={{
-                  width: `${source.percentage}%`,
-                  backgroundColor: source.color,
-                }}
-                className="
-                  h-full
-                  transition-all
-                  duration-500
-                "
-                title={`${source.source}: ${source.percentage}%`}
-              />
-            ))}
-          </div>
-
-          <div
-            className="
-              flex
-              flex-wrap
-              items-center
-              justify-between
-              gap-3
-              text-xs
-              md:text-sm
-            "
-          >
-            {trafficSources.map((source, i) => (
-              <div
-                key={i}
-                className="
-                  flex
-                  items-center
-                  gap-2
-                "
-              >
-                <span
-                  className="
-                    w-2.5
-                    h-2.5
-                    rounded-full
-                  "
-                  style={{
-                    backgroundColor: source.color,
-                  }}
-                />
-
-                <span
-                  className="
-                    text-secondary
-                  "
-                >
-                  {source.source}
-                </span>
-
-                <span
-                  className="
-                    text-muted
-                    font-mono
-                  "
-                >
-                  ({source.percentage}%)
-                </span>
-              </div>
-            ))}
-          </div>
+          ))}
         </div>
       </div>
     </section>

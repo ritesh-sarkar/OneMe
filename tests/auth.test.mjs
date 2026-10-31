@@ -4,6 +4,10 @@ import { emailRequestSchema, loginSchema, normalizeUsername, registrationSchema,
 import { createAuthToken, hashAuthToken } from '../libs/auth-tokens.js';
 import { consumeRateLimits, getTrustedClientIp } from '../libs/rate-limit.js';
 import { readJsonBody } from '../libs/request-body.js';
+import { createEmptyProfileData, profileDataSchema } from '../libs/profile-validation.js';
+import { createPublicProfilePayload } from '../libs/public-profile.js';
+import { escapeSearchTerm } from '../libs/discovery.js';
+import { createAnalyticsVisitorHash, profileAnalyticsEventSchema } from '../libs/analytics-validation.js';
 
 test('registration normalizes email, rejects unexpected fields, and enforces a valid name', () => {
   const parsed = registrationSchema.safeParse({
@@ -169,4 +173,113 @@ test('request JSON reader enforces size limits and rejects malformed bodies', as
     body: '{',
   }));
   assert.deepEqual(malformed, { ok: false, status: 400 });
+});
+
+test('profile payload validation strips unsafe structures and accepts an empty account profile', () => {
+  const emptyProfile = createEmptyProfileData();
+  assert.equal(profileDataSchema.safeParse(emptyProfile).success, true);
+  assert.equal(emptyProfile.profile.privacy.allowAnalytics, false);
+
+  const validProject = {
+    id: 'proj_1',
+    title: 'Portfolio',
+    description: 'A project description',
+    technologies: ['JavaScript'],
+    image: '',
+    githubUrl: 'https://github.com/example/project',
+    liveUrl: '',
+    status: 'Live',
+    metrics: '',
+  };
+  const parsed = profileDataSchema.safeParse({
+    ...emptyProfile,
+    projects: [validProject],
+    profile: { ...emptyProfile.profile, skills: [{ name: 'JavaScript', level: 'Advanced' }] },
+  });
+  assert.equal(parsed.success, true);
+  assert.equal(parsed.data.projects[0].featured, false);
+  assert.equal(parsed.data.projects[0].stars, 0);
+  assert.equal(parsed.data.profile.skills[0].category, '');
+
+  assert.equal(profileDataSchema.safeParse({
+    ...emptyProfile,
+    profile: { ...emptyProfile.profile, avatar: 'javascript:alert(1)' },
+  }).success, false);
+  assert.equal(profileDataSchema.safeParse({
+    ...emptyProfile,
+    profile: { ...emptyProfile.profile, banner: 'http://example.com/image.jpg' },
+  }).success, false);
+  assert.equal(profileDataSchema.safeParse({
+    ...emptyProfile,
+    profile: { ...emptyProfile.profile, isAdmin: true },
+  }).success, false);
+  assert.equal(profileDataSchema.safeParse({
+    ...emptyProfile,
+    ownerId: 'another-account',
+  }).success, false);
+});
+
+test('profile analytics accepts only non-identifying event categories and hashes visitors per profile', () => {
+  assert.equal(profileAnalyticsEventSchema.safeParse({
+    eventType: 'link_click',
+    target: 'Profile link',
+  }).success, true);
+  assert.equal(profileAnalyticsEventSchema.safeParse({
+    eventType: 'link_click',
+    target: 'https://private.example/path?token=secret',
+  }).success, false);
+  assert.equal(profileAnalyticsEventSchema.safeParse({
+    eventType: 'contact_click',
+    target: 'person@example.com',
+  }).success, false);
+
+  const ownerId = '507f1f77bcf86cd799439011';
+  const secret = 'test-secret';
+  const visitorHash = createAnalyticsVisitorHash(ownerId, '203.0.113.8', secret);
+  assert.match(visitorHash, /^[a-f0-9]{64}$/);
+  assert.equal(visitorHash.includes('203.0.113.8'), false);
+  assert.equal(visitorHash, createAnalyticsVisitorHash(ownerId, '203.0.113.8', secret));
+  assert.notEqual(visitorHash, createAnalyticsVisitorHash('507f1f77bcf86cd799439012', '203.0.113.8', secret));
+});
+
+test('public profile payload returns only published, privacy-approved contact fields', () => {
+  const data = createEmptyProfileData();
+  data.profile.isPublished = true;
+  data.profile.phone = '+1 555 0100';
+  data.profile.location = 'Public City';
+  data.resume.summary = 'Private resume summary';
+
+  const account = {
+    id: '507f1f77bcf86cd799439011',
+    name: 'Profile Owner',
+    username: 'profile-owner',
+    email: 'owner@example.com',
+  };
+  const privatePayload = createPublicProfilePayload(account, data);
+  assert.equal(privatePayload.user.email, undefined);
+  assert.equal(privatePayload.user.phone, undefined);
+  assert.equal(privatePayload.user.location, '');
+  assert.equal(privatePayload.resume, null);
+  assert.equal(privatePayload.indexable, false);
+
+  data.profile.privacy = {
+    showEmail: true,
+    showPhone: true,
+    showLocation: true,
+    showResume: true,
+    searchEngineIndexing: true,
+  };
+  const publicPayload = createPublicProfilePayload(account, data);
+  assert.equal(publicPayload.user.email, account.email);
+  assert.equal(publicPayload.user.phone, data.profile.phone);
+  assert.equal(publicPayload.user.location, data.profile.location);
+  assert.equal(publicPayload.resume.summary, data.resume.summary);
+  assert.equal(publicPayload.indexable, true);
+
+  data.profile.isPublished = false;
+  assert.equal(createPublicProfilePayload(account, data), null);
+});
+
+test('discovery search terms escape regular-expression syntax', () => {
+  assert.equal(escapeSearchTerm('.*[name]'), '\\.\\*\\[name\\]');
 });

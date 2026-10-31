@@ -7,6 +7,7 @@ import { AuthProvider } from "@/context/AuthContext";
 import { ThemeProvider } from "@/context/ThemeContext";
 import { ProfileProvider } from "@/context/ProfileContext";
 import { ConnectionsProvider } from "@/context/ConnectionsContext";
+import PwaRegister from "@/components/PwaRegister";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -26,6 +27,16 @@ export const metadata = {
   title: "OneMe - Your Digital Identity",
   description:
     "One link for your digital identity. Create, customize, and share your personal profile, social links, and contact information.",
+  manifest: "/manifest.webmanifest",
+  icons: {
+    icon: "/icon-192.png",
+    apple: "/apple-touch-icon.png",
+  },
+  appleWebApp: {
+    capable: true,
+    title: "OneMe",
+    statusBarStyle: "black-translucent",
+  },
 };
 
 export default function RootLayout({ children }) {
@@ -53,7 +64,10 @@ export default function RootLayout({ children }) {
           <AuthProvider>
             <ProfileProvider>
               <ConnectionsProvider>
-                <ThemeProvider>{children}</ThemeProvider>
+                <ThemeProvider>
+                  <PwaRegister />
+                  {children}
+                </ThemeProvider>
               </ConnectionsProvider>
             </ProfileProvider>
           </AuthProvider>

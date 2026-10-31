@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import Link from "next/link";
 import { motion } from "framer-motion";
 
@@ -18,8 +18,8 @@ import {
   FiExternalLink,
   FiSliders,
   FiPlus,
-  FiTrendingUp,
   FiCheckCircle,
+  FiUsers,
 } from "react-icons/fi";
 
 
@@ -30,7 +30,6 @@ import { useAuth } from "@/context/AuthContext";
 import { useProfile } from "@/context/ProfileContext";
 import { useToast } from "@/context/ToastContext";
 import { copyToClipboard } from "@/libs/utils";
-import { DEMO_ANALYTICS } from "@/libs/mock-data"; //TODO: replace with real data
 import { PublicProfileView } from "@/components/PublicProfileView";
 import { ExchangeModal } from "@/components/ExchangeModal";
 import { QrShareModal } from "@/components/QrShareModal";
@@ -53,6 +52,8 @@ export default function DashboardOverviewPage() {
   const { success } = useToast();
 
   const [copied, setCopied] = useState(false);
+  const [analytics, setAnalytics] = useState(null);
+  const [analyticsError, setAnalyticsError] = useState("");
 
   const [exchangeOpen, setExchangeOpen] = useState(false);
 
@@ -62,7 +63,33 @@ export default function DashboardOverviewPage() {
 
   const activeUser = profile || user;
 
-  const { overview } = DEMO_ANALYTICS;
+  useEffect(() => {
+    let active = true;
+    fetch("/api/analytics?days=7", { cache: "no-store" })
+      .then(async (response) => {
+        const result = await response.json();
+        if (!response.ok) throw new Error(result.error || "Analytics could not be loaded.");
+        if (active) setAnalytics(result);
+      })
+      .catch((error) => {
+        if (active) setAnalyticsError(error.message || "Analytics could not be loaded.");
+      });
+
+    return () => {
+      active = false;
+    };
+  }, []);
+
+  const overview = analytics?.overview || {};
+  const strengthItems = [
+    ["Profile photo", Boolean(profile?.avatar)],
+    ["Bio", Boolean(profile?.bio)],
+    ["At least one project", projects.length > 0],
+    ["Social links", (profile?.socials?.length || 0) > 0],
+  ];
+  const profileStrength = Math.round(
+    (strengthItems.filter(([, complete]) => complete).length / strengthItems.length) * 100,
+  );
 
   const profileUrl =
     typeof window !== "undefined"
@@ -208,6 +235,11 @@ export default function DashboardOverviewPage() {
       </div>
 
       {/* Analytics Overview Grid */}
+      {analyticsError && (
+        <p role="alert" className="rounded-2xl border border-light bg-danger-soft p-4 text-sm text-danger">
+          {analyticsError}
+        </p>
+      )}
       <div
         className="
           grid
@@ -252,7 +284,7 @@ export default function DashboardOverviewPage() {
                 font-mono
               "
             >
-              1,284
+              {(overview.profileViews || 0).toLocaleString()}
             </div>
 
             <div
@@ -267,9 +299,7 @@ export default function DashboardOverviewPage() {
                 mt-1
               "
             >
-              <FiTrendingUp className="w-3 h-3" />
-
-              <span>+18.4% vs last week</span>
+              <span>Last 7 days</span>
             </div>
           </div>
         </div>
@@ -290,10 +320,10 @@ export default function DashboardOverviewPage() {
           "
         >
           <div className="flex items-center justify-between text-secondary">
-            <span className="text-sm md:text-base font-semibold">QR Scans</span>
+            <span className="text-sm md:text-base font-semibold">Daily Visitors</span>
 
             <div className="p-2 rounded-xl bg-success-soft text-success">
-              <FiGrid className="w-4 h-4" />
+              <FiUsers className="w-4 h-4" />
             </div>
           </div>
 
@@ -307,7 +337,7 @@ export default function DashboardOverviewPage() {
                 font-mono
               "
             >
-              342
+              {(overview.uniqueDailyVisitors || 0).toLocaleString()}
             </div>
 
             <div
@@ -322,9 +352,7 @@ export default function DashboardOverviewPage() {
                 mt-1
               "
             >
-              <FiTrendingUp className="w-3 h-3" />
-
-              <span>+32 scans from meetups</span>
+              <span>Approximate daily unique visitors</span>
             </div>
           </div>
         </div>
@@ -364,7 +392,7 @@ export default function DashboardOverviewPage() {
                 font-mono
               "
             >
-              187
+              {(overview.linkClicks || 0).toLocaleString()}
             </div>
 
             <div
@@ -376,7 +404,7 @@ export default function DashboardOverviewPage() {
                 mt-1
               "
             >
-              14.5% conversion CTR
+              Last 7 days
             </div>
           </div>
         </div>
@@ -398,7 +426,7 @@ export default function DashboardOverviewPage() {
         >
           <div className="flex items-center justify-between text-secondary">
             <span className="text-sm md:text-base font-semibold">
-              Contact Saves
+              Resume Downloads
             </span>
 
             <div className="p-2 rounded-xl bg-warning-soft text-warning">
@@ -416,7 +444,7 @@ export default function DashboardOverviewPage() {
                 font-mono
               "
             >
-              73
+              {(overview.resumeDownloads || 0).toLocaleString()}
             </div>
 
             <div
@@ -428,7 +456,7 @@ export default function DashboardOverviewPage() {
                 mt-1
               "
             >
-              vCards downloaded
+              Last 7 days
             </div>
           </div>
         </div>
@@ -759,7 +787,7 @@ export default function DashboardOverviewPage() {
                 </h3>
 
                 <p className="text-sm md:text-base text-secondary mt-0.5">
-                  Your profile is 95% complete
+                  Complete the basics to help people learn about you.
                 </p>
               </div>
 
@@ -772,7 +800,7 @@ export default function DashboardOverviewPage() {
                   font-mono
                 "
               >
-                95%
+                {profileStrength}%
               </span>
             </div>
 
@@ -786,12 +814,8 @@ export default function DashboardOverviewPage() {
               "
             >
               <div
-                className="
-                  h-full
-                  gradient-success
-                  w-[95%]
-                  rounded-full
-                "
+                className="h-full rounded-full gradient-success transition-all"
+                style={{ width: `${profileStrength}%` }}
               />
             </div>
 
@@ -804,201 +828,47 @@ export default function DashboardOverviewPage() {
                 md:text-base
               "
             >
-              <div className="flex items-center gap-2 text-success">
-                <FiCheckCircle className="w-3.5 h-3.5" />
-
-                <span>3 Featured Projects</span>
-              </div>
-
-              <div className="flex items-center gap-2 text-success">
-                <FiCheckCircle className="w-3.5 h-3.5" />
-
-                <span>6 Social Channels</span>
-              </div>
-
-              <div className="flex items-center gap-2 text-success">
-                <FiCheckCircle className="w-3.5 h-3.5" />
-
-                <span>Verified vCard Download</span>
-              </div>
-
-              <div className="flex items-center gap-2 text-success">
-                <FiCheckCircle className="w-3.5 h-3.5" />
-
-                <span>Custom CTA Configured</span>
-              </div>
+              {strengthItems.map(([label, complete]) => (
+                <div
+                  key={label}
+                  className={`flex items-center gap-2 ${complete ? "text-success" : "text-secondary"}`}
+                >
+                  <FiCheckCircle className="h-3.5 w-3.5" />
+                  <span>{label}</span>
+                </div>
+              ))}
             </div>
           </div>
 
-          {/* Recent Telemetry Activity Feed */}
-
-          <div
-            className="
-              p-6
-              rounded-3xl
-              bg-glass
-              border
-              border-subtle
-              backdrop-blur-md
-              space-y-4
-            "
-          >
+          <div className="space-y-4 rounded-3xl border border-subtle bg-glass p-6 backdrop-blur-md">
             <div className="flex items-center justify-between">
-              <h3 className="text-base md:text-lg font-bold text-primary">
-                Recent Activity
-              </h3>
-
+              <h3 className="text-base font-bold text-primary md:text-lg">Most Clicked Link Categories</h3>
               <Link
                 href="/dashboard/analytics"
-                className="
-                  text-sm
-                  md:text-base
-                  text-cyan
-                  hover:text-cyan
-                  font-medium
-                  transition-all
-                  duration-200
-                  ease-in-out
-                  hover:tracking-wide
-                "
+                className="text-sm font-medium text-cyan transition-all hover:tracking-wide"
               >
-                View Full Analytics →
+                View Analytics →
               </Link>
             </div>
-
-            <div className="space-y-3">
-              <div
-                className="
-                  p-3
-                  rounded-2xl
-                  bg-surface-dark/60
-                  border
-                  border-subtle
-                  flex
-                  items-center
-                  justify-between
-                  transition-all
-                  duration-200
-                  ease-in-out
-                  hover:border-light
-                "
-              >
-                <div className="flex items-center gap-3">
-                  <div className="p-2 rounded-xl bg-success-soft text-success">
-                    <FiRadio className="w-4 h-4" />
+            {analytics?.topLinks?.length ? (
+              <div className="space-y-3">
+                {analytics.topLinks.slice(0, 3).map((item, index) => (
+                  <div
+                    key={`${item.eventType}-${item.label}-${index}`}
+                    className="flex items-center justify-between gap-3 rounded-2xl border border-subtle bg-surface-dark/60 p-3"
+                  >
+                    <span className="truncate text-sm font-semibold text-primary">{item.label}</span>
+                    <span className="shrink-0 font-mono text-sm text-accent">
+                      {item.clicks.toLocaleString()} clicks
+                    </span>
                   </div>
-
-                  <div>
-                    <div className="text-sm md:text-base font-bold text-primary">
-                      OneMe Flow Exchange
-                    </div>
-
-                    <div className="text-xs md:text-sm text-secondary">
-                      With Sarah Khan (Starlight Studio)
-                    </div>
-                  </div>
-                </div>
-
-                <span
-                  className="
-                    text-xs
-                    md:text-sm
-                    text-tertiary
-                    font-mono
-                  "
-                >
-                  2h ago
-                </span>
+                ))}
               </div>
-
-              <div
-                className="
-                  p-3
-                  rounded-2xl
-                  bg-surface-dark/60
-                  border
-                  border-subtle
-                  flex
-                  items-center
-                  justify-between
-                  transition-all
-                  duration-200
-                  ease-in-out
-                  hover:border-light
-                "
-              >
-                <div className="flex items-center gap-3">
-                  <div className="p-2 rounded-xl bg-cyan-soft text-cyan">
-                    <FiMousePointer className="w-4 h-4" />
-                  </div>
-
-                  <div>
-                    <div className="text-sm md:text-base font-bold text-primary">
-                      PulseFlow Demo Clicked
-                    </div>
-
-                    <div className="text-xs md:text-sm text-secondary">
-                      Referral from LinkedIn profile
-                    </div>
-                  </div>
-                </div>
-
-                <span
-                  className="
-                    text-xs
-                    md:text-sm
-                    text-tertiary
-                    font-mono
-                  "
-                >
-                  4h ago
-                </span>
-              </div>
-
-              <div
-                className="
-                  p-3
-                  rounded-2xl
-                  bg-surface-dark/60
-                  border
-                  border-subtle
-                  flex
-                  items-center
-                  justify-between
-                  transition-all
-                  duration-200
-                  ease-in-out
-                  hover:border-light
-                "
-              >
-                <div className="flex items-center gap-3">
-                  <div className="p-2 rounded-xl bg-warning-soft text-warning">
-                    <FiDownload className="w-4 h-4" />
-                  </div>
-
-                  <div>
-                    <div className="text-sm md:text-base font-bold text-primary">
-                      vCard Downloaded
-                    </div>
-
-                    <div className="text-xs md:text-sm text-secondary">
-                      From San Francisco, CA visitor
-                    </div>
-                  </div>
-                </div>
-
-                <span
-                  className="
-                    text-xs
-                    md:text-sm
-                    text-tertiary
-                    font-mono
-                  "
-                >
-                  Yesterday
-                </span>
-              </div>
-            </div>
+            ) : (
+              <p className="text-sm text-secondary">
+                Enable anonymous analytics and share your published profile to see activity here.
+              </p>
+            )}
           </div>
         </div>
 

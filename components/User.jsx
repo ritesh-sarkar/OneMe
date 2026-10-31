@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import Link from "next/link";
 import { useParams } from "next/navigation";
 
@@ -9,19 +9,6 @@ import { PublicProfileView } from "@/components/PublicProfileView";
 import { QrShareModal } from "@/components/QrShareModal";
 import { ShareModal } from "@/components/ShareModal";
 import { ExchangeModal } from "@/components/ExchangeModal";
-import { useProfile } from "@/context/ProfileContext";
-
-// Mock data]
-//TODO: replace with real data
-import {
-  DISCOVER_PROFILES,
-  DEMO_PROJECTS,
-  DEMO_EXPERIENCE,
-  DEMO_EDUCATION,
-  DEMO_CERTIFICATIONS,
-  DEMO_ACHIEVEMENTS,
-  DEMO_RESUME,
-} from "@/libs/mock-data";
 
 // Icons
 import { FiHome, FiCompass, FiZap, FiArrowLeft } from "react-icons/fi";
@@ -32,19 +19,14 @@ export default function DynamicPublicProfilePage() {
   const rawUsername = params?.username;
 
   //TODO: replace with real data
-  const username = decodeURIComponent(rawUsername)
+  const username = (rawUsername || "")
     .replace(/^@/, "")
     .toLowerCase();
 
-  const {
-    profile,
-    projects,
-    experience,
-    education,
-    certifications,
-    achievements,
-    resume,
-  } = useProfile();
+  const [publicProfile, setPublicProfile] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [profileError, setProfileError] = useState("");
+  const [resolvedUsername, setResolvedUsername] = useState("");
 
   const [exchangeOpen, setExchangeOpen] = useState(false);
 
@@ -52,41 +34,83 @@ export default function DynamicPublicProfilePage() {
 
   const [shareOpen, setShareOpen] = useState(false);
 
-  // Check if viewing active demo user profile
-  let targetUser = profile;
-  let targetProjects = projects;
-  let targetExperience = experience;
-  let targetEducation = education;
-  let targetCertifications = certifications;
-  let targetAchievements = achievements;
-  let targetResume = resume;
+  useEffect(() => {
+    let active = true;
 
-  if (username !== profile?.username?.toLowerCase() && username !== "") {
-    const found = DISCOVER_PROFILES.find(
-      (p) => p.username.toLowerCase() === username,
-    );
+    fetch(`/api/profiles/${encodeURIComponent(username)}`, { cache: "no-store" })
+      .then(async (response) => {
+        const result = await response.json();
+        if (!response.ok) throw new Error(result.error || "Profile is unavailable.");
+        if (active) {
+          setPublicProfile(result);
+          setProfileError("");
+        }
+      })
+      .catch((error) => {
+        if (active) setProfileError(error.message || "Profile is unavailable.");
+      })
+      .finally(() => {
+        if (active) {
+          setResolvedUsername(username);
+          setLoading(false);
+        }
+      });
 
-    if (found) {
-      targetUser = {
-        ...profile,
-        ...found,
-        bio: `${found.title} based in ${found.location}. ${found.tagline} Passionate about modern software architectures, creative technologies, and human-centric design.`,
-        themeId:
-          found.category === "Developers"
-            ? "developer"
-            : found.category === "Designers"
-              ? "glass"
-              : "aurora",
-      };
+    return () => {
+      active = false;
+    };
+  }, [username]);
 
-      targetProjects = DEMO_PROJECTS.slice(0, 2);
+  const isLoading = loading || resolvedUsername !== username;
+  const targetUser = publicProfile?.user;
+  const targetProjects = publicProfile?.projects || [];
+  const targetExperience = publicProfile?.experience || [];
+  const targetEducation = publicProfile?.education || [];
+  const targetCertifications = publicProfile?.certifications || [];
+  const targetAchievements = publicProfile?.achievements || [];
+  const targetResume = publicProfile?.resume || null;
 
-      targetExperience = DEMO_EXPERIENCE.slice(0, 1);
+  const handleProfileClick = (event) => {
+    const anchor = event.target.closest?.("a[href]");
+    if (!anchor) return;
+
+    const href = anchor.getAttribute("href") || "";
+    let eventType = "link_click";
+    let target = "Profile link";
+    if (href.startsWith("mailto:")) {
+      eventType = "contact_click";
+      target = "Email";
+    } else if (href.startsWith("tel:")) {
+      eventType = "contact_click";
+      target = "Phone";
+    } else if (
+      (targetResume?.fileUrl && href === targetResume.fileUrl) ||
+      /resume|curriculum vitae|download/i.test(anchor.textContent || "")
+    ) {
+      eventType = "resume_download";
+      target = "Resume";
     }
-  }
+
+    fetch(`/api/profiles/${encodeURIComponent(targetUser.username)}/events`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ eventType, target }),
+      keepalive: true,
+    }).catch((error) => {
+      console.error("Unable to submit profile analytics event.", error);
+    });
+  };
 
   // Check if unlisted / 404
-  if (!targetUser) {
+  if (isLoading) {
+    return (
+      <div className="min-h-screen bg-surface-page flex items-center justify-center">
+        <p className="text-sm text-secondary animate-pulse">Loading OneMe profile...</p>
+      </div>
+    );
+  }
+
+  if (profileError || !targetUser) {
     return (
       <div
         className="
@@ -119,8 +143,7 @@ export default function DynamicPublicProfilePage() {
             text-secondary
           "
         >
-          The OneMe identity @{username} does not exist or has been made
-          private.
+          {profileError || `The OneMe identity @${username} does not exist or has been made private.`}
         </p>
 
         <Link
@@ -306,6 +329,7 @@ export default function DynamicPublicProfilePage() {
 
       {/* Main Public Profile View */}
       <main
+        onClick={handleProfileClick}
         className="
           pt-8
           pb-16

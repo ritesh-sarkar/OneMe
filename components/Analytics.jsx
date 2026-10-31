@@ -1,959 +1,216 @@
 "use client";
 
-import React, { useState } from "react";
-
+import React, { useEffect, useState } from "react";
+import Link from "next/link";
 import { motion } from "framer-motion";
-
-//icons
 import {
   FiEye,
-  FiGrid,
   FiMousePointer,
+  FiUsers,
   FiDownload,
-  FiGlobe,
-  FiSmartphone,
-  FiTrendingUp,
+  FiShield,
+  FiRefreshCw,
 } from "react-icons/fi";
-
-//Custom Components and libs
 import { Tabs } from "@/components/Tabs";
-import { DEMO_ANALYTICS } from "@/libs/mock-data";
+import { useProfile } from "@/context/ProfileContext";
 
 const TIMEFRAME_TABS = [
-  {
-    id: "7d",
-    label: "Last 7 Days",
-  },
-  {
-    id: "30d",
-    label: "Last 30 Days",
-  },
-  {
-    id: "90d",
-    label: "Last 90 Days",
-  },
-  {
-    id: "all",
-    label: "All Time",
-  },
+  { id: 7, label: "Last 7 Days" },
+  { id: 30, label: "Last 30 Days" },
+  { id: 90, label: "Last 90 Days" },
 ];
 
+const EMPTY_OVERVIEW = {
+  profileViews: 0,
+  uniqueDailyVisitors: 0,
+  linkClicks: 0,
+  resumeDownloads: 0,
+};
+
+function formatDay(date) {
+  return new Date(`${date}T12:00:00Z`).toLocaleDateString(undefined, {
+    month: "short",
+    day: "numeric",
+    timeZone: "UTC",
+  });
+}
+
 export default function AnalyticsPage() {
-  const [timeframe, setTimeframe] = useState("7d");
+  const [timeframe, setTimeframe] = useState(7);
+  const [analytics, setAnalytics] = useState(null);
+  const [loadedTimeframe, setLoadedTimeframe] = useState(null);
+  const [requestError, setRequestError] = useState(null);
+  const loading = loadedTimeframe !== timeframe && requestError?.timeframe !== timeframe;
+  const error = requestError?.timeframe === timeframe ? requestError.message : "";
+  const { profile } = useProfile();
 
-  const {
-    overview,
-    viewsOverTime,
-    trafficSources,
-    topClickedLinks,
-    devices,
-    geoDistribution,
-  } = DEMO_ANALYTICS;
+  useEffect(() => {
+    let active = true;
 
-  // Maximum view count for SVG chart scaling
+    fetch(`/api/analytics?days=${timeframe}`, { cache: "no-store" })
+      .then(async (response) => {
+        const result = await response.json();
+        if (!response.ok) throw new Error(result.error || "Analytics could not be loaded.");
+        if (active) {
+          setAnalytics(result);
+          setLoadedTimeframe(timeframe);
+          setRequestError(null);
+        }
+      })
+      .catch((requestError) => {
+        if (active) {
+          setRequestError({
+            timeframe,
+            message: requestError.message || "Analytics could not be loaded.",
+          });
+        }
+      });
 
-  const maxView = Math.max(
-    ...viewsOverTime.map((d) => d.views)
-  );
+    return () => {
+      active = false;
+    };
+  }, [timeframe]);
+
+  const overview = analytics?.overview || EMPTY_OVERVIEW;
+  const viewsOverTime = analytics?.viewsOverTime || [];
+  const topLinks = analytics?.topLinks || [];
+  const maxView = Math.max(1, ...viewsOverTime.map((item) => item.views));
+  const metrics = [
+    { label: "Profile Views", value: overview.profileViews, icon: FiEye, tone: "text-accent" },
+    { label: "Daily Unique Visitors", value: overview.uniqueDailyVisitors, icon: FiUsers, tone: "text-success" },
+    { label: "Link Clicks", value: overview.linkClicks, icon: FiMousePointer, tone: "text-accent" },
+    { label: "Resume Downloads", value: overview.resumeDownloads, icon: FiDownload, tone: "text-warning" },
+  ];
 
   return (
     <div className="space-y-8">
-      {/* Header */}
-
-      <div
-        className="
-          flex
-          flex-col
-          md:flex-row
-          md:items-center
-          justify-between
-          gap-4
-        "
-      >
+      <header className="flex flex-col justify-between gap-4 md:flex-row md:items-center">
         <div>
-          <h1
-            className="
-              text-2xl
-              md:text-3xl
-              font-black
-              text-text-primary
-              tracking-tight
-            "
-          >
-            Telemetry & Analytics
+          <h1 className="text-2xl font-black tracking-tight text-text-primary md:text-3xl">
+            Profile Analytics
           </h1>
+          <p className="mt-1 text-sm leading-relaxed text-secondary md:text-base">
+            Privacy-preserving engagement for your published OneMe profile.
+          </p>
+        </div>
+        <Tabs tabs={TIMEFRAME_TABS} activeTab={timeframe} onChange={setTimeframe} />
+      </header>
 
-          <p
-            className="
-              text-sm
-              md:text-base
-              text-secondary
-              leading-relaxed
-            "
+      {profile?.privacy?.allowAnalytics !== true && (
+        <div className="flex items-start gap-3 rounded-2xl border border-light bg-surface-panel/70 p-4 text-sm text-secondary">
+          <FiShield className="mt-0.5 h-5 w-5 shrink-0 text-accent" />
+          <p>
+            Anonymous analytics are off. Enable them in{" "}
+            <Link href="/dashboard/settings" className="font-semibold text-accent underline">
+              Settings &amp; Privacy
+            </Link>{" "}
+            to start counting visits and clicks on your published profile.
+          </p>
+        </div>
+      )}
+
+      {error && (
+        <div role="alert" className="rounded-2xl border border-light bg-danger-soft p-4 text-sm text-danger">
+          {error}
+        </div>
+      )}
+
+      <section className="grid grid-cols-2 gap-4 lg:grid-cols-4">
+        {metrics.map(({ label, value, icon: Icon, tone }) => (
+          <div
+            key={label}
+            className="space-y-3 rounded-3xl border border-subtle bg-glass p-5 backdrop-blur-xl transition-transform duration-200 hover:scale-[1.02]"
           >
-            Real-time engagement telemetry across views, QR scans, and link
-            clicks.
+            <div className="flex items-center justify-between gap-2 text-secondary">
+              <span className="text-sm font-semibold">{label}</span>
+              <Icon className={`h-4 w-4 shrink-0 ${tone}`} />
+            </div>
+            <div className="font-mono text-2xl font-black text-text-primary md:text-3xl">
+              {loading ? "—" : value.toLocaleString()}
+            </div>
+          </div>
+        ))}
+      </section>
+
+      <section className="space-y-6 rounded-3xl border border-subtle bg-glass p-6 backdrop-blur-xl sm:p-8">
+        <div>
+          <h2 className="text-base font-bold text-text-primary md:text-lg">Daily Profile Views</h2>
+          <p className="text-sm text-secondary">
+            Approximate visits, deduplicated to one view per visitor every 15 minutes.
           </p>
         </div>
 
-        <Tabs
-          tabs={TIMEFRAME_TABS}
-          activeTab={timeframe}
-          onChange={setTimeframe}
-        />
-      </div>
-
-      {/* Metric Cards Grid */}
-
-      <div
-        className="
-          grid
-          grid-cols-2
-          lg:grid-cols-4
-          gap-4
-        "
-      >
-        {/* Total Profile Views */}
-
-        <div
-          className="
-            p-5
-            rounded-3xl
-            bg-glass
-            border
-            border-subtle
-            backdrop-blur-xl
-            space-y-2
-            transition-all
-            duration-200
-            ease-in-out
-            hover:scale-[1.02]
-          "
-        >
+        <div className="overflow-x-auto border-b border-subtle">
           <div
-            className="
-              flex
-              items-center
-              justify-between
-              gap-2
-              text-secondary
-            "
+            className="flex h-64 min-w-full items-end justify-between gap-2 px-2 pb-2 pt-8"
+            style={{ minWidth: timeframe === 90 ? 900 : timeframe === 30 ? 600 : 0 }}
           >
-            <span
-              className="
-                text-sm
-                md:text-base
-                font-semibold
-              "
-            >
-              Total Profile Views
-            </span>
-
-            <FiEye
-              className="
-                w-4
-                h-4
-                text-accent
-                shrink-0
-              "
-            />
-          </div>
-
-          <div
-            className="
-              text-2xl
-              md:text-3xl
-              font-black
-              text-text-primary
-              font-mono
-            "
-          >
-            {overview.profileViews.toLocaleString()}
-          </div>
-
-          <div
-            className="
-              text-xs
-              md:text-sm
-              text-success
-              font-medium
-              flex
-              items-center
-              gap-1
-            "
-          >
-            <FiTrendingUp className="w-3 h-3 shrink-0" />
-
-            <span>
-              +24.2% vs previous period
-            </span>
-          </div>
-        </div>
-
-        {/* Physical QR Scans */}
-
-        <div
-          className="
-            p-5
-            rounded-3xl
-            bg-glass
-            border
-            border-subtle
-            backdrop-blur-xl
-            space-y-2
-            transition-all
-            duration-200
-            ease-in-out
-            hover:scale-[1.02]
-          "
-        >
-          <div
-            className="
-              flex
-              items-center
-              justify-between
-              gap-2
-              text-secondary
-            "
-          >
-            <span
-              className="
-                text-sm
-                md:text-base
-                font-semibold
-              "
-            >
-              Physical QR Scans
-            </span>
-
-            <FiGrid
-              className="
-                w-4
-                h-4
-                text-success
-                shrink-0
-              "
-            />
-          </div>
-
-          <div
-            className="
-              text-2xl
-              md:text-3xl
-              font-black
-              text-text-primary
-              font-mono
-            "
-          >
-            {overview.qrScans.toLocaleString()}
-          </div>
-
-          <div
-            className="
-              text-xs
-              md:text-sm
-              text-success
-              font-medium
-              flex
-              items-center
-              gap-1
-            "
-          >
-            <FiTrendingUp className="w-3 h-3 shrink-0" />
-
-            <span>
-              +18.9% from events
-            </span>
-          </div>
-        </div>
-
-        {/* Link Clicks */}
-
-        <div
-          className="
-            p-5
-            rounded-3xl
-            bg-glass
-            border
-            border-subtle
-            backdrop-blur-xl
-            space-y-2
-            transition-all
-            duration-200
-            ease-in-out
-            hover:scale-[1.02]
-          "
-        >
-          <div
-            className="
-              flex
-              items-center
-              justify-between
-              gap-2
-              text-secondary
-            "
-          >
-            <span
-              className="
-                text-sm
-                md:text-base
-                font-semibold
-              "
-            >
-              Link Clicks
-            </span>
-
-            <FiMousePointer
-              className="
-                w-4
-                h-4
-                text-accent
-                shrink-0
-              "
-            />
-          </div>
-
-          <div
-            className="
-              text-2xl
-              md:text-3xl
-              font-black
-              text-text-primary
-              font-mono
-            "
-          >
-            {overview.linkClicks.toLocaleString()}
-          </div>
-
-          <div
-            className="
-              text-xs
-              md:text-sm
-              text-accent
-              font-medium
-            "
-          >
-            14.5% conversion CTR
-          </div>
-        </div>
-
-        {/* vCards & Exchanges */}
-
-        <div
-          className="
-            p-5
-            rounded-3xl
-            bg-glass
-            border
-            border-subtle
-            backdrop-blur-xl
-            space-y-2
-            transition-all
-            duration-200
-            ease-in-out
-            hover:scale-[1.02]
-          "
-        >
-          <div
-            className="
-              flex
-              items-center
-              justify-between
-              gap-2
-              text-secondary
-            "
-          >
-            <span
-              className="
-                text-sm
-                md:text-base
-                font-semibold
-              "
-            >
-              vCards & Exchanges
-            </span>
-
-            <FiDownload
-              className="
-                w-4
-                h-4
-                text-warning
-                shrink-0
-              "
-            />
-          </div>
-
-          <div
-            className="
-              text-2xl
-              md:text-3xl
-              font-black
-              text-text-primary
-              font-mono
-            "
-          >
-            {(
-              overview.contactSaves +
-              overview.contactExchanges
-            ).toLocaleString()}
-          </div>
-
-          <div
-            className="
-              text-xs
-              md:text-sm
-              text-success
-              font-medium
-            "
-          >
-            73 saves • 45 OneMe Flow connections
-          </div>
-        </div>
-      </div>
-
-      {/* Main Interactive Views & Activity Chart */}
-
-      <div
-        className="
-          p-6
-          sm:p-8
-          rounded-3xl
-          bg-glass
-          border
-          border-subtle
-          backdrop-blur-xl
-          space-y-6
-        "
-      >
-        <div
-          className="
-            flex
-            flex-col
-            md:flex-row
-            md:items-center
-            justify-between
-            gap-3
-          "
-        >
-          <div>
-            <h3
-              className="
-                text-base
-                md:text-lg
-                font-bold
-                text-text-primary
-              "
-            >
-              Daily Views & Engagement Flow
-            </h3>
-
-            <p
-              className="
-                text-sm
-                md:text-base
-                text-secondary
-                leading-relaxed
-              "
-            >
-              Comparing profile visits and QR code activations
-            </p>
-          </div>
-
-          <div
-            className="
-              flex
-              items-center
-              gap-4
-              text-sm
-              md:text-base
-              font-mono
-            "
-          >
-            <div
-              className="
-                flex
-                items-center
-                gap-1.5
-                text-accent
-              "
-            >
-              <span
-                className="
-                  w-2.5
-                  h-2.5
-                  rounded-full
-                  bg-accent
-                "
-              />
-
-              <span>
-                Views
-              </span>
-            </div>
-
-            <div
-              className="
-                flex
-                items-center
-                gap-1.5
-                text-success
-              "
-            >
-              <span
-                className="
-                  w-2.5
-                  h-2.5
-                  rounded-full
-                  bg-success
-                "
-              />
-
-              <span>
-                QR Scans
-              </span>
-            </div>
-          </div>
-        </div>
-
-        {/* Interactive Bar/Column Chart */}
-
-        <div
-          className="
-            h-64
-            flex
-            items-end
-            justify-between
-            gap-3
-            pt-8
-            pb-2
-            px-2
-            border-b
-            border-subtle
-          "
-        >
-          {viewsOverTime.map((item, index) => {
-            const viewHeightPercent =
-              (item.views / maxView) * 100;
-
-            const scanHeightPercent =
-              (item.scans / maxView) * 100;
-
-            return (
-              <div
-                key={index}
-                className="
-                  flex-1
-                  flex
-                  flex-col
-                  items-center
-                  gap-2
-                  group
-                  relative
-                  h-full
-                  justify-end
-                "
-              >
-                {/* Tooltip on hover */}
-
+            {viewsOverTime.map((item, index) => {
+              const height = item.views ? Math.max(5, (item.views / maxView) * 100) : 0;
+              const showDate = timeframe === 7 || index % (timeframe === 30 ? 5 : 10) === 0;
+              return (
                 <div
-                  className="
-                    absolute
-                    -top-12
-                    opacity-0
-                    group-hover:opacity-100
-                    transition-opacity
-                    pointer-events-none
-                    z-20
-                    px-2.5
-                    py-1
-                    rounded-xl
-                    bg-surface-dark
-                    border
-                    border-light
-                    text-xs
-                    md:text-sm
-                    font-mono
-                    whitespace-nowrap
-                    shadow-xl
-                  "
+                  key={item.date}
+                  className="group relative flex h-full min-w-0 flex-1 flex-col items-center justify-end gap-2"
+                  title={`${formatDay(item.date)}: ${item.views} views`}
                 >
-                  <div>
-                    Views:{" "}
-                    <span className="text-accent font-bold">
-                      {item.views}
-                    </span>
-                  </div>
-
-                  <div>
-                    Scans:{" "}
-                    <span className="text-success font-bold">
-                      {item.scans}
-                    </span>
-                  </div>
-                </div>
-
-                <div
-                  className="
-                    w-full
-                    flex
-                    items-end
-                    justify-center
-                    gap-1.5
-                    h-full
-                  "
-                >
-                  {/* Views Bar */}
-
                   <motion.div
-                    initial={{
-                      height: 0,
-                    }}
-                    animate={{
-                      height: `${viewHeightPercent}%`,
-                    }}
-                    transition={{
-                      duration: 0.5,
-                      delay: index * 0.05,
-                    }}
-                    className="
-                      w-full
-                      max-w-[28px]
-                      rounded-t-lg
-                      bg-accent
-                      group-hover:brightness-110
-                      transition-colors
-                    "
+                    initial={{ height: 0 }}
+                    animate={{ height: `${height}%` }}
+                    transition={{ duration: 0.35, delay: Math.min(index * 0.01, 0.3) }}
+                    className="w-full max-w-8 rounded-t-lg bg-accent transition-colors group-hover:brightness-110"
                   />
-
-                  {/* Scans Bar */}
-
-                  <motion.div
-                    initial={{
-                      height: 0,
-                    }}
-                    animate={{
-                      height: `${scanHeightPercent}%`,
-                    }}
-                    transition={{
-                      duration: 0.5,
-                      delay: index * 0.05,
-                    }}
-                    className="
-                      w-full
-                      max-w-[14px]
-                      rounded-t-lg
-                      bg-success
-                      group-hover:brightness-110
-                      transition-colors
-                    "
-                  />
+                  {showDate && (
+                    <span className="whitespace-nowrap text-[10px] text-tertiary md:text-xs">
+                      {formatDay(item.date)}
+                    </span>
+                  )}
+                  {!showDate && <span className="text-[10px] text-transparent">.</span>}
                 </div>
-
-                <span
-                  className="
-                    text-xs
-                    md:text-sm
-                    text-tertiary
-                    font-mono
-                    mt-1
-                  "
-                >
-                  {item.date}
-                </span>
-              </div>
-            );
-          })}
+              );
+            })}
+          </div>
         </div>
-      </div>
+      </section>
 
-      {/* Two-Column Deep Insights */}
-
-      <div
-        className="
-          grid
-          grid-cols-1
-          lg:grid-cols-2
-          gap-6
-        "
-      >
-        {/* Top Clicked Links */}
-
-        <div
-          className="
-            p-6
-            sm:p-8
-            rounded-3xl
-            bg-glass
-            border
-            border-subtle
-            backdrop-blur-xl
-            space-y-4
-          "
-        >
-          <h3
-            className="
-              text-base
-              md:text-lg
-              font-bold
-              text-text-primary
-            "
-          >
-            Most Clicked Links & CTAs
-          </h3>
-
+      <section className="space-y-4 rounded-3xl border border-subtle bg-glass p-6 backdrop-blur-xl sm:p-8">
+        <div>
+          <h2 className="text-base font-bold text-text-primary md:text-lg">Most Clicked Link Categories</h2>
+          <p className="text-sm text-secondary">
+            Click labels are collected without storing destination URLs or referrers.
+          </p>
+        </div>
+        {topLinks.length ? (
           <div className="space-y-3">
-            {topClickedLinks.map((link, i) => (
+            {topLinks.map((item, index) => (
               <div
-                key={i}
-                className="
-                  p-3.5
-                  rounded-2xl
-                  bg-surface-dark/70
-                  border
-                  border-subtle
-                  flex
-                  items-center
-                  justify-between
-                  gap-3
-                  transition-all
-                  duration-200
-                  ease-in-out
-                  hover:border-accent/50
-                "
+                key={`${item.eventType}-${item.label}-${index}`}
+                className="flex items-center justify-between gap-3 rounded-2xl border border-subtle bg-surface-dark/70 p-3.5"
               >
-                <div
-                  className="
-                    min-w-0
-                    flex-1
-                  "
-                >
-                  <div
-                    className="
-                      text-sm
-                      md:text-base
-                      font-bold
-                      text-text-primary
-                      truncate
-                    "
-                  >
-                    {link.label}
-                  </div>
-
-                  <div
-                    className="
-                      text-xs
-                      md:text-sm
-                      text-tertiary
-                      font-mono
-                      truncate
-                    "
-                  >
-                    {link.url}
-                  </div>
-                </div>
-
-                <div
-                  className="
-                    text-right
-                    shrink-0
-                  "
-                >
-                  <span
-                    className="
-                      text-sm
-                      md:text-base
-                      font-mono
-                      font-bold
-                      text-accent
-                    "
-                  >
-                    {link.clicks}
-                  </span>
-
-                  <span
-                    className="
-                      text-xs
-                      md:text-sm
-                      text-tertiary
-                      ml-1
-                    "
-                  >
-                    clicks
+                <div className="flex min-w-0 items-center gap-3">
+                  <FiMousePointer className="h-4 w-4 shrink-0 text-accent" />
+                  <span className="truncate text-sm font-semibold text-text-primary">{item.label}</span>
+                  <span className="hidden shrink-0 text-xs text-tertiary sm:inline">
+                    {item.eventType.replace("_", " ")}
                   </span>
                 </div>
+                <span className="shrink-0 font-mono text-sm font-bold text-accent">
+                  {item.clicks.toLocaleString()}
+                </span>
               </div>
             ))}
           </div>
-        </div>
+        ) : (
+          <p className="rounded-2xl border border-subtle bg-surface-dark/50 p-4 text-sm text-secondary">
+            {loading ? "Loading activity…" : "No link activity for this period yet."}
+          </p>
+        )}
+      </section>
 
-        {/* Geographic Distribution & Devices */}
-
-        <div
-          className="
-            p-6
-            sm:p-8
-            rounded-3xl
-            bg-glass
-            border
-            border-subtle
-            backdrop-blur-xl
-            space-y-6
-          "
-        >
-          {/* Visitor Locations */}
-
-          <div className="space-y-3">
-            <h3
-              className="
-                text-base
-                md:text-lg
-                font-bold
-                text-text-primary
-                flex
-                items-center
-                gap-2
-              "
-            >
-              <FiGlobe
-                className="
-                  w-4
-                  h-4
-                  text-cyan
-                "
-              />
-
-              <span>
-                Visitor Locations
-              </span>
-            </h3>
-
-            <div className="space-y-2">
-              {geoDistribution.map((geo, i) => (
-                <div
-                  key={i}
-                  className="
-                    flex
-                    items-center
-                    justify-between
-                    gap-3
-                    text-sm
-                    md:text-base
-                  "
-                >
-                  <span
-                    className="
-                      text-secondary
-                      font-medium
-                      min-w-0
-                    "
-                  >
-                    {geo.country}{" "}
-
-                    <span className="text-tertiary font-normal">
-                      ({geo.city})
-                    </span>
-                  </span>
-
-                  <span
-                    className="
-                      font-mono
-                      text-secondary
-                      shrink-0
-                    "
-                  >
-                    {geo.views} views
-                  </span>
-                </div>
-              ))}
-            </div>
-          </div>
-
-          {/* Device Breakdown */}
-
-          <div
-            className="
-              space-y-3
-              pt-4
-              border-t
-              border-subtle
-            "
-          >
-            <h3
-              className="
-                text-base
-                md:text-lg
-                font-bold
-                text-text-primary
-                flex
-                items-center
-                gap-2
-              "
-            >
-              <FiSmartphone
-                className="
-                  w-4
-                  h-4
-                  text-accent
-                "
-              />
-
-              <span>
-                Device Breakdown
-              </span>
-            </h3>
-
-            <div
-              className="
-                grid
-                grid-cols-3
-                gap-2
-                text-center
-              "
-            >
-              {devices.map((dev, i) => (
-                <div
-                  key={i}
-                  className="
-                    p-2.5
-                    rounded-xl
-                    bg-surface-dark/80
-                    border
-                    border-subtle
-                    transition-all
-                    duration-200
-                    ease-in-out
-                    hover:scale-[1.02]
-                  "
-                >
-                  <div
-                    className="
-                      text-base
-                      md:text-lg
-                      font-bold
-                      text-text-primary
-                      font-mono
-                    "
-                  >
-                    {dev.percentage}%
-                  </div>
-
-                  <div
-                    className="
-                      text-xs
-                      md:text-sm
-                      text-tertiary
-                      mt-0.5
-                      truncate
-                    "
-                  >
-                    {dev.device}
-                  </div>
-                </div>
-              ))}
-            </div>
-          </div>
-        </div>
-      </div>
+      <p className="text-xs leading-relaxed text-tertiary">
+        Analytics use a keyed, pseudonymous visitor token; raw IP addresses, email addresses, link destinations,
+        referrers, locations, and device details are not stored. Events are retained for up to 90 days.
+      </p>
     </div>
   );
 }

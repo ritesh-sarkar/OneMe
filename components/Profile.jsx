@@ -55,10 +55,11 @@ export default function ProfileEditorPage() {
     toggleSectionVisibility,
     resetToDemo,
   } = useProfile();
-  const { success, info } = useToast();
+  const { success, info, error: toastError } = useToast();
   const [activeTab, setActiveTab] = useState("personal");
   const [newSkillName, setNewSkillName] = useState("");
   const [newSkillLevel, setNewSkillLevel] = useState("Expert");
+  const [uploadingImage, setUploadingImage] = useState("");
 
   // File upload refs
   const avatarInputRef = useRef(null);
@@ -82,39 +83,64 @@ export default function ProfileEditorPage() {
     });
   };
 
-  // Real client-side image file upload via FileReader (base64)
-  const handleAvatarUpload = (e) => {
-    const file = e.target.files?.[0];
-    if (file) {
-      if (file.size > 5 * 1024 * 1024) {
-        info("Please select an image smaller than 5MB.");
-        return;
+  const handleImageUpload = async (event, kind) => {
+    const input = event.currentTarget;
+    const file = input.files?.[0];
+    input.value = "";
+    if (!file) return;
+
+    if (!["image/jpeg", "image/png", "image/webp", "image/avif"].includes(file.type)) {
+      info("Choose a JPEG, PNG, WebP, or AVIF image.");
+      return;
+    }
+    if (file.size > 5 * 1024 * 1024) {
+      info("Please select an image smaller than 5MB.");
+      return;
+    }
+
+    setUploadingImage(kind);
+    try {
+      const signatureResponse = await fetch("/api/uploads/signature", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ kind }),
+      });
+      const signature = await signatureResponse.json();
+      if (!signatureResponse.ok) {
+        throw new Error(signature.error || "Image upload is unavailable.");
       }
-      const reader = new FileReader();
-      reader.onload = (event) => {
-        const base64Url = event.target.result;
-        updateProfile({ avatar: base64Url });
-        success("Avatar photo updated successfully!");
-      };
-      reader.readAsDataURL(file);
+
+      const formData = new FormData();
+      Object.entries(signature.params).forEach(([key, value]) => formData.append(key, String(value)));
+      formData.append("api_key", signature.apiKey);
+      formData.append("signature", signature.signature);
+      formData.append("file", file);
+
+      const uploadResponse = await fetch(
+        `https://api.cloudinary.com/v1_1/${encodeURIComponent(signature.cloudName)}/image/upload`,
+        { method: "POST", body: formData },
+      );
+      const uploadResult = await uploadResponse.json();
+      const uploadedUrl = new URL(uploadResult.secure_url || "");
+      if (
+        !uploadResponse.ok ||
+        uploadedUrl.protocol !== "https:" ||
+        uploadedUrl.hostname !== "res.cloudinary.com" ||
+        !uploadResult.public_id?.startsWith(`oneme/${profile.id}/profile/`)
+      ) {
+        throw new Error("The image provider rejected the upload.");
+      }
+
+      updateProfile({ [kind]: uploadedUrl.toString() });
+      success(kind === "avatar" ? "Avatar photo updated." : "Banner image updated.");
+    } catch (uploadError) {
+      toastError(uploadError.message || "Image upload failed. Please try again.");
+    } finally {
+      setUploadingImage("");
     }
   };
-  const handleBannerUpload = (e) => {
-    const file = e.target.files?.[0];
-    if (file) {
-      if (file.size > 5 * 1024 * 1024) {
-        info("Please select an image smaller than 5MB.");
-        return;
-      }
-      const reader = new FileReader();
-      reader.onload = (event) => {
-        const base64Url = event.target.result;
-        updateProfile({ banner: base64Url });
-        success("Banner image updated successfully!");
-      };
-      reader.readAsDataURL(file);
-    }
-  };
+  const handleAvatarUpload = (event) => handleImageUpload(event, "avatar");
+  const handleBannerUpload = (event) => handleImageUpload(event, "banner");
   const handleAddSocial = () => {
     const newSocial = {
       id: `soc_${Date.now()}`,
@@ -395,7 +421,7 @@ export default function ProfileEditorPage() {
                           type="file"
                           ref={avatarInputRef}
                           onChange={handleAvatarUpload}
-                          accept="image/*"
+                          accept="image/jpeg,image/png,image/webp,image/avif"
                           className="
                         hidden
                       "
@@ -405,6 +431,7 @@ export default function ProfileEditorPage() {
                           onClick={() => avatarInputRef.current?.click()}
                           variant="outline"
                           size="sm"
+                          isLoading={uploadingImage === "avatar"}
                           icon={FiUploadCloud}
                           className="
                         w-full
@@ -480,7 +507,7 @@ export default function ProfileEditorPage() {
                           type="file"
                           ref={bannerInputRef}
                           onChange={handleBannerUpload}
-                          accept="image/*"
+                          accept="image/jpeg,image/png,image/webp,image/avif"
                           className="
                         hidden
                       "
@@ -490,6 +517,7 @@ export default function ProfileEditorPage() {
                           onClick={() => bannerInputRef.current?.click()}
                           variant="outline"
                           size="sm"
+                          isLoading={uploadingImage === "banner"}
                           icon={FiImage}
                           className="
                         w-full
