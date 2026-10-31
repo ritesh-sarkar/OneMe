@@ -21,6 +21,8 @@ export function AuthProvider({ children }) {
     // Check localStorage on mount
     const savedUser = storage.get('auth_user', null);
     if (savedUser) {
+      // Restoring client-only storage after hydration is intentional.
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       setUser(savedUser);
     }
     setIsLoading(false);

@@ -19,6 +19,8 @@ export function ThemeProvider({ children }) {
   useEffect(() => {
     const savedTheme = storage.get("active_theme_id", "cyberpunk");
     const savedCustom = storage.get("custom_theme_options", null);
+    // Restore client-only storage after hydration.
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     if (savedTheme) setCurrentThemeId(savedTheme);
     if (savedCustom) setCustomOptions(savedCustom);
   }, []);

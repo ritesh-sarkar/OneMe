@@ -13,6 +13,8 @@ export function ConnectionsProvider({ children }) {
   useEffect(() => {
     const saved = storage.get('user_connections', null);
     if (saved) {
+      // Restore client-only storage after hydration.
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       setConnections(saved);
     }
     setIsLoaded(true);

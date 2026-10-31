@@ -1,36 +1,72 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://github.com/vercel/next.js/tree/canary/packages/create-next-app).
+# OneMe
 
-## Getting Started
+**Your identity. One link.**
 
-First, run the development server:
+OneMe is a JavaScript/Next.js prototype for a personal digital identity and contact-card platform. It includes a substantial responsive UI for profiles, projects, resume information, appearance, connections, analytics, discovery, and OneMe Flow.
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+## Current implementation status
+
+This repository is a frontend prototype, not a production account service. The UI is backed by sample data and browser `localStorage`; it does not currently have application API routes or a connected database.
+
+- Login, signup, Google login, and password recovery are simulated in the browser. Do not use real credentials.
+- Profile, theme, and connection edits are stored in the current browser only.
+- Public profiles, discovery, analytics, and notifications are not backed by shared persistent data.
+- The OneMe Flow UI is a preview using sample profiles. It does not create secure sessions, contact real nearby users, exchange consented fields, or save real contacts. Its QR links are marked as previews.
+- Image selection, AI assistance, and other dashboard tools are not connected to secure server-side integrations.
+- MongoDB, Auth.js, Brevo, Cloudinary, Upstash, and a production AI provider are not configured by this prototype.
+
+Do not deploy this version as a production service or enter sensitive personal information. Production use requires server-side authentication, persistence, authorization, privacy enforcement, rate limiting, and the external integrations described in the product requirements.
+
+## Technology
+
+- Next.js 16 App Router
+- React 19 and JavaScript/JSX
+- Tailwind CSS 4
+- Framer Motion
+- React Icons
+- QR and vCard utilities
+
+## Project structure
+
+```text
+app/         App Router pages and layouts
+components/  Reusable UI and page components
+context/     Client-side auth, profile, theme, connections, and toast state
+libs/        Browser storage, sample data, theme, QR, and vCard helpers
+public/      Static assets
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## Local development
 
-You can start editing the page by modifying `app/page.js`. The page auto-updates as you edit the file.
+Use the Node.js version supported by the installed Next.js release.
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+```bash
+npm ci
+npm run dev
+```
 
-## Learn More
+Open [http://localhost:3000](http://localhost:3000).
 
-To learn more about Next.js, take a look at the following resources:
+Available checks:
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+```bash
+npm run lint
+npm run build
+```
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+There is currently no automated unit, integration, or end-to-end test suite.
 
-## Deploy on Vercel
+## Routes in the prototype
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+- `/` — landing page
+- `/[username]` — public profile preview
+- `/dashboard` and `/dashboard/*` — dashboard UI
+- `/discover` — discovery preview
+- `/exchange` — OneMe Flow preview
+- `/login`, `/signup`, `/forgot-password` — simulated account screens
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+## Production work still required
+
+Before production deployment, implement and test the server-side account lifecycle, MongoDB persistence, validated and authorized APIs, distributed rate limiting, transactional email, secure image uploads, analytics, privacy controls, and consent-enforced OneMe Flow sessions. Configure service credentials only in the deployment environment; never commit `.env` files or secrets.
+
+The current project does not consume production service environment variables, so deployment instructions for MongoDB Atlas, Brevo, Cloudinary, Upstash, AI, and Vercel would be premature. Document each integration when it is implemented and verified.

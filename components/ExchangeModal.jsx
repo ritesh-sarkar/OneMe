@@ -1,20 +1,14 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import confetti from 'canvas-confetti';
 import {
   FiRadio,
   FiGrid,
   FiZap,
   FiCheckCircle,
   FiUserCheck,
-  FiShield,
-  FiArrowRight,
   FiRefreshCw,
-  FiMail,
-  FiPhone,
-  FiShare2,
 } from 'react-icons/fi';
 import { Modal } from '@/components/Modal';
 import { Button } from '@/components/Button';
@@ -22,7 +16,6 @@ import { Toggle } from '@/components/Toggle';
 import { RadarScan } from './RadarScan';
 import { PeerCard } from './PeerCard.jsx';
 import { QrGenerator } from '@/components/QrGenerator';
-import { useConnections } from '@/context/ConnectionsContext';
 import { useToast } from '@/context/ToastContext';
 
 const NEARBY_PEERS = [
@@ -85,15 +78,13 @@ export function ExchangeModal({ isOpen, onClose, currentUser }) {
   const [shareSocials, setShareSocials] = useState(true);
   const [shareResume, setShareResume] = useState(false);
 
-  const { addConnection } = useConnections();
-  const { success } = useToast();
+  const { info } = useToast();
 
-  useEffect(() => {
-    if (isOpen) {
-      setStep('discover');
-      setSelectedPeer(null);
-    }
-  }, [isOpen]);
+  const handleClose = () => {
+    setStep('discover');
+    setSelectedPeer(null);
+    onClose();
+  };
 
   const handlePeerSelect = (peer) => {
     setSelectedPeer(peer);
@@ -110,33 +101,18 @@ export function ExchangeModal({ isOpen, onClose, currentUser }) {
   const handleConfirmExchange = () => {
     if (!selectedPeer) return;
 
-    addConnection(selectedPeer, activeMode === 'radar' ? 'OneMe Flow Radar' : 'QR Scan');
-
-    try {
-      confetti({
-        particleCount: 80,
-        spread: 60,
-        origin: { y: 0.6 },
-        colors: ['#00f2fe', '#fe019a', '#10b981', '#a3e635'],
-      });
-    } catch (e) {
-      // safe fallback
-    }
-
     setStep('success');
-    success(`Connected with ${selectedPeer.name}! Added to My Connections.`);
+    info('This preview did not send or save any contact information.', 'Preview only');
   };
 
-  const exchangeQrUrl = typeof window !== 'undefined'
-    ? `${window.location.origin}/exchange?token=flow_${Date.now()}&from=${currentUser?.username || 'ritesh'}`
-    : `https://oneme.app/exchange?token=flow_demo`;
+  const exchangeQrUrl = `https://oneme.app/exchange?preview=1&from=${encodeURIComponent(currentUser?.username || 'ritesh')}`;
 
   return (
     <Modal
       isOpen={isOpen}
-      onClose={onClose}
+      onClose={handleClose}
       title="OneMe Flow — Contact Protocol"
-      description="Instant mutual digital contact exchange without typing phone numbers or swapping visiting cards"
+      description="Interactive preview only. Secure server-backed exchange sessions are not available yet."
       maxWidth="max-w-lg"
     >
       <div className="space-y-5 py-2">
@@ -180,8 +156,8 @@ export function ExchangeModal({ isOpen, onClose, currentUser }) {
 
             <div className="space-y-2">
               <div className="flex items-center justify-between text-xs text-secondary px-1">
-                <span>Nearby OneMe Members ({NEARBY_PEERS.length})</span>
-                <span className="font-mono text-success">● 4 Online</span>
+                <span>Sample demo profiles ({NEARBY_PEERS.length})</span>
+                <span className="font-mono text-secondary">Preview data</span>
               </div>
               <div className="space-y-2 max-h-48 overflow-y-auto pr-1">
                 {NEARBY_PEERS.map((peer) => (
@@ -218,7 +194,7 @@ export function ExchangeModal({ isOpen, onClose, currentUser }) {
               title="Scan to Exchange OneMe Identity"
             />
             <p className="text-xs text-center text-secondary leading-relaxed">
-              When another person scans this dynamic exchange code, you will both receive an instant mutual exchange prompt.
+              Preview only: this code opens the demo exchange page and does not create a secure exchange session.
             </p>
           </div>
         )}
@@ -231,10 +207,10 @@ export function ExchangeModal({ isOpen, onClose, currentUser }) {
             </div>
             <div className="space-y-1">
               <h4 className="text-base font-bold text-primary">
-                Connecting with {selectedPeer?.name}...
+                Previewing a request for {selectedPeer?.name}...
               </h4>
               <p className="text-xs text-secondary">
-                Sending encrypted OneMe Flow handshake invitation to {selectedPeer?.title}
+                Previewing the exchange request flow for {selectedPeer?.title}
               </p>
             </div>
           </div>
@@ -246,7 +222,7 @@ export function ExchangeModal({ isOpen, onClose, currentUser }) {
             <div className="flex items-center gap-3 p-3.5 rounded-xl bg-success-soft border border-light text-success text-xs">
               <FiUserCheck className="w-5 h-5 shrink-0" />
               <span>
-                <strong>{selectedPeer.name}</strong> accepted your Flow request! Choose what details you wish to exchange:
+                <strong>{selectedPeer.name}</strong> appears in this demo preview. Choose what details you would share in a live exchange:
               </span>
             </div>
 
@@ -316,23 +292,18 @@ export function ExchangeModal({ isOpen, onClose, currentUser }) {
 
             <div className="space-y-1">
               <h4 className="text-lg font-bold text-primary">
-                OneMe Flow Exchange Complete!
+                OneMe Flow Preview Complete
               </h4>
               <p className="text-xs text-secondary max-w-sm">
-                You and <strong>{selectedPeer.name}</strong> now have each other’s verified digital contact card saved.
+                No request was sent, no contact details were exchanged, and no contact was saved.
               </p>
             </div>
 
             <div className="p-4 rounded-xl bg-surface-dark border border-subtle w-full text-left flex items-center gap-3.5">
-              <img
-                src={selectedPeer.avatar}
-                alt={selectedPeer.name}
-                className="w-12 h-12 rounded-full object-cover border border-light"
-              />
               <div className="min-w-0 flex-1">
                 <div className="text-sm font-bold text-primary truncate">{selectedPeer.name}</div>
-                <div className="text-xs text-secondary truncate">{selectedPeer.email}</div>
-                <div className="text-xs text-cyan font-mono mt-0.5">{selectedPeer.phone}</div>
+                <div className="text-xs text-secondary truncate">{selectedPeer.title}</div>
+                <div className="text-xs text-secondary mt-0.5">Sample profile; not a real participant.</div>
               </div>
             </div>
 
@@ -350,7 +321,7 @@ export function ExchangeModal({ isOpen, onClose, currentUser }) {
                 Flow Another
               </Button>
               <Button
-                onClick={onClose}
+                onClick={handleClose}
                 variant="primary"
                 size="md"
                 className="flex-1"

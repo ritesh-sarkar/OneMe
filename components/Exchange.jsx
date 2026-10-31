@@ -78,10 +78,7 @@ export default function ExchangeStudioPage() {
 
   const username = profile?.username || "ritesh";
 
-  const exchangeUrl =
-    typeof window !== "undefined"
-      ? `${window.location.origin}/exchange?token=flow_${Date.now()}&from=${encodeURIComponent(username)}`
-      : "https://oneme.app/exchange?token=flow_demo";
+  const exchangeUrl = `https://oneme.app/exchange?preview=1&from=${encodeURIComponent(username)}`;
 
   const handleSelectPeer = (peer) => {
     setSelectedPeer(peer);
@@ -294,7 +291,7 @@ export default function ExchangeStudioPage() {
                     "
                   />
 
-                  OneMe Flow Radar Active (4 peers nearby)
+                  Demo radar preview (4 sample profiles)
                 </span>
 
                 <span
@@ -304,7 +301,7 @@ export default function ExchangeStudioPage() {
                     font-mono
                   "
                 >
-                  Range ~10m
+                  Simulation
                 </span>
               </div>
 
@@ -340,7 +337,7 @@ export default function ExchangeStudioPage() {
               <QrGenerator
                 url={exchangeUrl}
                 username={username}
-                title="Dynamic OneMe Flow QR"
+                title="OneMe Flow Preview QR"
               />
 
               <p
@@ -354,9 +351,8 @@ export default function ExchangeStudioPage() {
                   mx-auto
                 "
               >
-                This dynamic code creates a private 1-to-1 session token.
-                When scanned, both devices receive instant mutual permission
-                prompts.
+                Preview only: this code opens the demo exchange page and does
+                not create a secure, participant-bound session.
               </p>
             </div>
           )}
@@ -396,7 +392,7 @@ export default function ExchangeStudioPage() {
                 text-primary
               "
             >
-              Nearby Discovered Peers
+              Sample Demo Profiles
             </h3>
 
             <span
@@ -408,7 +404,7 @@ export default function ExchangeStudioPage() {
                 whitespace-nowrap
               "
             >
-              4 Online
+              Preview Data
             </span>
           </div>
 

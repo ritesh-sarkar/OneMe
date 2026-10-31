@@ -34,6 +34,8 @@ export function ProfileProvider({ children }) {
     const savedAchievements = storage.get("user_achievements", null);
     const savedResume = storage.get("user_resume", null);
 
+    // Restore client-only storage after hydration.
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     if (savedProfile) setProfile(savedProfile);
     if (savedProjects) setProjects(savedProjects);
     if (savedExperience) setExperience(savedExperience);
