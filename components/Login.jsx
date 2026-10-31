@@ -1,9 +1,10 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { motion } from "framer-motion";
+import { getProviders, signIn } from "next-auth/react";
 
 // Icons
 import {
@@ -14,6 +15,7 @@ import {
   FiArrowRight,
   FiAlertCircle,
 } from "react-icons/fi";
+import { FcGoogle } from "react-icons/fc";
 
 // Custom Components and libs
 import { Button } from "@/components/Button";
@@ -29,12 +31,27 @@ export default function LoginPage() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [resendMessage, setResendMessage] = useState("");
   const [isResending, setIsResending] = useState(false);
+  const [googleEnabled, setGoogleEnabled] = useState(false);
 
   const { login } = useAuth();
 
   const { success, error: toastError } = useToast();
 
   const router = useRouter();
+
+  useEffect(() => {
+    let active = true;
+    getProviders()
+      .then((providers) => {
+        if (active) setGoogleEnabled(Boolean(providers?.google));
+      })
+      .catch((error) => {
+        console.error("Unable to load sign-in providers.", error?.name || "UnknownError");
+      });
+    return () => {
+      active = false;
+    };
+  }, []);
 
   const handleLogin = async (e) => {
     if (e) {
@@ -78,6 +95,26 @@ export default function LoginPage() {
       setResendMessage(error.message || "Email service is temporarily unavailable.");
     } finally {
       setIsResending(false);
+    }
+  };
+
+  const handleGoogleSignIn = async () => {
+    setErrorMsg("");
+    setIsSubmitting(true);
+    try {
+      const result = await signIn("google", {
+        callbackUrl: "/dashboard",
+        redirect: false,
+      });
+      if (result?.error || !result?.url) {
+        throw new Error("Google sign-in is unavailable. Please try again or use email and password.");
+      }
+      window.location.assign(result.url);
+    } catch (error) {
+      setErrorMsg(error.message || "Google sign-in is temporarily unavailable.");
+      toastError(error.message || "Google sign-in is temporarily unavailable.");
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
@@ -342,6 +379,31 @@ export default function LoginPage() {
             </div>
           </form>
 
+          {googleEnabled && (
+            <>
+              <div className="flex items-center gap-3 text-xs text-tertiary">
+                <span className="h-px flex-1 bg-subtle" />
+                <span>or</span>
+                <span className="h-px flex-1 bg-subtle" />
+              </div>
+              <div className="space-y-2">
+                <Button
+                  type="button"
+                  onClick={handleGoogleSignIn}
+                  disabled={isSubmitting}
+                  variant="outline"
+                  size="lg"
+                  icon={FcGoogle}
+                  className="w-full justify-center"
+                >
+                  Continue with Google
+                </Button>
+                <p className="text-center text-xs text-tertiary">
+                  A verified Google account can sign in or create a OneMe account.
+                </p>
+              </div>
+            </>
+          )}
         </div>
 
         {/* Footer Link */}

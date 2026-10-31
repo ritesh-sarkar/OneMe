@@ -6,17 +6,16 @@ OneMe is a JavaScript/Next.js personal digital identity and contact-card platfor
 
 ## Implementation status
 
-The account lifecycle has server-backed registration, email verification, sign-in, session checks, and password reset using MongoDB/Mongoose, Auth.js (NextAuth), Brevo transactional email, and Upstash Redis rate limiting. The dashboard requires a valid server session. Authenticated profile, theme, project, career, certification, achievement, resume, and privacy data are stored in MongoDB. Public profile reads require publication and redact contact fields according to privacy controls. Profile photos, banners, and PDF resumes use owner-scoped signed Cloudinary uploads.
+The account lifecycle has server-backed registration, email verification, email/password and optional Google sign-in, session checks, and password reset using MongoDB/Mongoose, Auth.js (NextAuth), Brevo transactional email, and Upstash Redis rate limiting. Google accounts must report a verified email; sign-in matches or creates the OneMe account using that email. The dashboard requires a valid server session. Authenticated profile, theme, project, career, certification, achievement, resume, and privacy data are stored in MongoDB. Public profile reads require publication and redact contact fields according to privacy controls. Profile photos, banners, and PDF resumes use owner-scoped signed Cloudinary uploads.
 
 This is still an early implementation, not a production-ready platform:
 
-- Account and profile features require configured MongoDB, Brevo, Upstash, and Cloudinary services. These provider integrations have not been live-tested in this repository because credentials are not configured.
+- Account and profile features require configured MongoDB, Brevo, Upstash, and Cloudinary services. Google OAuth and Gemini also require provider credentials. These provider integrations have not been live-tested in this repository because credentials are not configured.
 - The public discovery directory uses published, verified profiles that opted in separately; analytics are off by default and record approximate profile views and link categories only when enabled.
 - Connections are persisted as accepted OneMe Flow exchanges. Requests use exact verified usernames; each participant explicitly chooses which contact categories to share, and no contact data is disclosed until the recipient accepts and selects their own fields. Requests expire after seven days; either party can cancel or decline, and saved connections can be removed.
 - OneMe Flow does not scan for nearby devices or use a proximity radar. Exchange requests use verified usernames and explicit, two-sided consent through the dashboard and public profiles.
 - The AI profile assistant uses server-side Gemini requests with bounded prompts and rate limits. Prompts are sent to Google only when a member explicitly requests generation; profile data is not automatically included. Provider credentials and live generation have not been tested here.
 - The notification center now surfaces and persists read/dismissed state for OneMe Flow requests and responses. Other activity types are not connected yet.
-- Google sign-in is not implemented.
 
 The app also includes baseline security headers and a static/offline-only PWA shell. Do not deploy this version as a production service or enter sensitive personal information. Production use still requires service configuration and end-to-end testing with configured providers.
 
@@ -28,7 +27,7 @@ The app also includes baseline security headers and a static/offline-only PWA sh
 - Framer Motion
 - React Icons
 - MongoDB with Mongoose for account data
-- Auth.js / NextAuth Credentials for email-and-password sessions
+- Auth.js / NextAuth Credentials and optional Google OAuth sign-in
 - Brevo for verification and password-reset email
 - Upstash Redis REST for distributed authentication rate limits
 - Cloudinary for signed profile image and resume uploads
@@ -52,6 +51,7 @@ Use the Node.js version supported by the installed Next.js release. Copy `.env.e
 - `MONGODB_URI`
 - `AUTH_SECRET` (a long random secret)
 - `NEXTAUTH_URL` (for local development, `http://localhost:3000`)
+- `GOOGLE_CLIENT_ID` and `GOOGLE_CLIENT_SECRET` to enable Google sign-in. Configure the OAuth redirect URI as `${NEXTAUTH_URL}/api/auth/callback/google`.
 - `BREVO_API_KEY`, `BREVO_SENDER_EMAIL`, and `BREVO_SENDER_NAME`
 - `UPSTASH_REDIS_REST_URL` and `UPSTASH_REDIS_REST_TOKEN`
 - `CLOUDINARY_CLOUD_NAME`, `CLOUDINARY_API_KEY`, `CLOUDINARY_API_SECRET`, `CLOUDINARY_IMAGE_UPLOAD_PRESET`, and `CLOUDINARY_RESUME_UPLOAD_PRESET`. Configure the signed image preset to enforce a 5 MB maximum and JPEG, PNG, WebP, or AVIF formats. Configure the signed resume preset to enforce a 10 MB maximum and PDF-only uploads.
@@ -96,4 +96,4 @@ npm run build
 
 ## Production work still required
 
-Expand notifications to other activity types, add Google sign-in, configure and review deployment security, and test the complete lifecycle—including two-account contact exchange and Gemini generation—with real service integrations. Analytics retain events for up to 90 days, deduplicate visitor events into 15-minute windows, and do not store raw IP addresses, referrers, destination URLs, locations, or device details.
+Expand notifications to other activity types, configure and review deployment security, and test the complete lifecycle—including Google OAuth, two-account contact exchange, and Gemini generation—with real service integrations. Analytics retain events for up to 90 days, deduplicate visitor events into 15-minute windows, and do not store raw IP addresses, referrers, destination URLs, locations, or device details.

@@ -17,6 +17,7 @@ import {
 import { generateVCard } from '../libs/vcard.js';
 import { aiCopyRequestSchema, parseGeneratedAiCopy } from '../libs/ai-validation.js';
 import { markAllNotificationsSchema, notificationActionSchema } from '../libs/notification-validation.js';
+import { getVerifiedGoogleIdentity } from '../libs/google-auth.js';
 
 test('registration normalizes email, rejects unexpected fields, and enforces a valid name', () => {
   const parsed = registrationSchema.safeParse({
@@ -338,6 +339,32 @@ test('notification mutations accept only owner-scoped event identifiers', () => 
   }).success, false);
   assert.equal(markAllNotificationsSchema.safeParse({ all: true }).success, true);
   assert.equal(markAllNotificationsSchema.safeParse({ all: false }).success, false);
+});
+
+test('Google OAuth accepts only verified, valid, non-disposable account identities', () => {
+  assert.deepEqual(getVerifiedGoogleIdentity({
+    email: '  MEMBER@EXAMPLE.COM ',
+    email_verified: true,
+    name: 'Member Name',
+  }), {
+    name: 'Member Name',
+    email: 'member@example.com',
+  });
+  assert.equal(getVerifiedGoogleIdentity({
+    email: 'member@example.com',
+    email_verified: false,
+    name: 'Member Name',
+  }), null);
+  assert.equal(getVerifiedGoogleIdentity({
+    email: 'not-an-email',
+    email_verified: true,
+    name: 'Member Name',
+  }), null);
+  assert.equal(getVerifiedGoogleIdentity({
+    email: 'member@mailinator.com',
+    email_verified: true,
+    name: 'Member Name',
+  }), null);
 });
 
 test('public profile payload returns only published, privacy-approved contact fields', () => {
