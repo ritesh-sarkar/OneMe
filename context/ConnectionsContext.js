@@ -1,85 +1,125 @@
 'use client';
 
-import React, { createContext, useContext, useState, useEffect } from 'react';
-import { storage } from '@/libs/storage';
-import { DEMO_CONNECTIONS } from '@/libs/mock-data';
+import React, { createContext, useCallback, useContext, useEffect, useState } from 'react';
 import { useAuth } from '@/context/AuthContext';
 
 const ConnectionsContext = createContext(null);
 
+function normalizeConnection(connection) {
+  const peer = connection.peer || {};
+  const contact = connection.contact || {};
+  return {
+    id: connection.id,
+    name: peer.name || 'OneMe contact',
+    username: peer.username || '',
+    title: peer.title || '',
+    company: '',
+    location: '',
+    avatar: peer.avatar || '',
+    dateConnected: connection.dateConnected,
+    exchangeMethod: connection.exchangeMethod,
+    email: contact.email || '',
+    phone: contact.phone || '',
+    socials: contact.socials || [],
+    resume: contact.resume || null,
+    notes: 'Shared with your consent using OneMe Flow.',
+  };
+}
+
 export function ConnectionsProvider({ children }) {
   const { user } = useAuth();
-  const storageKey = (key) => user ? `${key}_account_${user.id}` : key;
-  const [connections, setConnections] = useState(DEMO_CONNECTIONS);
+  const userId = user?.id;
+  const [connections, setConnections] = useState([]);
   const [isLoaded, setIsLoaded] = useState(false);
+  const [loadedFor, setLoadedFor] = useState(null);
+  const [loadError, setLoadError] = useState('');
+
+  const refreshConnections = useCallback(async () => {
+    if (!userId) {
+      setConnections([]);
+      setIsLoaded(true);
+      setLoadedFor(null);
+      setLoadError('');
+      return [];
+    }
+
+    const response = await fetch('/api/connections', { cache: 'no-store' });
+    const result = await response.json();
+    if (!response.ok) throw new Error(result.error || 'Connections could not be loaded.');
+
+    const nextConnections = result.connections.map(normalizeConnection);
+    setConnections(nextConnections);
+    setLoadedFor(userId);
+    setLoadError('');
+    setIsLoaded(true);
+    return nextConnections;
+  }, [userId]);
 
   useEffect(() => {
-    const saved = storage.get(storageKey('user_connections'), null);
-    // eslint-disable-next-line react-hooks/set-state-in-effect
-    setConnections(saved || (user ? [] : DEMO_CONNECTIONS));
-    setIsLoaded(true);
-  }, [user]);
+    let active = true;
+    if (!userId) {
+      return () => {
+        active = false;
+      };
+    }
 
-  const visibleConnections = user
-    ? connections.filter((connection) => connection.ownerId === user.id)
-    : connections.filter((connection) => !connection.ownerId);
+    fetch('/api/connections', { cache: 'no-store' })
+      .then(async (response) => {
+        const result = await response.json();
+        if (!response.ok) throw new Error(result.error || 'Connections could not be loaded.');
+        if (active) {
+          setConnections(result.connections.map(normalizeConnection));
+          setLoadedFor(userId);
+          setLoadError('');
+        }
+      })
+      .catch((error) => {
+        if (active) {
+          setConnections([]);
+          setLoadedFor(userId);
+          setLoadError(error.message || 'Connections could not be loaded.');
+        }
+      })
+      .finally(() => {
+        if (active) setIsLoaded(true);
+      });
 
-  const addConnection = (peer, method = 'OneMe Flow Radar') => {
-    const newConn = {
-      id: `conn_${Date.now()}`,
-      ownerId: user?.id || null,
-      name: peer.name || 'New Contact',
-      username: peer.username || 'contact',
-      title: peer.title || 'Professional',
-      company: peer.company || 'Tech Pioneer',
-      location: peer.location || 'Global',
-      avatar: peer.avatar || 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&q=80&w=400',
-      dateConnected: new Date().toISOString(),
-      exchangeMethod: method,
-      email: peer.email || `${peer.username || 'contact'}@demo.app`,
-      phone: peer.phone || '+1 (555) 019-2831',
-      notes: peer.notes || 'Connected via OneMe Contact Exchange.',
+    return () => {
+      active = false;
     };
+  }, [userId]);
 
-    setConnections((prev) => {
-      // Check if already connected by username
-      const filtered = prev.filter((c) => c.username !== newConn.username);
-      const updated = [newConn, ...filtered];
-      storage.set(storageKey('user_connections'), updated);
-      return updated;
+  const removeConnection = async (id) => {
+    const response = await fetch('/api/connections', {
+      method: 'DELETE',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ id }),
     });
-
-    return newConn;
+    const result = await response.json();
+    if (!response.ok) throw new Error(result.error || 'Connection could not be removed.');
+    await refreshConnections();
   };
 
-  const removeConnection = (id) => {
-    setConnections((prev) => {
-      const updated = prev.filter((c) => c.id !== id);
-      storage.set(storageKey('user_connections'), updated);
-      return updated;
+  const clearAllConnections = async () => {
+    const response = await fetch('/api/connections', {
+      method: 'DELETE',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ all: true }),
     });
-  };
-
-  const clearAllConnections = () => {
-    setConnections([]);
-    storage.set(storageKey('user_connections'), []);
-  };
-
-  const resetConnections = () => {
-    const resetConnections = user ? [] : DEMO_CONNECTIONS;
-    setConnections(resetConnections);
-    storage.set(storageKey('user_connections'), resetConnections);
+    const result = await response.json();
+    if (!response.ok) throw new Error(result.error || 'Connections could not be removed.');
+    await refreshConnections();
   };
 
   return (
     <ConnectionsContext.Provider
       value={{
-        connections: visibleConnections,
-        isLoaded,
-        addConnection,
+        connections: loadedFor === userId ? connections : [],
+        isLoaded: !userId || (loadedFor === userId && isLoaded),
+        loadError: loadedFor === userId ? loadError : '',
+        refreshConnections,
         removeConnection,
         clearAllConnections,
-        resetConnections,
       }}
     >
       {children}

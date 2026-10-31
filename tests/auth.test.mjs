@@ -8,6 +8,13 @@ import { createEmptyProfileData, profileDataSchema } from '../libs/profile-valid
 import { createPublicProfilePayload } from '../libs/public-profile.js';
 import { escapeSearchTerm } from '../libs/discovery.js';
 import { createAnalyticsVisitorHash, profileAnalyticsEventSchema } from '../libs/analytics-validation.js';
+import {
+  availableFlowFields,
+  createFlowContactData,
+  createFlowRequestSchema,
+  respondToFlowSchema,
+} from '../libs/flow-validation.js';
+import { generateVCard } from '../libs/vcard.js';
 
 test('registration normalizes email, rejects unexpected fields, and enforces a valid name', () => {
   const parsed = registrationSchema.safeParse({
@@ -240,6 +247,55 @@ test('profile analytics accepts only non-identifying event categories and hashes
   assert.equal(visitorHash.includes('203.0.113.8'), false);
   assert.equal(visitorHash, createAnalyticsVisitorHash(ownerId, '203.0.113.8', secret));
   assert.notEqual(visitorHash, createAnalyticsVisitorHash('507f1f77bcf86cd799439012', '203.0.113.8', secret));
+});
+
+test('OneMe Flow validates explicit sharing consent and only returns selected contact fields', () => {
+  assert.equal(createFlowRequestSchema.safeParse({
+    targetUsername: 'other-member',
+    shareFields: ['email', 'phone'],
+  }).success, true);
+  assert.equal(createFlowRequestSchema.safeParse({
+    targetUsername: '@other-member',
+    shareFields: ['email'],
+  }).success, false);
+  assert.equal(createFlowRequestSchema.safeParse({
+    targetUsername: 'other-member',
+    shareFields: ['email', 'email'],
+  }).success, false);
+  assert.equal(respondToFlowSchema.safeParse({
+    action: 'accept',
+    shareFields: [],
+  }).success, false);
+  assert.equal(respondToFlowSchema.safeParse({
+    action: 'decline',
+    shareFields: [],
+  }).success, true);
+
+  const account = { email: 'member@example.com' };
+  const profile = {
+    phone: '+1 555 0100',
+    socials: [{ label: 'GitHub', platform: 'github', url: 'https://github.com/member' }],
+    resume: { fileName: 'resume.pdf', fileUrl: 'https://res.cloudinary.com/demo/raw/upload/resume.pdf' },
+  };
+  assert.deepEqual(availableFlowFields(account, profile), ['email', 'phone', 'socials', 'resume']);
+  assert.deepEqual(createFlowContactData({ account, profile, fields: ['phone'] }), {
+    email: '',
+    phone: '+1 555 0100',
+    socials: [],
+    resume: { fileName: '', fileUrl: '' },
+  });
+});
+
+test('vCard export escapes user-controlled line breaks to prevent injected properties', () => {
+  const card = generateVCard({
+    name: 'Member\r\nEMAIL:attacker@example.com',
+    email: 'member@example.com',
+    title: 'Engineer\nTEL:+1-555-0000',
+    username: 'member',
+  });
+  assert.equal(card.includes('\r\nEMAIL:attacker@example.com'), false);
+  assert.equal(card.includes('\r\nTEL:+1-555-0000'), false);
+  assert.match(card, /\\nEMAIL:attacker@example.com/);
 });
 
 test('public profile payload returns only published, privacy-approved contact fields', () => {

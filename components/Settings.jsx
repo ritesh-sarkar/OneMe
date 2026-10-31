@@ -228,8 +228,8 @@ export default function SettingsPage() {
             "
           >
             <Toggle
-              label="OneMe Flow Radar Discovery"
-              description="Permit nearby OneMe members to discover your device in contact exchanges"
+              label="OneMe Flow Contact Requests"
+              description="Allow verified OneMe members to send you a contact exchange request. You still choose what to share when accepting."
               checked={privacy.allowContactExchange === true}
               onChange={(value) =>
                 handlePrivacyToggle("allowContactExchange", value)

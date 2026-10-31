@@ -35,7 +35,7 @@ const STEPS = [
     step: "04",
     title: "Connect",
     description:
-      "Exchange contacts with nearby peers via OneMe Flow radar or dynamic QR without typing a single phone number.",
+      "Invite a verified member by username, choose exactly what to share, and save a connection only after they accept.",
     icon: FiZap,
     color: "bg-success-soft",
   },

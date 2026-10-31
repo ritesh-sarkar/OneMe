@@ -355,7 +355,7 @@ export default function DynamicPublicProfilePage() {
       <ExchangeModal
         isOpen={exchangeOpen}
         onClose={() => setExchangeOpen(false)}
-        currentUser={targetUser}
+        initialUsername={targetUser.username}
       />
 
       <QrShareModal

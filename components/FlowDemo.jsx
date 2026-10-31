@@ -9,7 +9,6 @@ import { FiRadio, FiZap, FiArrowRight } from "react-icons/fi";
 //Custom Components and libs
 import { Button } from "@/components/Button";
 import { ExchangeModal } from "@/components/ExchangeModal";
-import { DEMO_USER } from "@/libs/mock-data";
 
 export function FlowDemo() {
   const [modalOpen, setModalOpen] = useState(false);
@@ -108,7 +107,7 @@ export function FlowDemo() {
                   "
                 />
 
-                <span>Signature Innovation</span>
+                <span>Mutual-consent contact exchange</span>
               </div>
 
               <h2
@@ -132,10 +131,9 @@ export function FlowDemo() {
                   leading-relaxed
                 "
               >
-                Meet someone at a conference or coffee shop? Open OneMe Flow
-                radar to discover nearby peers, trigger a mutual exchange
-                request, choose what details you want to share, and instantly
-                save each other&#39;s contact card.
+                Invite a verified OneMe member by username, select the contact
+                details you consent to share, and wait for them to approve and
+                choose their own details before either connection is saved.
               </p>
 
 
@@ -165,7 +163,7 @@ export function FlowDemo() {
                     border-subtle
                   "
                 >
-                  1. Scan
+                  1. Invite
                 </span>
 
                 <span
@@ -229,7 +227,7 @@ export function FlowDemo() {
                     border-light
                   "
                 >
-                  4. Save
+                  4. Connect
                 </span>
               </div>
 
@@ -303,7 +301,7 @@ export function FlowDemo() {
                       "
                     />
 
-                    <span>OneMe Flow Proximity Radar</span>
+                    <span>Illustrative interface preview</span>
                   </div>
 
                   <span
@@ -320,7 +318,7 @@ export function FlowDemo() {
                       border-light
                     "
                   >
-                    Active
+                    Example
                   </span>
                 </div>
 
@@ -390,7 +388,7 @@ export function FlowDemo() {
                         text-success
                       "
                     >
-                      Nearby (2m)
+                      Example member
                     </span>
                   </div>
 
@@ -455,7 +453,7 @@ export function FlowDemo() {
                         text-cyan
                       "
                     >
-                      Nearby (5m)
+                      Example member
                     </span>
                   </div>
                 </div>
@@ -481,7 +479,7 @@ export function FlowDemo() {
                     glow-cyan
                   "
                 >
-                  <span>Launch OneMe Flow Radar</span>
+                  <span>Start OneMe Flow</span>
 
                   <FiArrowRight
                     className="
@@ -499,7 +497,6 @@ export function FlowDemo() {
       <ExchangeModal
         isOpen={modalOpen}
         onClose={() => setModalOpen(false)}
-        currentUser={DEMO_USER}
       />
     </section>
   );

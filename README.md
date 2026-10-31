@@ -12,12 +12,12 @@ This is still an early implementation, not a production-ready platform:
 
 - Account and profile features require configured MongoDB, Brevo, Upstash, and Cloudinary services. These provider integrations have not been live-tested in this repository because credentials are not configured.
 - The public discovery directory uses published, verified profiles that opted in separately; analytics are off by default and record approximate profile views and link categories only when enabled.
-- Connections are still browser-local.
-- OneMe Flow remains a preview using sample profiles. It does not create secure sessions, contact nearby users, exchange consented fields, or save real contacts. Its QR links are marked as previews.
+- Connections are persisted as accepted OneMe Flow exchanges. Requests use exact verified usernames; each participant explicitly chooses which contact categories to share, and no contact data is disclosed until the recipient accepts and selects their own fields. Requests expire after seven days; either party can cancel or decline, and saved connections can be removed.
+- OneMe Flow does not scan for nearby devices or use a proximity radar. Exchange requests use verified usernames and explicit, two-sided consent through the dashboard and public profiles.
 - AI assistance and notifications are not connected to server-side integrations.
 - Google sign-in is not implemented.
 
-The app also includes baseline security headers and a static/offline-only PWA shell. Do not deploy this version as a production service or enter sensitive personal information. Production use still requires persistent connections, real consent-enforced contact exchange, service configuration, and end-to-end testing with configured providers.
+The app also includes baseline security headers and a static/offline-only PWA shell. Do not deploy this version as a production service or enter sensitive personal information. Production use still requires service configuration and end-to-end testing with configured providers.
 
 ## Technology
 
@@ -77,7 +77,7 @@ npm run build
 - `/[username]` — published public profile with privacy controls
 - `/dashboard` and `/dashboard/*` — session-protected dashboard UI
 - `/discover` — opt-in directory of published, verified profiles
-- `/exchange` — OneMe Flow preview
+- `/exchange` — OneMe Flow mutual-consent exchange
 - `/login`, `/signup`, `/forgot-password`, `/verify-email` — account screens
 - `/api/auth/*` — Auth.js and account lifecycle endpoints
 - `/api/profile` — authenticated profile persistence
@@ -85,7 +85,10 @@ npm run build
 - `/api/profiles/[username]/events` — opt-in, rate-limited profile link analytics
 - `/api/analytics` — authenticated owner-only analytics aggregation (7, 30, or 90 days)
 - `/api/discover` — paginated, privacy-opted-in discovery directory
+- `/api/flow/sessions` — authenticated Flow request inbox and request creation
+- `/api/flow/sessions/[sessionId]` — recipient approval/decline and requester cancellation
+- `/api/connections` — owner-scoped accepted exchanges and connection removal
 
 ## Production work still required
 
-Persist connections with per-user authorization; build actual consent-enforced OneMe Flow sessions; integrate and validate the AI and notification services; configure and review deployment security; and test the complete lifecycle with separate accounts and real service integrations. Analytics retain events for up to 90 days, deduplicate visitor events into 15-minute windows, and do not store raw IP addresses, referrers, destination URLs, locations, or device details.
+Integrate and validate AI and notification services; configure and review deployment security; and test the complete lifecycle—including two-account contact exchange—with real service integrations. Analytics retain events for up to 90 days, deduplicate visitor events into 15-minute windows, and do not store raw IP addresses, referrers, destination URLs, locations, or device details.

@@ -90,6 +90,7 @@ export async function GET(request) {
           title: { $ifNull: ['$data.profile.title', ''] },
           tagline: { $ifNull: ['$data.profile.tagline', ''] },
           avatar: { $ifNull: ['$data.profile.avatar', ''] },
+          flowEnabled: { $eq: ['$data.profile.privacy.allowContactExchange', true] },
           location: {
             $cond: [
               { $eq: ['$data.profile.privacy.showLocation', true] },

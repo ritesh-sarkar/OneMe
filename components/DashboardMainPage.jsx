@@ -633,7 +633,7 @@ export default function DashboardOverviewPage() {
                 </div>
 
                 <div className="text-xs md:text-sm text-secondary mt-0.5">
-                  Scan nearby peers
+                  Request a consent-based exchange
                 </div>
               </button>
 

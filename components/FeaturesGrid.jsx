@@ -19,16 +19,16 @@ const FEATURES = [
     icon: FiRadio,
     title: "OneMe Flow Protocol",
     description:
-      "Mutual proximity radar exchange that lets two devices connect and save each other without typing.",
+      "Request an exchange by username. Both verified members opt in to sharing specific details before contact data is disclosed.",
     tag: "Signature Feature",
     color: "text-cyan",
   },
   {
     icon: FiDownload,
-    title: "Instant vCard (.vcf) Generator",
+    title: "OneMe vCard (.vcf) Exports",
     description:
-      "Generates client-side RFC 6350 contacts ready to be imported directly into iOS Contacts or Android Address Books.",
-    tag: "Works Offline",
+      "Export saved connections as vCard 3.0 files with escaped contact text to prevent injected properties.",
+    tag: "Portable Contacts",
     color: "text-success",
   },
   {
@@ -43,24 +43,24 @@ const FEATURES = [
     icon: FiBarChart2,
     title: "Telemetry & Analytics Suite",
     description:
-      "Real-time interactive views, QR scans, referral origins, country distribution, and link click tracking.",
-    tag: "Full Privacy",
+      "Opt-in profile views and link-category analytics without storing raw IP addresses, referrers, or destination URLs.",
+    tag: "Privacy Focused",
     color: "text-warning",
   },
   {
     icon: FiCpu,
     title: "AI Profile Assistant",
     description:
-      "Simulated AI generative engine crafting high-conversion taglines, bios, and CTAs tailored to your industry.",
-    tag: "Built-In",
+      "AI-assisted profile writing is planned but is not connected to a provider yet.",
+    tag: "Coming Soon",
     color: "text-accent",
   },
   {
     icon: FiUploadCloud,
     title: "Media & Asset Manager",
     description:
-      "Direct browser-side file upload for high-res avatar photos, banners, and project media with instant rendering.",
-    tag: "Instant Upload",
+      "Owner-scoped signed uploads for profile photos, banners, and PDF resumes with server-enforced format and size limits.",
+    tag: "Signed Uploads",
     color: "text-accent",
   },
 ];

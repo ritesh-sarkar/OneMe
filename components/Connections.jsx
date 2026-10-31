@@ -19,29 +19,31 @@ import {
 // Custom Components and libs
 import { Button } from "@/components/Button";
 import { Input } from "@/components/Input";
-import { downloadVCard } from "@/libs/vcard";
+import { downloadVCard, generateVCard } from "@/libs/vcard";
 import { formatDate } from "@/libs/utils";
 
 // Contexts
 import { useConnections } from "@/context/ConnectionsContext";
 import { useToast } from "@/context/ToastContext";
-import { useProfile } from "@/context/ProfileContext";
 
 // Custom Components
 import { ExchangeModal } from "@/components/ExchangeModal";
+import FlowInbox from "@/components/FlowInbox";
 
 export default function ConnectionsPage() {
   const {
     connections,
+    isLoaded,
+    loadError,
+    refreshConnections,
     removeConnection,
-    resetConnections,
+    clearAllConnections,
   } = useConnections();
-
-  const { profile } = useProfile();
 
   const {
     success,
     info,
+    error: toastError,
   } = useToast();
 
   const [searchQuery, setSearchQuery] = useState("");
@@ -66,9 +68,7 @@ export default function ConnectionsPage() {
 
   const handleExportAll = () => {
     const bulkVcards = connections
-      .map((conn) => {
-        return `BEGIN:VCARD\r\nVERSION:3.0\r\nFN:${conn.name}\r\nTITLE:${conn.title || ""}\r\nORG:${conn.company || ""}\r\nEMAIL:${conn.email || ""}\r\nTEL:${conn.phone || ""}\r\nNOTE:OneMe Flow Connection\r\nEND:VCARD`;
-      })
+      .map((conn) => generateVCard(conn))
       .join("\r\n\r\n");
 
     const blob = new Blob(
@@ -87,9 +87,7 @@ export default function ConnectionsPage() {
     link.click();
     document.body.removeChild(link);
 
-    success(
-      `Exported ${connections.length} contacts to bulk vCard file!`
-    );
+    success(`Exported ${connections.length} contacts to bulk vCard file!`);
   };
 
   return (
@@ -133,8 +131,7 @@ export default function ConnectionsPage() {
               text-secondary
             "
           >
-            Contacts saved via OneMe Flow radar, QR scanning, and profile
-            shares.
+            Contacts exchanged with mutual consent and securely saved to your account.
           </p>
         </div>
 
@@ -146,6 +143,23 @@ export default function ConnectionsPage() {
             gap-2
           "
         >
+          <Button
+            onClick={async () => {
+              try {
+                await refreshConnections();
+                success("Connections refreshed.");
+              } catch (error) {
+                toastError(error.message || "Connections could not be refreshed.");
+              }
+            }}
+            variant="outline"
+            size="sm"
+            icon={FiRefreshCw}
+            className="transition-all duration-200 ease-in-out hover:scale-105 active:scale-95"
+          >
+            Refresh
+          </Button>
+
           <Button
             onClick={() => setExchangeOpen(true)}
             variant="glow"
@@ -159,7 +173,7 @@ export default function ConnectionsPage() {
               active:scale-95
             "
           >
-            OneMe Flow Radar
+            Start OneMe Flow
           </Button>
 
           {connections.length > 0 && (
@@ -180,27 +194,36 @@ export default function ConnectionsPage() {
             </Button>
           )}
 
-          <Button
-            onClick={() => {
-              resetConnections();
-              success("Connections reset to demo list.");
-            }}
-            variant="outline"
-            size="sm"
-            icon={FiRefreshCw}
-            title="Reset to Demo Contacts"
-            className="
-              transition-all
-              duration-200
-              ease-in-out
-              hover:scale-105
-              active:scale-95
-            "
-          >
-            Reset
-          </Button>
+          {connections.length > 0 && (
+            <Button
+              onClick={async () => {
+                if (!window.confirm("Remove all saved connections from your account?")) return;
+                try {
+                  await clearAllConnections();
+                  success("All saved connections were removed.");
+                } catch (error) {
+                  toastError(error.message || "Connections could not be removed.");
+                }
+              }}
+              variant="outline"
+              size="sm"
+              icon={FiRefreshCw}
+              title="Remove all saved connections"
+              className="transition-all duration-200 ease-in-out hover:scale-105 active:scale-95"
+            >
+              Clear All
+            </Button>
+          )}
         </div>
       </div>
+
+      <FlowInbox />
+
+      {loadError && (
+        <p role="alert" className="rounded-2xl border border-light bg-danger-soft p-4 text-sm text-danger">
+          {loadError}
+        </p>
+      )}
 
       {/* Search Bar */}
       <div
@@ -217,7 +240,11 @@ export default function ConnectionsPage() {
       </div>
 
       {/* Connections List */}
-      {filteredConnections.length === 0 ? (
+      {!isLoaded ? (
+        <p className="rounded-2xl border border-subtle bg-glass p-6 text-sm text-secondary">
+          Loading your saved connections…
+        </p>
+      ) : filteredConnections.length === 0 ? (
         <div
           className="
             p-8
@@ -274,8 +301,7 @@ export default function ConnectionsPage() {
                 text-secondary
               "
             >
-              Try searching with a different keyword or start a OneMe Flow
-              exchange.
+              Try another search or start a consent-based OneMe Flow request.
             </p>
           </div>
 
@@ -292,7 +318,7 @@ export default function ConnectionsPage() {
               active:scale-95
             "
           >
-            Open OneMe Flow Radar
+            Start OneMe Flow
           </Button>
         </div>
       ) : (
@@ -357,15 +383,13 @@ export default function ConnectionsPage() {
                       shrink-0
                     "
                   >
-                    <img
-                      src={conn.avatar}
-                      alt={conn.name}
-                      className="
-                        w-full
-                        h-full
-                        object-cover
-                      "
-                    />
+                    {conn.avatar ? (
+                      <img src={conn.avatar} alt={conn.name} className="h-full w-full object-cover" />
+                    ) : (
+                      <span className="flex h-full w-full items-center justify-center bg-surface-panel font-bold text-accent">
+                        {conn.name.slice(0, 1).toUpperCase()}
+                      </span>
+                    )}
                   </div>
 
                   <div
@@ -385,7 +409,7 @@ export default function ConnectionsPage() {
                       {conn.name}
                     </h3>
 
-                    <p
+                    {conn.title && <p
                       className="
                         text-sm
                         md:text-base
@@ -395,28 +419,19 @@ export default function ConnectionsPage() {
                       "
                     >
                       {conn.title}
-                    </p>
-
-                    <p
-                      className="
-                        text-xs
-                        md:text-sm
-                        text-secondary
-                        truncate
-                      "
-                    >
-                      {conn.company}
-                    </p>
+                    </p>}
                   </div>
                 </div>
 
                 <button
                   type="button"
-                  onClick={() => {
-                    removeConnection(conn.id);
-                    info(
-                      `Removed ${conn.name} from connections.`
-                    );
+                  onClick={async () => {
+                    try {
+                      await removeConnection(conn.id);
+                      info(`Removed ${conn.name} from your connections.`);
+                    } catch (error) {
+                      toastError(error.message || "Connection could not be removed.");
+                    }
                   }}
                   className="
                     p-1.5
@@ -516,6 +531,31 @@ export default function ConnectionsPage() {
                   </div>
                 )}
 
+                {conn.socials?.map((social) => (
+                  <a
+                    key={`${social.platform}-${social.url}`}
+                    href={social.url}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="flex min-w-0 items-center gap-2 truncate text-accent hover:underline"
+                  >
+                    <FiExternalLink className="h-3.5 w-3.5 shrink-0" />
+                    <span className="truncate">{social.label || social.platform}</span>
+                  </a>
+                ))}
+
+                {conn.resume?.fileUrl && (
+                  <a
+                    href={conn.resume.fileUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="flex items-center gap-2 text-accent hover:underline"
+                  >
+                    <FiDownload className="h-3.5 w-3.5 shrink-0" />
+                    <span className="truncate">{conn.resume.fileName || "Shared resume"}</span>
+                  </a>
+                )}
+
                 {conn.exchangeMethod && (
                   <div
                     className="
@@ -608,7 +648,6 @@ export default function ConnectionsPage() {
       <ExchangeModal
         isOpen={exchangeOpen}
         onClose={() => setExchangeOpen(false)}
-        currentUser={profile}
       />
     </div>
   );

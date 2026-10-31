@@ -23,7 +23,6 @@ import { Input } from "@/components/Input";
 import { downloadVCard } from "@/libs/vcard";
 import { useToast } from "@/context/ToastContext";
 import { ExchangeModal } from "@/components/ExchangeModal";
-import { useProfile } from "@/context/ProfileContext";
 
 export default function DiscoverPage() {
   const [searchQuery, setSearchQuery] = useState("");
@@ -35,8 +34,7 @@ export default function DiscoverPage() {
   const [loadError, setLoadError] = useState("");
 
   const [exchangeOpen, setExchangeOpen] = useState(false);
-
-  const { profile } = useProfile();
+  const [exchangeUsername, setExchangeUsername] = useState("");
 
   const { success } = useToast();
 
@@ -509,12 +507,15 @@ export default function DiscoverPage() {
 
                   <Button
                     onClick={() => {
+                      setExchangeUsername(person.username);
                       setExchangeOpen(true);
                     }}
+                    disabled={!person.flowEnabled}
                     variant="glow"
                     size="sm"
                     icon={FiZap}
-                    title="OneMe Flow Connect"
+                    title={person.flowEnabled ? "OneMe Flow Connect" : "This member is not accepting Flow requests"}
+                    aria-label={person.flowEnabled ? `Request OneMe Flow exchange with ${person.name}` : `${person.name} is not accepting Flow requests`}
                   />
                 </div>
               </motion.div>
@@ -527,9 +528,13 @@ export default function DiscoverPage() {
 
       {/* OneMe Flow Exchange Modal */}
       <ExchangeModal
+        key={exchangeUsername || "exchange"}
         isOpen={exchangeOpen}
-        onClose={() => setExchangeOpen(false)}
-        currentUser={profile}
+        onClose={() => {
+          setExchangeOpen(false);
+          setExchangeUsername("");
+        }}
+        initialUsername={exchangeUsername}
       />
     </div>
   );

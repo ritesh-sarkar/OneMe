@@ -1,6 +1,13 @@
 /**
- * Generates an RFC 6350 compliant vCard (.vcf) string and triggers client-side download.
+ * Generates a vCard 3.0 (.vcf) string for client-side download.
  */
+function escapeVCardText(value) {
+  return String(value || '')
+    .replace(/\\/g, '\\\\')
+    .replace(/\r\n|\r|\n/g, '\\n')
+    .replace(/([,;])/g, '\\$1');
+}
+
 export function generateVCard(user, options = {}) {
   const {
     includeEmail = true,
@@ -17,41 +24,42 @@ export function generateVCard(user, options = {}) {
   let vcard = [
     'BEGIN:VCARD',
     'VERSION:3.0',
-    `N:${lastName};${firstName};;;`,
-    `FN:${user.name || 'OneMe User'}`,
-    `TITLE:${user.title || ''}`,
-    `ORG:OneMe Digital Identity`,
+    `N:${escapeVCardText(lastName)};${escapeVCardText(firstName)};;;`,
+    `FN:${escapeVCardText(user.name || 'OneMe User')}`,
+    `TITLE:${escapeVCardText(user.title || '')}`,
+    'ORG:OneMe Digital Identity',
   ];
 
   if (includeEmail && user.email) {
-    vcard.push(`EMAIL;type=INTERNET;type=WORK;type=pref:${user.email}`);
+    vcard.push(`EMAIL;type=INTERNET;type=WORK;type=pref:${escapeVCardText(user.email)}`);
   }
 
   if (includePhone && user.phone) {
-    vcard.push(`TEL;type=CELL;type=VOICE;type=pref:${user.phone}`);
+    vcard.push(`TEL;type=CELL;type=VOICE;type=pref:${escapeVCardText(user.phone)}`);
   }
 
   if (includeLocation && user.location) {
-    vcard.push(`ADR;type=WORK:;;;${user.location};;;`);
+    vcard.push(`ADR;type=WORK:;;;${escapeVCardText(user.location)};;;`);
   }
 
   const publicUrl = typeof window !== 'undefined' 
     ? `${window.location.origin}/@${user.username}` 
     : `https://oneme.app/@${user.username}`;
   
-  vcard.push(`URL;type=WORK:${publicUrl}`);
+  vcard.push(`URL;type=WORK:${escapeVCardText(publicUrl)}`);
 
   if (includeSocials && Array.isArray(user.socials)) {
     user.socials.forEach((soc) => {
       if (soc.url) {
-        vcard.push(`X-SOCIALPROFILE;type=${soc.platform}:${soc.url}`);
+        const platform = String(soc.platform || 'other').replace(/[^a-zA-Z0-9-]/g, '');
+        vcard.push(`X-SOCIALPROFILE;type=${platform}:${escapeVCardText(soc.url)}`);
       }
     });
   }
 
   if (includeNotes && (user.tagline || user.bio)) {
-    const note = `${user.tagline || ''} | ${user.bio || ''}`.replace(/\n/g, ' ');
-    vcard.push(`NOTE:${note}`);
+    const note = `${user.tagline || ''} | ${user.bio || ''}`;
+    vcard.push(`NOTE:${escapeVCardText(note)}`);
   }
 
   vcard.push('REV:' + new Date().toISOString());

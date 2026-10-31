@@ -297,7 +297,7 @@ export function Hero() {
                   "
                 />
 
-                <span>Zero Backend Needed</span>
+                <span>Server-backed Profile</span>
               </div>
 
               <div
@@ -313,7 +313,7 @@ export function Hero() {
                   "
                 />
 
-                <span>Real-Time .vcf Generator</span>
+                <span>Exportable Contact Cards</span>
               </div>
 
               <div
@@ -329,7 +329,7 @@ export function Hero() {
                   "
                 />
 
-                <span>OneMe Flow Radar</span>
+                <span>Mutual-Consent OneMe Flow</span>
               </div>
             </motion.div>
           </div>
