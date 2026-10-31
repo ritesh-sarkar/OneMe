@@ -15,8 +15,6 @@ import {
   FiAlertCircle,
 } from "react-icons/fi";
 
-import { FcGoogle } from "react-icons/fc";
-
 // Custom Components and libs
 import { Button } from "@/components/Button";
 import { Input } from "@/components/Input";
@@ -29,8 +27,10 @@ export default function LoginPage() {
   const [showPassword, setShowPassword] = useState(false);
   const [errorMsg, setErrorMsg] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [resendMessage, setResendMessage] = useState("");
+  const [isResending, setIsResending] = useState(false);
 
-  const { login, loginWithGoogle } = useAuth();
+  const { login } = useAuth();
 
   const { success, error: toastError } = useToast();
 
@@ -62,17 +62,22 @@ export default function LoginPage() {
     }
   };
 
-  const handleGoogleLogin = async () => {
-    setIsSubmitting(true);
-
-    const res = await loginWithGoogle();
-
-    setIsSubmitting(false);
-
-    if (res.success) {
-      success("Logged in with Google!", "Welcome");
-
-      router.push("/dashboard");
+  const handleResendVerification = async () => {
+    setResendMessage("");
+    setIsResending(true);
+    try {
+      const response = await fetch("/api/auth/resend-verification", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email }),
+      });
+      const result = await response.json();
+      if (!response.ok) throw new Error(result.error || "Unable to resend verification.");
+      setResendMessage(result.message);
+    } catch (error) {
+      setResendMessage(error.message || "Email service is temporarily unavailable.");
+    } finally {
+      setIsResending(false);
     }
   };
 
@@ -241,6 +246,7 @@ export default function LoginPage() {
               placeholder="john@example.com"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
+              autoComplete="email"
               required
               icon={FiMail}
             />
@@ -281,6 +287,8 @@ export default function LoginPage() {
                 placeholder="••••••••"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
+                autoComplete="current-password"
+                maxLength={72}
                 required
                 icon={FiLock}
                 iconRight={
@@ -321,68 +329,19 @@ export default function LoginPage() {
             >
               Sign In
             </Button>
+            <div className="text-center space-y-2">
+              <button
+                type="button"
+                onClick={handleResendVerification}
+                disabled={isResending || !email}
+                className="text-xs text-accent hover:underline disabled:text-muted disabled:no-underline"
+              >
+                {isResending ? "Sending..." : "Resend verification email"}
+              </button>
+              {resendMessage && <p role="status" className="text-xs text-secondary">{resendMessage}</p>}
+            </div>
           </form>
 
-          <div
-            className="
-              relative
-              flex
-              items-center
-              justify-center
-            "
-          >
-            <div
-              className="
-                border-t
-                border-subtle
-                w-full
-              "
-            />
-
-            <span
-              className="
-                w-full
-                text-center
-                bg-surface-deep
-                px-3
-                text-xs
-                md:text-sm
-                font-mono
-                font-semibold
-                text-muted
-                uppercase
-                shrink-0
-                mt-2
-              "
-            >
-              Or continue with
-            </span>
-          </div>
-
-          <Button
-            onClick={handleGoogleLogin}
-            type="button"
-            variant="outline"
-            size="md"
-            className="
-              w-full
-              justify-center
-              gap-2.5
-              bg-surface-panel
-              hover:bg-surface-panel
-            "
-          >
-            <FcGoogle
-              className="
-                w-4
-                h-4
-                shrink-0
-                block
-              "
-            />
-
-            <span>Continue with Google</span>
-          </Button>
         </div>
 
         {/* Footer Link */}

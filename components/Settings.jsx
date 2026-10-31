@@ -29,7 +29,7 @@ import { useToast } from "@/context/ToastContext";
 export default function SettingsPage() {
   const { profile, updateProfile, resetToDemo } = useProfile();
 
-  const { logout } = useAuth();
+  const { logout, user } = useAuth();
   const { success, info } = useToast();
 
   const privacy = profile?.privacy || {
@@ -660,13 +660,13 @@ export default function SettingsPage() {
           <Button
             onClick={() => {
               resetToDemo();
-              success("Profile reset to original demo state.");
+              success(user ? "Your local profile data has been cleared." : "Profile reset to original demo state.");
             }}
             variant="outline"
             size="sm"
             icon={FiRefreshCw}
           >
-            Reset to Demo
+            {user ? "Reset Profile Data" : "Reset to Demo"}
           </Button>
         </div>
 

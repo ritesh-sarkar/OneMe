@@ -1,11 +1,12 @@
 import React from "react";
+import { Suspense } from "react";
 import ForgotPasswordPage from "@/components/ForgotPassword";
 
 const page = () => {
   return (
-    <div>
+    <Suspense fallback={<div className="min-h-screen bg-surface-page" />}>
       <ForgotPasswordPage />
-    </div>
+    </Suspense>
   );
 };
 

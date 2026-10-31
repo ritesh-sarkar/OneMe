@@ -6,8 +6,7 @@ import { useRouter } from "next/navigation";
 import { motion } from "framer-motion";
 
 // Icons
-import { FiUser, FiMail, FiLock, FiArrowRight } from "react-icons/fi";
-import { FcGoogle } from "react-icons/fc";
+import { FiUser, FiMail } from "react-icons/fi";
 
 // Custom Components and libs
 import { Button } from "@/components/Button";
@@ -20,13 +19,11 @@ export default function SignupPage() {
 
   const [email, setEmail] = useState("");
 
-  const [password, setPassword] = useState("");
-
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const { signup, loginWithGoogle } = useAuth();
+  const { signup } = useAuth();
 
-  const { success } = useToast();
+  const { success, error: toastError } = useToast();
 
   const router = useRouter();
 
@@ -35,28 +32,16 @@ export default function SignupPage() {
 
     setIsSubmitting(true);
 
-    const res = await signup(name, email, password);
-
-    setIsSubmitting(false);
-
-    if (res.success) {
-      success("Welcome to OneMe! Your digital identity has been initialized.");
-
-      router.push("/dashboard");
-    }
-  };
-
-  const handleGoogleSignup = async () => {
-    setIsSubmitting(true);
-
-    const res = await loginWithGoogle();
-
-    setIsSubmitting(false);
-
-    if (res.success) {
-      success("Account created with Google!");
-
-      router.push("/dashboard");
+    try {
+      const res = await signup(name, email);
+      if (res.success) {
+        success(res.message || "Check your inbox for an email verification link.");
+        router.push("/login");
+      } else {
+        toastError(res.error || "Unable to create an account.", "Registration Failed");
+      }
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
@@ -135,7 +120,7 @@ export default function SignupPage() {
               src="/logo.jpg"
               alt="OneMe Logo"
               className="
-                w-10 
+                w-10
                 h-10"
             />
 
@@ -169,7 +154,7 @@ export default function SignupPage() {
               text-secondary
             "
           >
-            One person. One identity. One link.
+            One person. One identity. Verify your email to finish setup.
           </p>
         </div>
 
@@ -212,16 +197,6 @@ export default function SignupPage() {
               icon={FiMail}
             />
 
-            <Input
-              label="Password"
-              type="password"
-              placeholder="••••••••"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              required
-              icon={FiLock}
-            />
-
             <Button
               type="submit"
               isLoading={isSubmitting}
@@ -237,60 +212,6 @@ export default function SignupPage() {
             </Button>
           </form>
 
-          <div
-            className="
-              relative
-              flex
-              items-center
-              justify-center
-            "
-          >
-            <span
-              className="
-                w-full
-                text-center
-                bg-surface-deep
-                px-3
-                text-xs
-                md:text-sm
-                font-mono
-                font-semibold
-                text-muted
-                uppercase
-                shrink-0
-                mt-2
-              "
-            >
-              Or continue with
-            </span>
-          </div>
-
-          <Button
-            onClick={handleGoogleSignup}
-            type="button"
-            variant="outline"
-            size="md"
-            className="
-              w-full
-              flex
-              items-center
-              justify-center
-              gap-2
-              bg-bg-secondary
-              hover:bg-bg-tertiary
-
-            "
-          >
-            <FcGoogle
-              className=" 
-                w-4 
-                h-4 
-                block 
-            "
-            />
-
-            <span>Sign up with Google</span>
-          </Button>
         </div>
 
         <p

@@ -1,106 +1,106 @@
 'use client';
 
-import React, { createContext, useContext, useState, useEffect } from 'react';
+import React, { createContext, useCallback, useContext, useEffect, useState } from 'react';
+import { signIn, signOut } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
-import { storage } from '@/libs/storage';
-import { DEMO_USER } from '@/libs/mock-data';
+import { useToast } from '@/context/ToastContext';
 
 const AuthContext = createContext(null);
 
-export const DEMO_CREDENTIALS = {
-  email: 'demo@oneme.app',
-  password: 'OneMe123!',
-};
+async function getSessionUser() {
+  const response = await fetch('/api/auth/session', {
+    cache: 'no-store',
+    headers: { Accept: 'application/json' },
+  });
+  if (!response.ok) throw new Error('Unable to load the account session.');
+  const session = await response.json();
+  return session?.user || null;
+}
 
 export function AuthProvider({ children }) {
   const [user, setUser] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
   const router = useRouter();
+  const { error: toastError } = useToast();
+
+  const refreshSession = useCallback(async () => {
+    const sessionUser = await getSessionUser();
+    setUser(sessionUser);
+    return sessionUser;
+  }, []);
 
   useEffect(() => {
-    // Check localStorage on mount
-    const savedUser = storage.get('auth_user', null);
-    if (savedUser) {
-      // Restoring client-only storage after hydration is intentional.
-      // eslint-disable-next-line react-hooks/set-state-in-effect
-      setUser(savedUser);
-    }
-    setIsLoading(false);
+    let active = true;
+    getSessionUser()
+      .then((sessionUser) => {
+        if (active) setUser(sessionUser);
+      })
+      .catch(() => {
+        if (active) setUser(null);
+      })
+      .finally(() => {
+        if (active) setIsLoading(false);
+      });
+
+    return () => {
+      active = false;
+    };
   }, []);
 
   const login = async (email, password) => {
     setIsLoading(true);
-    await new Promise((resolve) => setTimeout(resolve, 600)); // Smooth realistic latency
+    try {
+      const result = await signIn('credentials', {
+        email,
+        password,
+        redirect: false,
+      });
+      if (result?.error || !result?.ok) {
+        return {
+          success: false,
+          error: 'Unable to sign in with those details. Check your credentials and email verification.',
+        };
+      }
 
-    if (
-      email.trim().toLowerCase() === DEMO_CREDENTIALS.email.toLowerCase() &&
-      password === DEMO_CREDENTIALS.password
-    ) {
-      const authUser = {
-        ...DEMO_USER,
-        lastLogin: new Date().toISOString(),
-      };
-      setUser(authUser);
-      storage.set('auth_user', authUser);
-      setIsLoading(false);
+      const sessionUser = await refreshSession();
+      if (!sessionUser) {
+        return { success: false, error: 'Unable to establish a secure session. Please try again.' };
+      }
       return { success: true };
-    }
-
-    // Allow quick custom login with email format for demo flexibility if needed
-    if (email.includes('@') && password.length >= 6) {
-      const customUser = {
-        ...DEMO_USER,
-        email: email.trim().toLowerCase(),
-        lastLogin: new Date().toISOString(),
-      };
-      setUser(customUser);
-      storage.set('auth_user', customUser);
+    } catch {
+      return { success: false, error: 'Sign-in is temporarily unavailable. Please try again.' };
+    } finally {
       setIsLoading(false);
-      return { success: true };
     }
-
-    setIsLoading(false);
-    return {
-      success: false,
-      error: 'Invalid credentials. Use demo@oneme.app and OneMe123!',
-    };
   };
 
-  const loginWithGoogle = async () => {
+  const signup = async (name, email) => {
     setIsLoading(true);
-    await new Promise((resolve) => setTimeout(resolve, 800));
-    const authUser = {
-      ...DEMO_USER,
-      name: 'Ritesh Sarkar (Google)',
-      lastLogin: new Date().toISOString(),
-    };
-    setUser(authUser);
-    storage.set('auth_user', authUser);
-    setIsLoading(false);
-    return { success: true };
+    try {
+      const response = await fetch('/api/auth/register', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ name, email }),
+      });
+      const result = await response.json();
+      if (!response.ok) {
+        return { success: false, error: result.error || 'Unable to create an account.' };
+      }
+      return { success: true, message: result.message };
+    } catch {
+      return { success: false, error: 'Registration is temporarily unavailable. Please try again.' };
+    } finally {
+      setIsLoading(false);
+    }
   };
 
-  const signup = async (name, email, password) => {
-    setIsLoading(true);
-    await new Promise((resolve) => setTimeout(resolve, 700));
-    const newUser = {
-      ...DEMO_USER,
-      name: name || DEMO_USER.name,
-      email: email || DEMO_USER.email,
-      username: (name || 'user').toLowerCase().replace(/\s+/g, ''),
-      lastLogin: new Date().toISOString(),
-    };
-    setUser(newUser);
-    storage.set('auth_user', newUser);
-    setIsLoading(false);
-    return { success: true };
-  };
-
-  const logout = () => {
-    setUser(null);
-    storage.remove('auth_user');
-    if (typeof window !== 'undefined') {
+  const logout = async () => {
+    try {
+      await signOut({ redirect: false });
+      setUser(null);
       router.push('/login');
+    } catch {
+      toastError('Unable to end the session right now. Please try again.');
     }
   };
 
@@ -111,10 +111,8 @@ export function AuthProvider({ children }) {
         isAuthenticated: !!user,
         isLoading,
         login,
-        loginWithGoogle,
         signup,
         logout,
-        demoCredentials: DEMO_CREDENTIALS,
       }}
     >
       {children}
