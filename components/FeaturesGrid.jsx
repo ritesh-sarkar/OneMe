@@ -51,8 +51,8 @@ const FEATURES = [
     icon: FiCpu,
     title: "AI Profile Assistant",
     description:
-      "AI-assisted profile writing is planned but is not connected to a provider yet.",
-    tag: "Coming Soon",
+      "Generate and edit profile copy with Google Gemini. Prompts are sent only when you request generation.",
+    tag: "Server-Side AI",
     color: "text-accent",
   },
   {

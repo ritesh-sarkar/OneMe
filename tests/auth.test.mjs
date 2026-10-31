@@ -15,6 +15,7 @@ import {
   respondToFlowSchema,
 } from '../libs/flow-validation.js';
 import { generateVCard } from '../libs/vcard.js';
+import { aiCopyRequestSchema, parseGeneratedAiCopy } from '../libs/ai-validation.js';
 
 test('registration normalizes email, rejects unexpected fields, and enforces a valid name', () => {
   const parsed = registrationSchema.safeParse({
@@ -296,6 +297,28 @@ test('vCard export escapes user-controlled line breaks to prevent injected prope
   assert.equal(card.includes('\r\nEMAIL:attacker@example.com'), false);
   assert.equal(card.includes('\r\nTEL:+1-555-0000'), false);
   assert.match(card, /\\nEMAIL:attacker@example.com/);
+});
+
+test('AI profile copy validates bounded prompts and structured model output', () => {
+  assert.equal(aiCopyRequestSchema.safeParse({ prompt: 'A focused software engineer seeking product roles.' }).success, true);
+  assert.equal(aiCopyRequestSchema.safeParse({ prompt: 'short' }).success, false);
+  assert.equal(aiCopyRequestSchema.safeParse({
+    prompt: 'A software engineer seeking product roles with a focus on design systems.',
+    includeProfile: true,
+  }).success, false);
+
+  const parsed = parseGeneratedAiCopy(JSON.stringify({
+    tagline: 'Building accessible products.',
+    bio: 'A software engineer who creates accessible web applications.',
+    cta: 'Let’s work together',
+  }));
+  assert.equal(parsed.success, true);
+  assert.equal(parseGeneratedAiCopy('not json').success, false);
+  assert.equal(parseGeneratedAiCopy(JSON.stringify({
+    tagline: 'x'.repeat(201),
+    bio: 'A professional bio.',
+    cta: 'Contact me',
+  })).success, false);
 });
 
 test('public profile payload returns only published, privacy-approved contact fields', () => {

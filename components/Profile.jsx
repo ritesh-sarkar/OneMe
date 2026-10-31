@@ -65,7 +65,7 @@ export default function ProfileEditorPage() {
   const avatarInputRef = useRef(null);
   const bannerInputRef = useRef(null);
 
-  // AI Profile Assistant simulation states
+  // AI Profile Assistant state
   const [aiPrompt, setAiPrompt] = useState("");
   const [aiGenerating, setAiGenerating] = useState(false);
   const [aiModalOpen, setAiModalOpen] = useState(false);
@@ -190,28 +190,37 @@ export default function ProfileEditorPage() {
     updateSectionOrder(order);
   };
 
-  // AI Generator simulation
-  const handleGenerateWithAi = () => {
+  const handleGenerateWithAi = async () => {
+    if (aiPrompt.trim().length < 20) {
+      info("Describe your background in at least 20 characters.");
+      return;
+    }
+
     setAiGenerating(true);
-    setTimeout(() => {
-      setAiGenerating(false);
-      const generatedBio = `Passionate ${profile.title || "Full-Stack Developer"} dedicated to crafting high-performance web applications, scalable architectures, and human-centric design. Deeply focused on modern JavaScript ecosystems, Next.js, and clean software engineering.`;
-      const generatedTagline = `Building useful, high-impact digital experiences with code.`;
-      const generatedCta = `Let's Build Something Great`;
+    try {
+      const response = await fetch("/api/ai/profile-copy", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ prompt: aiPrompt }),
+      });
+      const result = await response.json();
+      if (!response.ok) throw new Error(result.error || "AI suggestions could not be generated.");
+
       updateProfile({
-        bio: generatedBio,
-        tagline: generatedTagline,
+        bio: result.suggestions.bio,
+        tagline: result.suggestions.tagline,
         customCta: {
           ...profile.customCta,
-          text: generatedCta,
+          text: result.suggestions.cta,
         },
       });
       setAiModalOpen(false);
-      success(
-        "AI Profile content generated and applied to your OneMe!",
-        "AI Generation Complete",
-      );
-    }, 900);
+      success("AI-generated profile copy was applied. Review it before publishing.");
+    } catch (error) {
+      toastError(error.message || "AI suggestions could not be generated.");
+    } finally {
+      setAiGenerating(false);
+    }
   };
   return (
     <div
@@ -1583,8 +1592,12 @@ export default function ProfileEditorPage() {
               placeholder="e.g. I am a full-stack developer who builds React & Next.js applications and leads design systems..."
               value={aiPrompt}
               onChange={(e) => setAiPrompt(e.target.value)}
+              maxLength={2000}
               rows={3}
             />
+            <p className="text-xs leading-relaxed text-tertiary">
+              Your prompt is sent to Google Gemini. Do not include passwords or sensitive personal information.
+            </p>
             <div
               className="
                         flex
@@ -1605,6 +1618,7 @@ export default function ProfileEditorPage() {
                 variant="glow"
                 size="sm"
                 isLoading={aiGenerating}
+                disabled={aiPrompt.trim().length < 20}
                 onClick={handleGenerateWithAi}
                 icon={FiCpu}
               >

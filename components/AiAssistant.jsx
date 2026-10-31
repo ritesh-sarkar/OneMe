@@ -16,7 +16,7 @@ import { useToast } from "@/context/ToastContext";
 export default function AiAssistantPage() {
   const { profile, updateProfile } = useProfile();
 
-  const { success } = useToast();
+  const { success, error: toastError } = useToast();
 
   const [prompt, setPrompt] = useState(
     "I am a CSE student and full-stack developer who builds React & Next.js web applications.",
@@ -26,64 +26,35 @@ export default function AiAssistantPage() {
 
   const [hasGenerated, setHasGenerated] = useState(false);
 
-  const [genTagline, setGenTagline] = useState(
-    "Building high-impact digital experiences with code.",
-  );
+  const [genTagline, setGenTagline] = useState("");
 
-  const [genBio, setGenBio] = useState(
-    "Passionate Full-Stack Developer specializing in modern JavaScript ecosystems, Next.js, and scalable web architectures. Dedicated to clean engineering, responsive UI design systems, and building tools that empower developers.",
-  );
+  const [genBio, setGenBio] = useState("");
 
-  const [genCta, setGenCta] = useState("Let’s Build Something Amazing");
+  const [genCta, setGenCta] = useState("");
+  const [errorMessage, setErrorMessage] = useState("");
 
-  const handleGenerate = () => {
+  const handleGenerate = async () => {
     setIsGenerating(true);
-
-    setTimeout(() => {
-      setIsGenerating(false);
-
+    setErrorMessage("");
+    try {
+      const response = await fetch("/api/ai/profile-copy", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ prompt }),
+      });
+      const result = await response.json();
+      if (!response.ok) throw new Error(result.error || "AI suggestions could not be generated.");
+      setGenTagline(result.suggestions.tagline);
+      setGenBio(result.suggestions.bio);
+      setGenCta(result.suggestions.cta);
       setHasGenerated(true);
-
-      if (
-        prompt.toLowerCase().includes("design") ||
-        prompt.toLowerCase().includes("figma")
-      ) {
-        setGenTagline(
-          "Designing human-centric software interfaces with pixel precision.",
-        );
-
-        setGenBio(
-          "Product Designer & Frontend Engineer creating elegant design systems and memorable digital experiences. Bridging Figma workflows with clean React code.",
-        );
-
-        setGenCta("Discuss Design Collaboration");
-      } else if (
-        prompt.toLowerCase().includes("ai") ||
-        prompt.toLowerCase().includes("machine learning")
-      ) {
-        setGenTagline(
-          "Engineering distributed ML pipelines and intelligent systems.",
-        );
-
-        setGenBio(
-          "Systems Architect and Developer focused on deploying large language models, high-throughput APIs, and scalable infrastructure.",
-        );
-
-        setGenCta("Connect on AI Research");
-      } else {
-        setGenTagline(
-          "Building robust, high-performance web applications with code.",
-        );
-
-        setGenBio(
-          "Full-Stack Engineer dedicated to modern web standards, React, Next.js, and performant backend APIs. Focused on scalable architectures and clean code craftsmanship.",
-        );
-
-        setGenCta("Hire Me for Projects");
-      }
-
-      success("AI suggestions generated based on your input!");
-    }, 1000);
+      success("AI suggestions generated. Review them before applying.");
+    } catch (error) {
+      setErrorMessage(error.message || "AI suggestions could not be generated.");
+      toastError(error.message || "AI suggestions could not be generated.");
+    } finally {
+      setIsGenerating(false);
+    }
   };
 
   const handleApplyToProfile = () => {
@@ -205,8 +176,12 @@ export default function AiAssistantPage() {
             rows={5}
             value={prompt}
             onChange={(e) => setPrompt(e.target.value)}
+            maxLength={2000}
             placeholder="e.g. I am a full-stack engineer building Next.js apps with a focus on web performance..."
           />
+          <p className="text-xs leading-relaxed text-tertiary">
+            Your prompt is sent to Google Gemini to generate suggestions. Do not include passwords or sensitive personal information.
+          </p>
 
           <div
             className="
@@ -266,6 +241,7 @@ export default function AiAssistantPage() {
           <Button
             onClick={handleGenerate}
             isLoading={isGenerating}
+            disabled={prompt.trim().length < 20}
             variant="glow"
             size="lg"
             className="
@@ -339,9 +315,15 @@ export default function AiAssistantPage() {
                 shrink-0
               "
             >
-              Ready to Apply
+              {hasGenerated ? "Review Before Applying" : "No Suggestions Yet"}
             </span>
           </div>
+
+          {errorMessage && (
+            <p role="alert" className="rounded-xl border border-light bg-danger-soft p-3 text-sm text-danger">
+              {errorMessage}
+            </p>
+          )}
 
           <div className="space-y-4">
             <div className="space-y-1.5">
@@ -360,6 +342,7 @@ export default function AiAssistantPage() {
                 type="text"
                 value={genTagline}
                 onChange={(e) => setGenTagline(e.target.value)}
+                maxLength={200}
                 className="
                   w-full
                   p-3
@@ -395,6 +378,7 @@ export default function AiAssistantPage() {
                 rows={4}
                 value={genBio}
                 onChange={(e) => setGenBio(e.target.value)}
+                maxLength={1500}
                 className="
                   w-full
                   p-3
@@ -431,6 +415,7 @@ export default function AiAssistantPage() {
                 type="text"
                 value={genCta}
                 onChange={(e) => setGenCta(e.target.value)}
+                maxLength={100}
                 className="
                   w-full
                   p-3
@@ -463,6 +448,7 @@ export default function AiAssistantPage() {
           >
             <Button
               onClick={handleGenerate}
+              disabled={prompt.trim().length < 20}
               variant="outline"
               size="md"
               icon={FiRefreshCw}
@@ -481,6 +467,7 @@ export default function AiAssistantPage() {
 
             <Button
               onClick={handleApplyToProfile}
+              disabled={!hasGenerated}
               variant="primary"
               size="md"
               icon={FiCheck}

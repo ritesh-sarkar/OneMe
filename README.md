@@ -14,7 +14,8 @@ This is still an early implementation, not a production-ready platform:
 - The public discovery directory uses published, verified profiles that opted in separately; analytics are off by default and record approximate profile views and link categories only when enabled.
 - Connections are persisted as accepted OneMe Flow exchanges. Requests use exact verified usernames; each participant explicitly chooses which contact categories to share, and no contact data is disclosed until the recipient accepts and selects their own fields. Requests expire after seven days; either party can cancel or decline, and saved connections can be removed.
 - OneMe Flow does not scan for nearby devices or use a proximity radar. Exchange requests use verified usernames and explicit, two-sided consent through the dashboard and public profiles.
-- AI assistance and notifications are not connected to server-side integrations.
+- The AI profile assistant uses server-side Gemini requests with bounded prompts and rate limits. Prompts are sent to Google only when a member explicitly requests generation; profile data is not automatically included. Provider credentials and live generation have not been tested here.
+- Notifications still use demo data and are not persisted or connected to OneMe Flow events.
 - Google sign-in is not implemented.
 
 The app also includes baseline security headers and a static/offline-only PWA shell. Do not deploy this version as a production service or enter sensitive personal information. Production use still requires service configuration and end-to-end testing with configured providers.
@@ -31,6 +32,7 @@ The app also includes baseline security headers and a static/offline-only PWA sh
 - Brevo for verification and password-reset email
 - Upstash Redis REST for distributed authentication rate limits
 - Cloudinary for signed profile image and resume uploads
+- Google Gemini for explicitly requested profile-copy suggestions
 
 ## Project structure
 
@@ -53,6 +55,7 @@ Use the Node.js version supported by the installed Next.js release. Copy `.env.e
 - `BREVO_API_KEY`, `BREVO_SENDER_EMAIL`, and `BREVO_SENDER_NAME`
 - `UPSTASH_REDIS_REST_URL` and `UPSTASH_REDIS_REST_TOKEN`
 - `CLOUDINARY_CLOUD_NAME`, `CLOUDINARY_API_KEY`, `CLOUDINARY_API_SECRET`, `CLOUDINARY_IMAGE_UPLOAD_PRESET`, and `CLOUDINARY_RESUME_UPLOAD_PRESET`. Configure the signed image preset to enforce a 5 MB maximum and JPEG, PNG, WebP, or AVIF formats. Configure the signed resume preset to enforce a 10 MB maximum and PDF-only uploads.
+- `GEMINI_API_KEY` for server-side profile-copy suggestions; optionally set `GEMINI_MODEL` to select an available Gemini model.
 
 Authentication endpoints fail closed when required database, email, or rate-limit services are unavailable. Use test credentials and provider accounts for development; never commit `.env.local` or real secrets.
 
@@ -88,7 +91,8 @@ npm run build
 - `/api/flow/sessions` — authenticated Flow request inbox and request creation
 - `/api/flow/sessions/[sessionId]` — recipient approval/decline and requester cancellation
 - `/api/connections` — owner-scoped accepted exchanges and connection removal
+- `/api/ai/profile-copy` — authenticated and rate-limited Gemini profile-copy suggestions
 
 ## Production work still required
 
-Integrate and validate AI and notification services; configure and review deployment security; and test the complete lifecycle—including two-account contact exchange—with real service integrations. Analytics retain events for up to 90 days, deduplicate visitor events into 15-minute windows, and do not store raw IP addresses, referrers, destination URLs, locations, or device details.
+Persist real notification events, add Google sign-in, configure and review deployment security, and test the complete lifecycle—including two-account contact exchange and Gemini generation—with real service integrations. Analytics retain events for up to 90 days, deduplicate visitor events into 15-minute windows, and do not store raw IP addresses, referrers, destination URLs, locations, or device details.
