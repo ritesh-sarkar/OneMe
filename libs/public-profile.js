@@ -6,6 +6,8 @@ export function createPublicProfilePayload(account, storedData) {
 
   const data = parsed.data;
   const privacy = data.profile.privacy || {};
+  const visibility = data.profile.sectionVisibility || {};
+  const isVisible = (section) => visibility[section] !== false;
   const user = {
     ...data.profile,
     id: account.id,
@@ -14,18 +16,23 @@ export function createPublicProfilePayload(account, storedData) {
     isVerified: true,
     privacy,
   };
-  if (privacy.showEmail === true) user.email = account.email;
-  if (privacy.showPhone !== true) delete user.phone;
+  if (!isVisible('about')) delete user.bio;
+  if (!isVisible('cta')) delete user.customCta;
+  if (!isVisible('socials')) user.socials = [];
+  if (!isVisible('skills')) user.skills = [];
+  if (isVisible('contact') && privacy.showEmail === true) user.email = account.email;
+  if (!isVisible('contact') || privacy.showPhone !== true) delete user.phone;
+  if (!isVisible('contact') || privacy.showEmail !== true) delete user.email;
   if (privacy.showLocation !== true) user.location = '';
 
   return {
     user,
-    projects: data.projects,
-    experience: data.experience,
-    education: data.education,
-    certifications: data.certifications,
-    achievements: data.achievements,
-    resume: privacy.showResume === true
+    projects: isVisible('projects') ? data.projects : [],
+    experience: isVisible('experience') ? data.experience : [],
+    education: isVisible('education') ? data.education : [],
+    certifications: isVisible('certifications') ? data.certifications : [],
+    achievements: isVisible('achievements') ? data.achievements : [],
+    resume: isVisible('resume') && privacy.showResume === true
       ? {
         fileName: data.resume.fileName,
         fileSize: data.resume.fileSize,

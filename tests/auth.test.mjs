@@ -405,6 +405,108 @@ test('public profile payload returns only published, privacy-approved contact fi
   assert.equal(createPublicProfilePayload(account, data), null);
 });
 
+test('public profile payload omits content from sections hidden in the page builder', () => {
+  const data = createEmptyProfileData();
+  data.profile.isPublished = true;
+  data.profile.bio = 'Hidden biography';
+  data.profile.phone = '+1 555 0100';
+  data.profile.socials = [{
+    id: 'github',
+    platform: 'github',
+    label: 'GitHub',
+    url: 'https://github.com/member',
+    handle: 'member',
+    featured: false,
+  }];
+  data.profile.skills = [{ name: 'Private skill', category: '', level: 'Expert' }];
+  data.profile.customCta.text = 'Private invitation';
+  data.profile.privacy.showEmail = true;
+  data.profile.privacy.showPhone = true;
+  data.profile.privacy.showResume = true;
+  data.profile.sectionVisibility = {
+    about: false,
+    cta: false,
+    socials: false,
+    skills: false,
+    projects: false,
+    experience: false,
+    education: false,
+    certifications: false,
+    achievements: false,
+    resume: false,
+    contact: false,
+  };
+  data.projects = [{
+    id: 'hidden-project',
+    title: 'Private project',
+    description: '',
+    technologies: [],
+    image: '',
+    githubUrl: '',
+    liveUrl: '',
+    status: '',
+    featured: false,
+    metrics: '',
+    stars: 0,
+  }];
+  data.experience = [{
+    id: 'hidden-role',
+    role: 'Private role',
+    company: '',
+    location: '',
+    period: '',
+    description: '',
+    highlights: [],
+  }];
+  data.education = [{
+    id: 'hidden-school',
+    institution: 'Private school',
+    degree: '',
+    period: '',
+    location: '',
+    grade: '',
+    description: '',
+  }];
+  data.certifications = [{
+    id: 'hidden-cert',
+    name: 'Private certification',
+    issuer: '',
+    issueDate: '',
+    credentialId: '',
+    verifyUrl: '',
+    badge: '',
+  }];
+  data.achievements = [{
+    id: 'hidden-award',
+    title: 'Private award',
+    organization: '',
+    date: '',
+    description: '',
+  }];
+  data.resume.summary = 'Private resume content';
+  data.resume.fileUrl = 'https://example.com/private-resume.pdf';
+
+  const payload = createPublicProfilePayload({
+    id: '507f1f77bcf86cd799439011',
+    name: 'Profile Owner',
+    username: 'profile-owner',
+    email: 'owner@example.com',
+  }, data);
+
+  assert.equal(payload.user.bio, undefined);
+  assert.equal(payload.user.customCta, undefined);
+  assert.deepEqual(payload.user.socials, []);
+  assert.deepEqual(payload.user.skills, []);
+  assert.equal(payload.user.email, undefined);
+  assert.equal(payload.user.phone, undefined);
+  assert.deepEqual(payload.projects, []);
+  assert.deepEqual(payload.experience, []);
+  assert.deepEqual(payload.education, []);
+  assert.deepEqual(payload.certifications, []);
+  assert.deepEqual(payload.achievements, []);
+  assert.equal(payload.resume, null);
+});
+
 test('discovery search terms escape regular-expression syntax', () => {
   assert.equal(escapeSearchTerm('.*[name]'), '\\.\\*\\[name\\]');
 });
