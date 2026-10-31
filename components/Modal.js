@@ -63,14 +63,10 @@ export function Modal({
               <div className="flex items-start justify-between gap-4 pb-4 border-b border-subtle">
                 <div>
                   {title && (
-                    <h3 className="text-lg font-bold text-primary tracking-tight">
-                      {title}
-                    </h3>
+                    <h3 className="text-lg font-bold text-primary tracking-tight">{title}</h3>
                   )}
                   {description && (
-                    <p className="text-xs text-secondary mt-0.5 leading-relaxed">
-                      {description}
-                    </p>
+                    <p className="text-xs text-secondary mt-0.5 leading-relaxed">{description}</p>
                   )}
                 </div>
                 {showClose && (

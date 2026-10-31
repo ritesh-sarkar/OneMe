@@ -4,15 +4,9 @@ import React from "react";
 
 import { motion } from "framer-motion";
 
-import {
-  FiArrowRight,
-  FiZap,
-} from "react-icons/fi";
+import { FiArrowRight, FiZap } from "react-icons/fi";
 
-export function CustomCtaBanner({
-  cta,
-  cardClass = "",
-}) {
+export function CustomCtaBanner({ cta, cardClass = "" }) {
   if (!cta || !cta.enabled) return null;
 
   return (

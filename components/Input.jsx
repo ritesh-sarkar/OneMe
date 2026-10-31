@@ -124,14 +124,7 @@ export const Input = forwardRef(function Input(
 });
 
 export const Textarea = forwardRef(function Textarea(
-  {
-    className,
-    label,
-    error,
-    helperText,
-    rows = 3,
-    ...props
-  },
+  { className, label, error, helperText, rows = 3, ...props },
   ref,
 ) {
   return (

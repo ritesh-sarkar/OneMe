@@ -1,12 +1,7 @@
 "use client";
 
 import React from "react";
-import {
-  FiEye,
-  FiMousePointer,
-  FiShield,
-  FiClock,
-} from "react-icons/fi";
+import { FiEye, FiMousePointer, FiShield, FiClock } from "react-icons/fi";
 
 const FEATURES = [
   {
@@ -47,7 +42,8 @@ export function AnalyticsTeaser() {
             Learn how people engage with your identity
           </h2>
           <p className="text-sm text-secondary md:text-base">
-            Get useful activity counts without collecting referrers, raw IP addresses, visitor locations, or device details.
+            Get useful activity counts without collecting referrers, raw IP addresses, visitor
+            locations, or device details.
           </p>
         </div>
 

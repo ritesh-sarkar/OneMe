@@ -3,14 +3,8 @@
 import React from "react";
 import { motion } from "framer-motion";
 
-export function SkillsSection({
-  skills = [],
-  cardClass = "",
-}) {
-  if (
-    !skills ||
-    skills.length === 0
-  ) {
+export function SkillsSection({ skills = [], cardClass = "" }) {
+  if (!skills || skills.length === 0) {
     return null;
   }
 
@@ -40,26 +34,15 @@ export function SkillsSection({
           gap-2
         "
       >
-        {skills.map(
-          (
-            skill,
-            index,
-          ) => {
-            const name =
-              typeof skill === "string"
-                ? skill
-                : skill.name;
+        {skills.map((skill, index) => {
+          const name = typeof skill === "string" ? skill : skill.name;
 
-            const level =
-              typeof skill === "object"
-                ? skill.level
-                : null;
+          const level = typeof skill === "object" ? skill.level : null;
 
-            return (
-              <motion.div
-                key={index}
-                
-                className={`
+          return (
+            <motion.div
+              key={index}
+              className={`
                   group
                   inline-flex
                   items-center
@@ -84,14 +67,12 @@ export function SkillsSection({
                   active:scale-95
                   ${cardClass}
                 `}
-              >
-                <span>
-                  {name}
-                </span>
+            >
+              <span>{name}</span>
 
-                {level && (
-                  <span
-                    className="
+              {level && (
+                <span
+                  className="
                       text-xs
                       md:text-sm
                       px-1.5
@@ -101,14 +82,13 @@ export function SkillsSection({
                       text-accent
                       font-mono
                     "
-                  >
-                    {level}
-                  </span>
-                )}
-              </motion.div>
-            );
-          },
-        )}
+                >
+                  {level}
+                </span>
+              )}
+            </motion.div>
+          );
+        })}
       </div>
     </div>
   );

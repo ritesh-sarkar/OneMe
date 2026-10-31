@@ -1,6 +1,14 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { emailRequestSchema, loginSchema, normalizeUsername, registrationSchema, isDisposableEmail } from '../libs/auth-validation.js';
+import {
+  accountIdentitySchema,
+  emailRequestSchema,
+  loginSchema,
+  normalizeUsername,
+  onboardingSchema,
+  registrationSchema,
+  isDisposableEmail,
+} from '../libs/auth-validation.js';
 import { createAuthToken, hashAuthToken } from '../libs/auth-tokens.js';
 import { consumeRateLimits, getTrustedClientIp } from '../libs/rate-limit.js';
 import { readJsonBody } from '../libs/request-body.js';
@@ -19,22 +27,71 @@ import { aiCopyRequestSchema, parseGeneratedAiCopy } from '../libs/ai-validation
 import { markAllNotificationsSchema, notificationActionSchema } from '../libs/notification-validation.js';
 import { getVerifiedGoogleIdentity } from '../libs/google-auth.js';
 
-test('registration normalizes email, rejects unexpected fields, and enforces a valid name', () => {
+test('registration validates name, username, email, password, and rejects unexpected fields', () => {
   const parsed = registrationSchema.safeParse({
     name: 'Ritesh Sarkar',
+    username: 'ritesh-sarkar',
     email: '  USER@Example.COM ',
+    password: 'a secure password 123',
   });
   assert.equal(parsed.success, true);
   assert.equal(parsed.data.email, 'user@example.com');
   assert.equal(registrationSchema.safeParse({
     name: 'Ritesh',
+    username: 'ritesh',
     email: 'user@example.com',
+    password: 'a secure password 123',
     role: 'admin',
   }).success, false);
   assert.equal(registrationSchema.safeParse({
     name: 'Bad\nName',
+    username: 'good-name',
     email: 'user@example.com',
+    password: 'a secure password 123',
   }).success, false);
+  assert.equal(registrationSchema.safeParse({
+    name: 'Valid Name',
+    username: 'invalid username',
+    email: 'user@example.com',
+    password: 'a secure password 123',
+  }).success, false);
+  assert.equal(registrationSchema.safeParse({
+    name: 'Valid Name',
+    username: 'valid-name',
+    email: 'user@example.com',
+    password: 'short',
+  }).success, false);
+});
+
+test('Google identity validation remains independent of password-based signup fields', () => {
+  assert.deepEqual(accountIdentitySchema.safeParse({
+    name: 'Google Member',
+    email: 'member@example.com',
+  }).success, true);
+});
+
+test('onboarding requires a title and bio to complete but allows skipping', () => {
+  assert.equal(onboardingSchema.safeParse({
+    action: 'complete',
+    title: 'Designer',
+    bio: 'I build thoughtful digital experiences.',
+    location: '',
+    avatar: '',
+  }).success, true);
+  assert.equal(onboardingSchema.safeParse({
+    action: 'complete',
+    title: '',
+    bio: '',
+    location: '',
+    avatar: '',
+  }).success, false);
+  assert.equal(onboardingSchema.safeParse({
+    action: 'skip',
+    title: '',
+    bio: '',
+    location: '',
+    avatar: '',
+  }).success, true);
 });
 
 test('login and password reset emails are validated and normalized', () => {

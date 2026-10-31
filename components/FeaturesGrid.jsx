@@ -5,14 +5,7 @@ import React from "react";
 import { motion } from "framer-motion";
 
 //icons
-import {
-  FiRadio,
-  FiDownload,
-  FiSliders,
-  FiBarChart2,
-  FiCpu,
-  FiUploadCloud,
-} from "react-icons/fi";
+import { FiRadio, FiDownload, FiSliders, FiBarChart2, FiCpu, FiUploadCloud } from "react-icons/fi";
 
 const FEATURES = [
   {
@@ -126,8 +119,8 @@ export function FeaturesGrid() {
               text-secondary
             "
           >
-            Engineered for developers, creators, founders, and designers who
-            demand a standout personal digital presence.
+            Engineered for developers, creators, founders, and designers who demand a standout
+            personal digital presence.
           </p>
         </div>
 

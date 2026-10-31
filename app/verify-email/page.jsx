@@ -1,5 +1,5 @@
-import { Suspense } from 'react';
-import VerifyEmailPage from '@/components/VerifyEmail';
+import { Suspense } from "react";
+import VerifyEmailPage from "@/components/VerifyEmail";
 
 export default function VerifyEmailRoute() {
   return (

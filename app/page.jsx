@@ -6,7 +6,7 @@ import React from "react";
 import { LandingNavbar } from "@/components/LandingNavbar";
 import { Hero } from "@/components/Hero";
 import { HowItWorks } from "@/components/HowItWorks";
-import { FeaturesGrid } from '@/components/FeaturesGrid';
+import { FeaturesGrid } from "@/components/FeaturesGrid";
 import { ThemeShowcase } from "@/components/ThemeShowcase";
 import { FlowDemo } from "@/components/FlowDemo";
 import { AnalyticsTeaser } from "@/components/AnalyticsTeaser";

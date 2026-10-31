@@ -19,9 +19,7 @@ export default function DynamicPublicProfilePage() {
   const rawUsername = params?.username;
 
   //TODO: replace with real data
-  const username = (rawUsername || "")
-    .replace(/^@/, "")
-    .toLowerCase();
+  const username = (rawUsername || "").replace(/^@/, "").toLowerCase();
 
   const [publicProfile, setPublicProfile] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -143,7 +141,8 @@ export default function DynamicPublicProfilePage() {
             text-secondary
           "
         >
-          {profileError || `The OneMe identity @${username} does not exist or has been made private.`}
+          {profileError ||
+            `The OneMe identity @${username} does not exist or has been made private.`}
         </p>
 
         <Link
@@ -313,7 +312,7 @@ export default function DynamicPublicProfilePage() {
             ease-in-out
             hover:tracking-wider
             hover:gap-2.5
-            active:scale-90 
+            active:scale-90
           "
         >
           <FiZap

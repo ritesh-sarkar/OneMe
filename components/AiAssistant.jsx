@@ -2,10 +2,8 @@
 
 import React, { useState } from "react";
 
-
 //icons
 import { FiCpu, FiZap, FiCheck, FiRefreshCw } from "react-icons/fi";
-
 
 //Custom Components and libs
 import { Button } from "@/components/Button";
@@ -67,10 +65,7 @@ export default function AiAssistantPage() {
       },
     });
 
-    success(
-      "AI generated copy applied directly to your OneMe profile!",
-      "Profile Updated",
-    );
+    success("AI generated copy applied directly to your OneMe profile!", "Profile Updated");
   };
 
   return (
@@ -113,8 +108,7 @@ export default function AiAssistantPage() {
               leading-relaxed
             "
           >
-            Generate high-converting headlines, bios, and CTAs tailored to your
-            skillset.
+            Generate high-converting headlines, bios, and CTAs tailored to your skillset.
           </p>
         </div>
       </div>
@@ -167,8 +161,7 @@ export default function AiAssistantPage() {
                 leading-relaxed
               "
             >
-              Provide keywords, your current focus, target roles, or notable
-              achievements.
+              Provide keywords, your current focus, target roles, or notable achievements.
             </p>
           </div>
 
@@ -180,7 +173,8 @@ export default function AiAssistantPage() {
             placeholder="e.g. I am a full-stack engineer building Next.js apps with a focus on web performance..."
           />
           <p className="text-xs leading-relaxed text-tertiary">
-            Your prompt is sent to Google Gemini to generate suggestions. Do not include passwords or sensitive personal information.
+            Your prompt is sent to Google Gemini to generate suggestions. Do not include passwords
+            or sensitive personal information.
           </p>
 
           <div
@@ -211,9 +205,7 @@ export default function AiAssistantPage() {
                 key={i}
                 type="button"
                 onClick={() =>
-                  setPrompt(
-                    `I am a ${p.toLowerCase()} focused on modern tech stacks.`,
-                  )
+                  setPrompt(`I am a ${p.toLowerCase()} focused on modern tech stacks.`)
                 }
                 className="
                   px-2.5
@@ -320,7 +312,10 @@ export default function AiAssistantPage() {
           </div>
 
           {errorMessage && (
-            <p role="alert" className="rounded-xl border border-light bg-danger-soft p-3 text-sm text-danger">
+            <p
+              role="alert"
+              className="rounded-xl border border-light bg-danger-soft p-3 text-sm text-danger"
+            >
               {errorMessage}
             </p>
           )}

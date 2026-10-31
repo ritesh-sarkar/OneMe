@@ -47,9 +47,7 @@ export function QrGenerator({
   };
 
   return (
-    <div
-      className={`flex flex-col items-center text-center space-y-4 ${className}`}
-    >
+    <div className={`flex flex-col items-center text-center space-y-4 ${className}`}>
       <div className="relative p-4 bg-white rounded-2xl shadow-2xl border-4 border-accent-soft overflow-hidden">
         {qrUrl ? (
           <img
@@ -59,18 +57,14 @@ export function QrGenerator({
           />
         ) : (
           <div className="w-56 h-56 sm:w-64 sm:h-64 flex items-center justify-center bg-surface-panel text-secondary">
-            <span className="text-xs font-mono animate-pulse">
-              Generating QR...
-            </span>
+            <span className="text-xs font-mono animate-pulse">Generating QR...</span>
           </div>
         )}
       </div>
 
       <div className="space-y-1">
         <h4 className="text-sm font-bold text-primary">{title}</h4>
-        <p className="text-xs text-secondary font-mono break-all max-w-xs">
-          {url}
-        </p>
+        <p className="text-xs text-secondary font-mono break-all max-w-xs">{url}</p>
       </div>
 
       <div className="flex items-center gap-2.5 w-full max-w-xs">

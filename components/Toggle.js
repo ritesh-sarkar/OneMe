@@ -22,14 +22,8 @@ export function Toggle({
     >
       {(label || description) && (
         <div className="flex flex-col">
-          {label && (
-            <span className="text-sm font-medium text-primary">{label}</span>
-          )}
-          {description && (
-            <span className="text-xs text-muted leading-relaxed">
-              {description}
-            </span>
-          )}
+          {label && <span className="text-sm font-medium text-primary">{label}</span>}
+          {description && <span className="text-xs text-muted leading-relaxed">{description}</span>}
         </div>
       )}
       <button

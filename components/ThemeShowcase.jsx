@@ -2,22 +2,14 @@
 
 import React, { useState } from "react";
 
-
 //custom Components and libs
 import { THEMES } from "@/libs/themes";
-import {
-  DEMO_USER,
-  DEMO_PROJECTS,
-  DEMO_EXPERIENCE,
-} from "@/libs/mock-data";
+import { DEMO_USER, DEMO_PROJECTS, DEMO_EXPERIENCE } from "@/libs/mock-data";
 
 import { PublicProfileView } from "@/components/PublicProfileView";
 
 //icons
-import {
-  FiSliders,
-  FiCheck,
-} from "react-icons/fi";
+import { FiSliders, FiCheck } from "react-icons/fi";
 
 export function ThemeShowcase() {
   const [selectedThemeId, setSelectedThemeId] = useState("cyberpunk");
@@ -84,8 +76,7 @@ export function ThemeShowcase() {
               text-secondary
             "
           >
-            Click on any readymade style below to preview how your
-            OneMe identity adapts instantly.
+            Click on any readymade style below to preview how your OneMe identity adapts instantly.
           </p>
         </div>
 
@@ -155,9 +146,7 @@ export function ThemeShowcase() {
                   }}
                 />
 
-                <span>
-                  {theme.name}
-                </span>
+                <span>{theme.name}</span>
 
                 {isSelected && (
                   <FiCheck
@@ -172,7 +161,6 @@ export function ThemeShowcase() {
             );
           })}
         </div>
-
 
         {/* Morphing Mini Profile Live Stage */}
         <div

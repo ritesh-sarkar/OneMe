@@ -12,7 +12,9 @@ export function ResumeViewer({ resume, user, cardClass = "" }) {
         Professional Resume
       </h3>
 
-      <div className={`p-5 rounded-2xl border border-subtle bg-glass backdrop-blur-md ${cardClass}`}>
+      <div
+        className={`p-5 rounded-2xl border border-subtle bg-glass backdrop-blur-md ${cardClass}`}
+      >
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
           <div className="flex items-start gap-3.5">
             <div className="p-3 rounded-xl bg-accent-soft text-accent shrink-0">

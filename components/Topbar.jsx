@@ -4,15 +4,7 @@ import React, { useState } from "react";
 import Link from "next/link";
 
 //icons
-import {
-  FiExternalLink,
-  FiCopy,
-  FiCheck,
-  FiRadio,
-  FiShare2,
-  FiGrid,
-  FiZap,
-} from "react-icons/fi";
+import { FiExternalLink, FiCopy, FiCheck, FiRadio, FiShare2, FiGrid, FiZap } from "react-icons/fi";
 
 //Custom Components and libs
 import { Button } from "@/components/Button";
@@ -84,7 +76,6 @@ export function Topbar() {
             gap-3
           "
         >
-
           {/* logo image  */}
           <span
             className="
@@ -95,7 +86,10 @@ export function Topbar() {
               shrink-0
             "
           >
-            <img src="/logo.jpg" alt="oneme_logo"/>
+            <img
+              src="/logo.jpg"
+              alt="oneme_logo"
+            />
           </span>
 
           {/* status indicator */}
@@ -213,7 +207,6 @@ export function Topbar() {
           >
             <FiShare2 className="w-4 h-4" />
           </Button>
-
 
           {/* View Public Profile Link */}
           <Link

@@ -103,8 +103,8 @@ export function HowItWorks() {
               text-secondary
             "
           >
-            From setup to handshake, OneMe turns your professional presence into
-            an active digital connection hub.
+            From setup to handshake, OneMe turns your professional presence into an active digital
+            connection hub.
           </p>
         </div>
 
@@ -158,7 +158,7 @@ export function HowItWorks() {
                     items-center
                     justify-between
                     mb-4
-                  " 
+                  "
                 >
                   <div
                     className={`

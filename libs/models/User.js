@@ -7,6 +7,8 @@ const userSchema = new mongoose.Schema(
     username: { type: String, required: true, trim: true, lowercase: true, maxlength: 30 },
     passwordHash: { type: String, required: true, select: false },
     emailVerifiedAt: { type: Date, default: null },
+    onboardingCompletedAt: { type: Date, default: null },
+    onboardingSkippedAt: { type: Date, default: null },
     sessionVersion: { type: Number, default: 0, required: true },
   },
   { timestamps: true },

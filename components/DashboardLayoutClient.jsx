@@ -1,13 +1,14 @@
-'use client';
+"use client";
 
-import React from 'react';
-import { Sidebar } from '@/components/Sidebar';
-import { Topbar } from '@/components/Topbar';
-import { MobileNav } from '@/components/MobileNav';
-import { useAuth } from '@/context/AuthContext';
+import React from "react";
+import Link from "next/link";
+import { Sidebar } from "@/components/Sidebar";
+import { Topbar } from "@/components/Topbar";
+import { MobileNav } from "@/components/MobileNav";
+import { useAuth } from "@/context/AuthContext";
 
 export default function DashboardLayoutClient({ children }) {
-  const { isLoading } = useAuth();
+  const { isLoading, user } = useAuth();
 
   if (isLoading) {
     return (
@@ -30,6 +31,19 @@ export default function DashboardLayoutClient({ children }) {
       <div className="flex-1 flex flex-col min-w-0 pb-20 lg:pb-8">
         <Topbar />
         <main className="flex-1 p-4 sm:p-6 lg:p-8 max-w-7xl w-full mx-auto">
+          {user && !user.onboardingComplete && (
+            <div className="mb-6 flex flex-col gap-3 rounded-2xl border border-accent-soft bg-accent-soft/40 p-4 sm:flex-row sm:items-center sm:justify-between">
+              <p className="text-sm text-secondary">
+                Finish your OneMe profile when you are ready.
+              </p>
+              <Link
+                href="/welcome"
+                className="cursor-pointer text-sm font-semibold text-accent hover:underline"
+              >
+                Continue profile setup
+              </Link>
+            </div>
+          )}
           {children}
         </main>
       </div>

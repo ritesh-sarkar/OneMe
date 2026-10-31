@@ -182,12 +182,11 @@ export function Hero() {
                   font-semibold
                 "
               >
-                Everything that represents you. One beautiful identity. Bring
-                your profile, work, socials, and contact information together in
-                one place - ready to share, connect, and exchange instantly.
+                Everything that represents you. One beautiful identity. Bring your profile, work,
+                socials, and contact information together in one place - ready to share, connect,
+                and exchange instantly.
               </p>
             </motion.div>
-
 
             {/* Action Buttons */}
             <motion.div
@@ -255,7 +254,6 @@ export function Hero() {
                 </Button>
               </Link>
             </motion.div>
-
 
             {/* Social Proof & Features List */}
             <motion.div
@@ -334,7 +332,6 @@ export function Hero() {
             </motion.div>
           </div>
 
-
           {/* Right Column: Interactive Phone / Desktop Preview Mockup */}
           <motion.div
             initial={{
@@ -358,7 +355,6 @@ export function Hero() {
               justify-center
             "
           >
-
             {/* Ambient Backlight */}
             <div
               className="
@@ -370,7 +366,6 @@ export function Hero() {
                 -z-10
               "
             />
-
 
             {/* Device Container Frame */}
             <div
@@ -387,7 +382,6 @@ export function Hero() {
                 backdrop-blur-2xl
               "
             >
-
               {/* Speaker Notch / Dynamic Island */}
               <div
                 className="
@@ -422,7 +416,6 @@ export function Hero() {
                   "
                 />
               </div>
-
 
               {/* Scrollable Preview Screen */}
               <div

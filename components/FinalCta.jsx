@@ -5,11 +5,7 @@ import Link from "next/link";
 import { motion } from "framer-motion";
 
 //icons
-import {
-  FiZap,
-  FiArrowRight,
-  FiShield,
-} from "react-icons/fi";
+import { FiZap, FiArrowRight, FiShield } from "react-icons/fi";
 
 //Custom Components and libs
 import { Button } from "@/components/Button";
@@ -64,9 +60,7 @@ export function FinalCta() {
               font-mono
             "
           >
-            <span>
-              One person. One identity. One link.
-            </span>
+            <span>One person. One identity. One link.</span>
           </div>
 
           <h2
@@ -90,8 +84,8 @@ export function FinalCta() {
               mx-auto
             "
           >
-            Join developers, designers, and innovators presenting their
-            digital presence with unparalleled elegance.
+            Join developers, designers, and innovators presenting their digital presence with
+            unparalleled elegance.
           </p>
 
           <div

@@ -142,8 +142,7 @@ export default function ProjectsPage() {
           </h1>
 
           <p className="text-xs sm:text-sm text-secondary">
-            Showcase your best engineering work, open-source repositories, and
-            applications.
+            Showcase your best engineering work, open-source repositories, and applications.
           </p>
         </div>
 
@@ -187,13 +186,10 @@ export default function ProjectsPage() {
           </div>
 
           <div className="space-y-1">
-            <h3 className="text-base font-bold text-primary">
-              No projects yet
-            </h3>
+            <h3 className="text-base font-bold text-primary">No projects yet</h3>
 
             <p className="text-xs text-secondary">
-              Show the world what you&apos;ve built by adding your first
-              project.
+              Show the world what you&apos;ve built by adding your first project.
             </p>
           </div>
 
@@ -259,7 +255,10 @@ export default function ProjectsPage() {
 
                   {proj.status && (
                     <div className="absolute top-3 right-3">
-                      <Badge variant="indigo" size="sm">
+                      <Badge
+                        variant="indigo"
+                        size="sm"
+                      >
                         {proj.status}
                       </Badge>
                     </div>
@@ -279,9 +278,7 @@ export default function ProjectsPage() {
                 "
               >
                 <div className="space-y-2">
-                  <h3 className="text-base font-bold text-primary">
-                    {proj.title}
-                  </h3>
+                  <h3 className="text-base font-bold text-primary">{proj.title}</h3>
 
                   <p
                     className="
@@ -419,7 +416,10 @@ export default function ProjectsPage() {
         description="Share key highlights, repository, and live demo link"
         maxWidth="max-w-lg"
       >
-        <form onSubmit={handleSaveProject} className="space-y-4 py-2">
+        <form
+          onSubmit={handleSaveProject}
+          className="space-y-4 py-2"
+        >
           <Input
             label="Project Title"
             value={formTitle}
@@ -517,7 +517,11 @@ export default function ProjectsPage() {
               Cancel
             </Button>
 
-            <Button type="submit" variant="primary" size="md">
+            <Button
+              type="submit"
+              variant="primary"
+              size="md"
+            >
               {editingProjectId ? "Save Changes" : "Create Project"}
             </Button>
           </div>

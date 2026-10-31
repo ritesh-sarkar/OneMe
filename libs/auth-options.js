@@ -133,7 +133,7 @@ export const authOptions = {
           const googleEmail = user.email?.trim().toLowerCase();
           const googleUser = googleEmail
             ? await User.findOne({ email: googleEmail })
-              .select('_id name email username sessionVersion emailVerifiedAt')
+              .select('_id name email username sessionVersion emailVerifiedAt onboardingCompletedAt onboardingSkippedAt')
               .lean()
             : null;
           if (!googleUser?.emailVerifiedAt) return { ...token, invalidSession: true };
@@ -142,6 +142,8 @@ export const authOptions = {
           token.email = googleUser.email;
           token.username = googleUser.username;
           token.sessionVersion = googleUser.sessionVersion;
+          token.onboardingComplete = Boolean(googleUser.onboardingCompletedAt);
+          token.onboardingSkipped = Boolean(googleUser.onboardingSkippedAt);
         } else {
           token.sub = user.id;
           token.username = user.username;
@@ -153,7 +155,7 @@ export const authOptions = {
 
       await connectToDatabase();
       const currentUser = await User.findById(token.sub)
-        .select('_id username sessionVersion emailVerifiedAt')
+        .select('_id username sessionVersion emailVerifiedAt onboardingCompletedAt onboardingSkippedAt')
         .lean();
 
       if (
@@ -165,6 +167,8 @@ export const authOptions = {
       }
 
       token.username = currentUser.username;
+      token.onboardingComplete = Boolean(currentUser.onboardingCompletedAt);
+      token.onboardingSkipped = Boolean(currentUser.onboardingSkippedAt);
       return token;
     },
     async session({ session, token }) {
@@ -172,6 +176,8 @@ export const authOptions = {
 
       session.user.id = token.sub;
       session.user.username = token.username;
+      session.user.onboardingComplete = Boolean(token.onboardingComplete);
+      session.user.onboardingSkipped = Boolean(token.onboardingSkipped);
       return session;
     },
   },

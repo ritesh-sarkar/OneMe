@@ -6,7 +6,7 @@ import { useRouter } from "next/navigation";
 import { motion } from "framer-motion";
 
 // Icons
-import { FiUser, FiMail } from "react-icons/fi";
+import { FiUser, FiMail, FiAtSign, FiLock } from "react-icons/fi";
 
 // Custom Components and libs
 import { Button } from "@/components/Button";
@@ -16,8 +16,9 @@ import { useToast } from "@/context/ToastContext";
 
 export default function SignupPage() {
   const [name, setName] = useState("");
-
+  const [username, setUsername] = useState("");
   const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
 
   const [isSubmitting, setIsSubmitting] = useState(false);
 
@@ -33,10 +34,10 @@ export default function SignupPage() {
     setIsSubmitting(true);
 
     try {
-      const res = await signup(name, email);
+      const res = await signup(name, username, email, password);
       if (res.success) {
         success(res.message || "Check your inbox for an email verification link.");
-        router.push("/login");
+        router.push(`/verify-email?sent=${encodeURIComponent(email)}`);
       } else {
         toastError(res.error || "Unable to create an account.", "Registration Failed");
       }
@@ -154,7 +155,7 @@ export default function SignupPage() {
               text-secondary
             "
           >
-            One person. One identity. Verify your email to finish setup.
+            Create your account, then verify your email to activate it.
           </p>
         </div>
 
@@ -188,6 +189,20 @@ export default function SignupPage() {
             />
 
             <Input
+              label="Username"
+              type="text"
+              placeholder="john-doe"
+              value={username}
+              onChange={(e) => setUsername(e.target.value.toLowerCase().replace(/[^a-z0-9-]/g, ""))}
+              autoComplete="username"
+              minLength={3}
+              maxLength={30}
+              pattern="[a-z0-9][a-z0-9-]*[a-z0-9]"
+              required
+              icon={FiAtSign}
+            />
+
+            <Input
               label="Email Address"
               type="email"
               placeholder="john@example.com"
@@ -196,6 +211,24 @@ export default function SignupPage() {
               required
               icon={FiMail}
             />
+
+            <Input
+              label="Password"
+              type="password"
+              placeholder="At least 12 characters"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              autoComplete="new-password"
+              minLength={12}
+              maxLength={72}
+              required
+              icon={FiLock}
+            />
+
+            <p className="text-xs leading-relaxed text-secondary">
+              Verify your email before signing in. The verification page will ask you to choose a
+              different final password for account security.
+            </p>
 
             <Button
               type="submit"
@@ -211,7 +244,6 @@ export default function SignupPage() {
               Create Account
             </Button>
           </form>
-
         </div>
 
         <p

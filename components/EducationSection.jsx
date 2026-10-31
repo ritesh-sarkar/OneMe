@@ -2,20 +2,10 @@
 
 import React from "react";
 
-import {
-  FiBookOpen,
-  FiMapPin,
-  FiAward,
-} from "react-icons/fi";
+import { FiBookOpen, FiMapPin, FiAward } from "react-icons/fi";
 
-export function EducationSection({
-  education = [],
-  cardClass = "",
-}) {
-  if (
-    !education ||
-    education.length === 0
-  ) {
+export function EducationSection({ education = [], cardClass = "" }) {
+  if (!education || education.length === 0) {
     return null;
   }
 
@@ -43,11 +33,10 @@ export function EducationSection({
           space-y-3
         "
       >
-        {education.map(
-          (edu) => (
-            <div
-              key={edu.id}
-              className={`
+        {education.map((edu) => (
+          <div
+            key={edu.id}
+            className={`
                 p-4
                 rounded-xl
                 border
@@ -59,9 +48,9 @@ export function EducationSection({
                 ease-in-out
                 ${cardClass}
               `}
-            >
-              <div
-                className="
+          >
+            <div
+              className="
                   flex
                   flex-col
                   md:flex-row
@@ -69,9 +58,9 @@ export function EducationSection({
                   justify-between
                   gap-1
                 "
-              >
-                <h4
-                  className="
+            >
+              <h4
+                className="
                     text-base
                     md:text-lg
                     font-bold
@@ -80,44 +69,44 @@ export function EducationSection({
                     items-center
                     gap-2
                   "
-                >
-                  <FiBookOpen
-                    className="
+              >
+                <FiBookOpen
+                  className="
                       w-4
                       h-4
                       text-accent
                     "
-                  />
+                />
 
-                  {edu.institution}
-                </h4>
+                {edu.institution}
+              </h4>
 
-                <span
-                  className="
+              <span
+                className="
                     text-xs
                     md:text-sm
                     text-accent
                     font-mono
                   "
-                >
-                  {edu.period}
-                </span>
-              </div>
+              >
+                {edu.period}
+              </span>
+            </div>
 
-              <p
-                className="
+            <p
+              className="
                   text-sm
                   md:text-base
                   font-semibold
                   text-secondary
                   mt-1
                 "
-              >
-                {edu.degree}
-              </p>
+            >
+              {edu.degree}
+            </p>
 
-              <div
-                className="
+            <div
+              className="
                   flex
                   items-center
                   gap-3
@@ -126,64 +115,63 @@ export function EducationSection({
                   text-secondary
                   mt-1
                 "
-              >
-                {edu.location && (
-                  <span
-                    className="
+            >
+              {edu.location && (
+                <span
+                  className="
                       flex
                       items-center
                       gap-1
                     "
-                  >
-                    <FiMapPin
-                      className="
+                >
+                  <FiMapPin
+                    className="
                         w-3
                         h-3
                       "
-                    />
+                  />
 
-                    {edu.location}
-                  </span>
-                )}
+                  {edu.location}
+                </span>
+              )}
 
-                {edu.grade && (
-                  <span
-                    className="
+              {edu.grade && (
+                <span
+                  className="
                       flex
                       items-center
                       gap-1
                       text-success
                       font-medium
                     "
-                  >
-                    <FiAward
-                      className="
+                >
+                  <FiAward
+                    className="
                         w-3
                         h-3
                       "
-                    />
+                  />
 
-                    {edu.grade}
-                  </span>
-                )}
-              </div>
+                  {edu.grade}
+                </span>
+              )}
+            </div>
 
-              {edu.description && (
-                <p
-                  className="
+            {edu.description && (
+              <p
+                className="
                     text-sm
                     md:text-base
                     text-secondary
                     mt-2
                     leading-relaxed
                   "
-                >
-                  {edu.description}
-                </p>
-              )}
-            </div>
-          ),
-        )}
+              >
+                {edu.description}
+              </p>
+            )}
+          </div>
+        ))}
       </div>
     </div>
   );

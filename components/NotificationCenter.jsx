@@ -2,10 +2,7 @@
 
 import React, { useEffect, useState } from "react";
 
-import {
-  motion,
-  AnimatePresence,
-} from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
 
 //icons
 import {
@@ -18,7 +15,6 @@ import {
   FiX,
 } from "react-icons/fi";
 import Link from "next/link";
-
 
 //Custom Components and libs
 import { formatTimeAgo } from "@/libs/utils";
@@ -71,9 +67,7 @@ export function NotificationCenter() {
     };
   }, [userId, isOpen]);
 
-  const unreadCount = notifications.filter(
-    (n) => !n.read
-  ).length;
+  const unreadCount = notifications.filter((n) => !n.read).length;
 
   const markAllAsRead = async () => {
     try {
@@ -101,11 +95,13 @@ export function NotificationCenter() {
       });
       const result = await response.json();
       if (!response.ok) throw new Error(result.error || "Notification could not be updated.");
-      setStoredNotifications((current) => current.map((item) => (
-        item.id === notification.id && item.event === notification.event
-          ? { ...item, read: true }
-          : item
-      )));
+      setStoredNotifications((current) =>
+        current.map((item) =>
+          item.id === notification.id && item.event === notification.event
+            ? { ...item, read: true }
+            : item,
+        ),
+      );
     } catch (error) {
       toastError(error.message || "Notification could not be updated.");
     }
@@ -120,9 +116,9 @@ export function NotificationCenter() {
       });
       const result = await response.json();
       if (!response.ok) throw new Error(result.error || "Notification could not be dismissed.");
-      setStoredNotifications((current) => current.filter((item) => (
-        item.id !== notification.id || item.event !== notification.event
-      )));
+      setStoredNotifications((current) =>
+        current.filter((item) => item.id !== notification.id || item.event !== notification.event),
+      );
     } catch (error) {
       toastError(error.message || "Notification could not be dismissed.");
     }
@@ -248,7 +244,6 @@ export function NotificationCenter() {
           <>
             {/* Backdrop for mobile closing */}
 
-
             <div
               onClick={() => setIsOpen(false)}
               className="
@@ -366,9 +361,7 @@ export function NotificationCenter() {
                       "
                     />
 
-                    <span>
-                      Mark all read
-                    </span>
+                    <span>Mark all read</span>
                   </button>
                 )}
               </div>
@@ -382,7 +375,10 @@ export function NotificationCenter() {
                 "
               >
                 {visibleError ? (
-                  <p role="alert" className="py-4 text-center text-sm text-danger">
+                  <p
+                    role="alert"
+                    className="py-4 text-center text-sm text-danger"
+                  >
                     {visibleError}
                   </p>
                 ) : isLoading && notifications.length === 0 ? (

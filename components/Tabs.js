@@ -40,9 +40,7 @@ export function Tabs({ tabs, activeTab, onChange, className }) {
                 <span
                   className={cn(
                     "px-1.5 py-0.2 rounded-full text-[10px] font-semibold",
-                    isActive
-                      ? "bg-glass-soft text-accent"
-                      : "bg-surface-panel text-secondary",
+                    isActive ? "bg-glass-soft text-accent" : "bg-surface-panel text-secondary",
                   )}
                 >
                   {tab.count}

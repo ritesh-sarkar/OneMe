@@ -51,7 +51,9 @@ export default function DiscoverPage() {
         const result = await response.json();
         if (!response.ok) throw new Error(result.error || "Discovery is unavailable.");
         if (active) {
-          setProfiles((current) => page === 1 ? result.profiles || [] : [...current, ...(result.profiles || [])]);
+          setProfiles((current) =>
+            page === 1 ? result.profiles || [] : [...current, ...(result.profiles || [])],
+          );
           setHasMore(result.hasMore === true);
           setLoadError("");
         }
@@ -107,7 +109,6 @@ export default function DiscoverPage() {
           space-y-10
         "
       >
-
         {/* Header */}
         <div
           className="
@@ -167,7 +168,6 @@ export default function DiscoverPage() {
             Find verified people who chose to publish their profile and opt into discovery.
           </p>
         </div>
-        
 
         {/* Search & Filters */}
         <div
@@ -190,7 +190,6 @@ export default function DiscoverPage() {
               py-3
             "
           />
-
         </div>
 
         {/* Profiles Grid */}
@@ -199,7 +198,10 @@ export default function DiscoverPage() {
             Searching published identities...
           </div>
         ) : loadError ? (
-          <div role="alert" className="p-12 text-center text-sm text-danger">
+          <div
+            role="alert"
+            className="p-12 text-center text-sm text-danger"
+          >
             {loadError}
           </div>
         ) : profiles.length === 0 ? (
@@ -234,8 +236,7 @@ export default function DiscoverPage() {
                 text-secondary
               "
             >
-              No profiles match your current search criteria. Try a broader
-              search term.
+              No profiles match your current search criteria. Try a broader search term.
             </p>
           </div>
         ) : (
@@ -375,7 +376,6 @@ export default function DiscoverPage() {
                         </p>
                       </div>
                     </div>
-
                   </div>
 
                   {/* Tagline */}
@@ -433,7 +433,6 @@ export default function DiscoverPage() {
                         </Button>
                       </div>
                     )}
-
                   </div>
 
                   {/* Skills tags */}
@@ -514,8 +513,16 @@ export default function DiscoverPage() {
                     variant="glow"
                     size="sm"
                     icon={FiZap}
-                    title={person.flowEnabled ? "OneMe Flow Connect" : "This member is not accepting Flow requests"}
-                    aria-label={person.flowEnabled ? `Request OneMe Flow exchange with ${person.name}` : `${person.name} is not accepting Flow requests`}
+                    title={
+                      person.flowEnabled
+                        ? "OneMe Flow Connect"
+                        : "This member is not accepting Flow requests"
+                    }
+                    aria-label={
+                      person.flowEnabled
+                        ? `Request OneMe Flow exchange with ${person.name}`
+                        : `${person.name} is not accepting Flow requests`
+                    }
                   />
                 </div>
               </motion.div>

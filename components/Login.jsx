@@ -7,14 +7,7 @@ import { motion } from "framer-motion";
 import { getProviders, signIn } from "next-auth/react";
 
 // Icons
-import {
-  FiMail,
-  FiLock,
-  FiEye,
-  FiEyeOff,
-  FiArrowRight,
-  FiAlertCircle,
-} from "react-icons/fi";
+import { FiMail, FiLock, FiEye, FiEyeOff, FiArrowRight, FiAlertCircle } from "react-icons/fi";
 import { FcGoogle } from "react-icons/fc";
 
 // Custom Components and libs
@@ -32,6 +25,7 @@ export default function LoginPage() {
   const [resendMessage, setResendMessage] = useState("");
   const [isResending, setIsResending] = useState(false);
   const [googleEnabled, setGoogleEnabled] = useState(false);
+  const [providersLoaded, setProvidersLoaded] = useState(false);
 
   const { login } = useAuth();
 
@@ -43,10 +37,14 @@ export default function LoginPage() {
     let active = true;
     getProviders()
       .then((providers) => {
-        if (active) setGoogleEnabled(Boolean(providers?.google));
+        if (active) {
+          setGoogleEnabled(Boolean(providers?.google));
+          setProvidersLoaded(true);
+        }
       })
       .catch((error) => {
         console.error("Unable to load sign-in providers.", error?.name || "UnknownError");
+        if (active) setProvidersLoaded(true);
       });
     return () => {
       active = false;
@@ -66,10 +64,7 @@ export default function LoginPage() {
     setIsSubmitting(false);
 
     if (res.success) {
-      success(
-        "Logged in successfully! Welcome to OneMe.",
-        "Authentication Successful",
-      );
+      success("Logged in successfully! Welcome to OneMe.", "Authentication Successful");
 
       router.push("/dashboard");
     } else {
@@ -107,7 +102,9 @@ export default function LoginPage() {
         redirect: false,
       });
       if (result?.error || !result?.url) {
-        throw new Error("Google sign-in is unavailable. Please try again or use email and password.");
+        throw new Error(
+          "Google sign-in is unavailable. Please try again or use email and password.",
+        );
       }
       window.location.assign(result.url);
     } catch (error) {
@@ -338,9 +335,7 @@ export default function LoginPage() {
                       focus:outline-none
                       cursor-pointer
                     "
-                    aria-label={
-                      showPassword ? "Hide password" : "Show password"
-                    }
+                    aria-label={showPassword ? "Hide password" : "Show password"}
                   >
                     {showPassword ? (
                       <FiEyeOff className="w-4 h-4" />
@@ -375,11 +370,18 @@ export default function LoginPage() {
               >
                 {isResending ? "Sending..." : "Resend verification email"}
               </button>
-              {resendMessage && <p role="status" className="text-xs text-secondary">{resendMessage}</p>}
+              {resendMessage && (
+                <p
+                  role="status"
+                  className="text-xs text-secondary"
+                >
+                  {resendMessage}
+                </p>
+              )}
             </div>
           </form>
 
-          {googleEnabled && (
+          {providersLoaded && (
             <>
               <div className="flex items-center gap-3 text-xs text-tertiary">
                 <span className="h-px flex-1 bg-subtle" />
@@ -390,7 +392,7 @@ export default function LoginPage() {
                 <Button
                   type="button"
                   onClick={handleGoogleSignIn}
-                  disabled={isSubmitting}
+                  disabled={isSubmitting || !googleEnabled}
                   variant="outline"
                   size="lg"
                   icon={FcGoogle}
@@ -398,6 +400,12 @@ export default function LoginPage() {
                 >
                   Continue with Google
                 </Button>
+                {!googleEnabled && (
+                  <p className="text-center text-xs text-tertiary">
+                    Google sign-in is unavailable until an administrator configures OAuth
+                    credentials.
+                  </p>
+                )}
                 <p className="text-center text-xs text-tertiary">
                   A verified Google account can sign in or create a OneMe account.
                 </p>

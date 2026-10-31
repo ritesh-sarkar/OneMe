@@ -31,7 +31,9 @@ export default function PublicExchangePage() {
             Share contact details on your terms
           </h1>
           <p className="mx-auto max-w-2xl text-sm leading-relaxed text-secondary md:text-base">
-            OneMe Flow sends a private request to a verified member. Your email, phone, social links, or resume are never revealed unless you select them and the recipient accepts the exchange.
+            OneMe Flow sends a private request to a verified member. Your email, phone, social
+            links, or resume are never revealed unless you select them and the recipient accepts the
+            exchange.
           </p>
         </div>
 
@@ -39,7 +41,10 @@ export default function PublicExchangePage() {
           <h2 className="text-lg font-bold text-primary">A mutual-consent exchange</h2>
           <ol className="space-y-4">
             {FLOW_STEPS.map((step, index) => (
-              <li key={step} className="flex items-start gap-3 text-sm text-secondary">
+              <li
+                key={step}
+                className="flex items-start gap-3 text-sm text-secondary"
+              >
                 <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-accent-soft font-mono text-xs font-bold text-accent">
                   {index + 1}
                 </span>
@@ -50,7 +55,8 @@ export default function PublicExchangePage() {
           <div className="flex items-start gap-3 rounded-2xl border border-subtle bg-surface-dark/60 p-4 text-xs leading-relaxed text-secondary">
             <FiShield className="mt-0.5 h-4 w-4 shrink-0 text-success" />
             <p>
-              Requests expire after seven days. Either side can decline or cancel before acceptance, and you can remove a saved connection at any time.
+              Requests expire after seven days. Either side can decline or cancel before acceptance,
+              and you can remove a saved connection at any time.
             </p>
           </div>
           <Button
@@ -70,7 +76,10 @@ export default function PublicExchangePage() {
       </main>
 
       <LandingFooter />
-      <ExchangeModal isOpen={modalOpen} onClose={() => setModalOpen(false)} />
+      <ExchangeModal
+        isOpen={modalOpen}
+        onClose={() => setModalOpen(false)}
+      />
     </div>
   );
 }

@@ -111,7 +111,9 @@ export default function ProfileEditorPage() {
       }
 
       const formData = new FormData();
-      Object.entries(signature.params).forEach(([key, value]) => formData.append(key, String(value)));
+      Object.entries(signature.params).forEach(([key, value]) =>
+        formData.append(key, String(value)),
+      );
       formData.append("api_key", signature.apiKey);
       formData.append("signature", signature.signature);
       formData.append("file", file);
@@ -258,8 +260,8 @@ export default function ProfileEditorPage() {
                         text-secondary
                       "
           >
-            Real-time identity editor with individual section saves and instant
-            live synchronization.
+            Real-time identity editor with individual section saves and instant live
+            synchronization.
           </p>
         </div>
         <div
@@ -353,12 +355,7 @@ export default function ProfileEditorPage() {
                     Personal Information & Media
                   </h3>
                   <Button
-                    onClick={() =>
-                      success(
-                        "Personal information saved successfully!",
-                        "Saved",
-                      )
-                    }
+                    onClick={() => success("Personal information saved successfully!", "Saved")}
                     variant="primary"
                     size="sm"
                     icon={FiSave}
@@ -588,17 +585,13 @@ export default function ProfileEditorPage() {
                   <Input
                     label="Location"
                     value={profile.location || ""}
-                    onChange={(e) =>
-                      handleInputChange("location", e.target.value)
-                    }
+                    onChange={(e) => handleInputChange("location", e.target.value)}
                     placeholder="Dhaka, Bangladesh"
                   />
                   <Input
                     label="Availability Status"
                     value={profile.status || ""}
-                    onChange={(e) =>
-                      handleInputChange("status", e.target.value)
-                    }
+                    onChange={(e) => handleInputChange("status", e.target.value)}
                     placeholder="Open to freelance work"
                   />
                 </div>
@@ -633,12 +626,7 @@ export default function ProfileEditorPage() {
                       "
                 >
                   <Button
-                    onClick={() =>
-                      success(
-                        "Personal information saved successfully!",
-                        "Saved",
-                      )
-                    }
+                    onClick={() => success("Personal information saved successfully!", "Saved")}
                     variant="primary"
                     size="md"
                     icon={FiSave}
@@ -704,9 +692,7 @@ export default function ProfileEditorPage() {
                       <span>Generate with AI</span>
                     </button>
                     <Button
-                      onClick={() =>
-                        success("Bio & executive summary saved!", "Saved")
-                      }
+                      onClick={() => success("Bio & executive summary saved!", "Saved")}
                       variant="primary"
                       size="sm"
                       icon={FiSave}
@@ -732,9 +718,7 @@ export default function ProfileEditorPage() {
                       "
                 >
                   <Button
-                    onClick={() =>
-                      success("Bio & executive summary saved!", "Saved")
-                    }
+                    onClick={() => success("Bio & executive summary saved!", "Saved")}
                     variant="primary"
                     size="md"
                     icon={FiSave}
@@ -787,9 +771,7 @@ export default function ProfileEditorPage() {
                       Add Link
                     </Button>
                     <Button
-                      onClick={() =>
-                        success("Social links saved successfully!", "Saved")
-                      }
+                      onClick={() => success("Social links saved successfully!", "Saved")}
                       variant="primary"
                       size="sm"
                       icon={FiSave}
@@ -826,16 +808,12 @@ export default function ProfileEditorPage() {
                         <Input
                           label="Platform Label"
                           value={soc.label}
-                          onChange={(e) =>
-                            handleUpdateSocial(soc.id, "label", e.target.value)
-                          }
+                          onChange={(e) => handleUpdateSocial(soc.id, "label", e.target.value)}
                         />
                         <Input
                           label="Handle / Display"
                           value={soc.handle}
-                          onChange={(e) =>
-                            handleUpdateSocial(soc.id, "handle", e.target.value)
-                          }
+                          onChange={(e) => handleUpdateSocial(soc.id, "handle", e.target.value)}
                         />
                         <div
                           className="
@@ -852,13 +830,7 @@ export default function ProfileEditorPage() {
                             <Input
                               label="Profile URL"
                               value={soc.url}
-                              onChange={(e) =>
-                                handleUpdateSocial(
-                                  soc.id,
-                                  "url",
-                                  e.target.value,
-                                )
-                              }
+                              onChange={(e) => handleUpdateSocial(soc.id, "url", e.target.value)}
                             />
                           </div>
                           <button
@@ -897,9 +869,7 @@ export default function ProfileEditorPage() {
                       "
                 >
                   <Button
-                    onClick={() =>
-                      success("Social links saved successfully!", "Saved")
-                    }
+                    onClick={() => success("Social links saved successfully!", "Saved")}
                     variant="primary"
                     size="md"
                     icon={FiSave}
@@ -937,9 +907,7 @@ export default function ProfileEditorPage() {
                     Skills & Technical Stack
                   </h3>
                   <Button
-                    onClick={() =>
-                      success("Skills list saved successfully!", "Saved")
-                    }
+                    onClick={() => success("Skills list saved successfully!", "Saved")}
                     variant="primary"
                     size="sm"
                     icon={FiSave}
@@ -1002,8 +970,7 @@ export default function ProfileEditorPage() {
                 >
                   {(profile.skills || []).map((skill, index) => {
                     const name = typeof skill === "string" ? skill : skill.name;
-                    const level =
-                      typeof skill === "object" ? skill.level : null;
+                    const level = typeof skill === "object" ? skill.level : null;
                     return (
                       <div
                         key={index}
@@ -1058,9 +1025,7 @@ export default function ProfileEditorPage() {
                       "
                 >
                   <Button
-                    onClick={() =>
-                      success("Skills list saved successfully!", "Saved")
-                    }
+                    onClick={() => success("Skills list saved successfully!", "Saved")}
                     variant="primary"
                     size="md"
                     icon={FiSave}
@@ -1098,9 +1063,7 @@ export default function ProfileEditorPage() {
                     Custom Call-to-Action
                   </h3>
                   <Button
-                    onClick={() =>
-                      success("Custom CTA settings saved!", "Saved")
-                    }
+                    onClick={() => success("Custom CTA settings saved!", "Saved")}
                     variant="primary"
                     size="sm"
                     icon={FiSave}
@@ -1111,9 +1074,7 @@ export default function ProfileEditorPage() {
                 <Toggle
                   label="Enable Custom CTA Banner"
                   checked={profile.customCta?.enabled !== false}
-                  onChange={(checked) =>
-                    handleCustomCtaChange("enabled", checked)
-                  }
+                  onChange={(checked) => handleCustomCtaChange("enabled", checked)}
                 />
                 <div
                   className="
@@ -1126,17 +1087,13 @@ export default function ProfileEditorPage() {
                   <Input
                     label="Button Text"
                     value={profile.customCta?.text || ""}
-                    onChange={(e) =>
-                      handleCustomCtaChange("text", e.target.value)
-                    }
+                    onChange={(e) => handleCustomCtaChange("text", e.target.value)}
                     placeholder="Hire Me for Projects"
                   />
                   <Input
                     label="Subtitle"
                     value={profile.customCta?.subtitle || ""}
-                    onChange={(e) =>
-                      handleCustomCtaChange("subtitle", e.target.value)
-                    }
+                    onChange={(e) => handleCustomCtaChange("subtitle", e.target.value)}
                     placeholder="Available for freelance & full-time"
                   />
                 </div>
@@ -1202,9 +1159,7 @@ export default function ProfileEditorPage() {
                       "
                 >
                   <Button
-                    onClick={() =>
-                      success("Custom CTA settings saved!", "Saved")
-                    }
+                    onClick={() => success("Custom CTA settings saved!", "Saved")}
                     variant="primary"
                     size="md"
                     icon={FiSave}
@@ -1249,14 +1204,11 @@ export default function ProfileEditorPage() {
                         mt-0.5
                       "
                     >
-                      Reorder and toggle sections to construct your ideal layout
-                      hierarchy.
+                      Reorder and toggle sections to construct your ideal layout hierarchy.
                     </p>
                   </div>
                   <Button
-                    onClick={() =>
-                      success("Section layout hierarchy saved!", "Saved")
-                    }
+                    onClick={() => success("Section layout hierarchy saved!", "Saved")}
                     variant="primary"
                     size="sm"
                     icon={FiSave}
@@ -1270,8 +1222,7 @@ export default function ProfileEditorPage() {
                       "
                 >
                   {(profile.sectionOrder || []).map((sectionKey, index) => {
-                    const isVisible =
-                      profile.sectionVisibility?.[sectionKey] !== false;
+                    const isVisible = profile.sectionVisibility?.[sectionKey] !== false;
                     return (
                       <div
                         key={sectionKey}
@@ -1351,9 +1302,7 @@ export default function ProfileEditorPage() {
                           <button
                             type="button"
                             onClick={() => moveSection(index, 1)}
-                            disabled={
-                              index === (profile.sectionOrder?.length || 0) - 1
-                            }
+                            disabled={index === (profile.sectionOrder?.length || 0) - 1}
                             className="
                         p-1.5
                         rounded-lg
@@ -1419,9 +1368,7 @@ export default function ProfileEditorPage() {
                       "
                 >
                   <Button
-                    onClick={() =>
-                      success("Section layout hierarchy saved!", "Saved")
-                    }
+                    onClick={() => success("Section layout hierarchy saved!", "Saved")}
                     variant="primary"
                     size="md"
                     icon={FiSave}
@@ -1596,7 +1543,8 @@ export default function ProfileEditorPage() {
               rows={3}
             />
             <p className="text-xs leading-relaxed text-tertiary">
-              Your prompt is sent to Google Gemini. Do not include passwords or sensitive personal information.
+              Your prompt is sent to Google Gemini. Do not include passwords or sensitive personal
+              information.
             </p>
             <div
               className="

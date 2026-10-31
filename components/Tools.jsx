@@ -3,13 +3,7 @@
 import React, { useState } from "react";
 
 //icons
-import {
-  FiCreditCard,
-  FiMail,
-  FiCopy,
-  FiCheck,
-  FiRepeat,
-} from "react-icons/fi";
+import { FiCreditCard, FiMail, FiCopy, FiCheck, FiRepeat } from "react-icons/fi";
 
 // Custom Components
 import { Button } from "@/components/Button";
@@ -107,9 +101,7 @@ export default function ToolsPage() {
     copyToClipboard(html);
     setSigCopied(true);
 
-    success(
-      "HTML Email signature copied to clipboard! Paste directly into Gmail/Outlook.",
-    );
+    success("HTML Email signature copied to clipboard! Paste directly into Gmail/Outlook.");
 
     setTimeout(() => setSigCopied(false), 2000);
   };
@@ -151,8 +143,7 @@ export default function ToolsPage() {
               sm:text-sm
             "
           >
-            Generate shareable business cards and copyable HTML email
-            signatures.
+            Generate shareable business cards and copyable HTML email signatures.
           </p>
         </div>
 
@@ -401,8 +392,7 @@ export default function ToolsPage() {
                         text-secondary
                       "
                     >
-                      Tap NFC or scan QR code to view live OneMe profile and
-                      download contact card.
+                      Tap NFC or scan QR code to view live OneMe profile and download contact card.
                     </p>
 
                     <div
@@ -500,8 +490,8 @@ export default function ToolsPage() {
                 text-secondary
               "
             >
-              Your digital business card represents your professional brand at
-              in-person conferences, coffee chats, and client meetings.
+              Your digital business card represents your professional brand at in-person
+              conferences, coffee chats, and client meetings.
             </p>
 
             <div
@@ -653,22 +643,15 @@ export default function ToolsPage() {
                 Click <strong>Copy HTML Signature</strong> button.
               </li>
 
-              <li>
-                Open your email client settings (Gmail, Outlook, Apple Mail).
-              </li>
+              <li>Open your email client settings (Gmail, Outlook, Apple Mail).</li>
 
               <li>
                 Navigate to the <strong>Signatures</strong> section.
               </li>
 
-              <li>
-                Paste (Ctrl+V / Cmd+V) directly into the signature composer.
-              </li>
+              <li>Paste (Ctrl+V / Cmd+V) directly into the signature composer.</li>
 
-              <li>
-                Save changes. Your emails now feature your verified OneMe
-                identity!
-              </li>
+              <li>Save changes. Your emails now feature your verified OneMe identity!</li>
             </ol>
           </div>
         </div>

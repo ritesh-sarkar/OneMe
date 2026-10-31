@@ -3,7 +3,6 @@
 import React from "react";
 import { motion } from "framer-motion";
 
-
 //custom Components and libs
 import { getThemeById } from "@/libs/themes";
 
@@ -18,15 +17,8 @@ import { AchievementsSection } from "@/components/AchievementsSection";
 import { ResumeViewer } from "@/components/ResumeViewer";
 import { CustomCtaBanner } from "@/components/CustomCtaBanner";
 
-
 //icons
-import {
-  FiMail,
-  FiPhone,
-  FiMapPin,
-  FiShield,
-  FiHeart,
-} from "react-icons/fi";
+import { FiMail, FiPhone, FiMapPin, FiShield, FiHeart } from "react-icons/fi";
 
 export function PublicProfileView({
   user,
@@ -43,79 +35,57 @@ export function PublicProfileView({
   isLivePreview = false,
   className = "",
 }) {
-  const activeThemeId =
-    themeId ||
-    user?.themeId ||
-    "cyberpunk";
+  const activeThemeId = themeId || user?.themeId || "cyberpunk";
 
-  const theme = getThemeById(
-    activeThemeId,
-  );
+  const theme = getThemeById(activeThemeId);
 
   // Allow custom theme overrides (custom color, font, card style)
-  const customFont =
-    user?.customTheme?.fontFamily ||
-    theme.fontFamily;
+  const customFont = user?.customTheme?.fontFamily || theme.fontFamily;
 
-  const customAccent =
-    user?.customTheme?.accentColor ||
-    theme.accentColor;
+  const customAccent = user?.customTheme?.accentColor || theme.accentColor;
 
-  const customCardStyle =
-    user?.customTheme?.cardStyle;
+  const customCardStyle = user?.customTheme?.cardStyle;
 
-  let computedCardClass =
-    theme.cardClass;
+  let computedCardClass = theme.cardClass;
 
   if (customCardStyle === "solid") {
-    computedCardClass =
-      "bg-surface-secondary border border-subtle shadow-md";
-  } else if (
-    customCardStyle === "minimal"
-  ) {
-    computedCardClass =
-      "bg-surface-dark/40 border border-subtle shadow-none";
-  } else if (
-    customCardStyle === "glass"
-  ) {
-    computedCardClass =
-      "bg-white/[0.04] border border-light backdrop-blur-xl shadow-xl";
+    computedCardClass = "bg-surface-secondary border border-subtle shadow-md";
+  } else if (customCardStyle === "minimal") {
+    computedCardClass = "bg-surface-dark/40 border border-subtle shadow-none";
+  } else if (customCardStyle === "glass") {
+    computedCardClass = "bg-white/[0.04] border border-light backdrop-blur-xl shadow-xl";
   }
 
-  const sectionVisibility =
-    user?.sectionVisibility || {
-      about: true,
-      cta: true,
-      socials: true,
-      projects: true,
-      skills: true,
-      experience: true,
-      education: true,
-      certifications: true,
-      achievements: true,
-      resume: true,
-      contact: true,
-    };
+  const sectionVisibility = user?.sectionVisibility || {
+    about: true,
+    cta: true,
+    socials: true,
+    projects: true,
+    skills: true,
+    experience: true,
+    education: true,
+    certifications: true,
+    achievements: true,
+    resume: true,
+    contact: true,
+  };
 
-  const sectionOrder =
-    user?.sectionOrder || [
-      "about",
-      "cta",
-      "socials",
-      "projects",
-      "skills",
-      "experience",
-      "education",
-      "certifications",
-      "achievements",
-      "resume",
-      "contact",
-    ];
+  const sectionOrder = user?.sectionOrder || [
+    "about",
+    "cta",
+    "socials",
+    "projects",
+    "skills",
+    "experience",
+    "education",
+    "certifications",
+    "achievements",
+    "resume",
+    "contact",
+  ];
 
   // Render individual sections
-  const renderSection = (
-    key,
-  ) => {
+  const renderSection = (key) => {
     if (!sectionVisibility[key]) {
       return null;
     }
@@ -283,11 +253,10 @@ export function PublicProfileView({
                 ${computedCardClass}
               `}
             >
-              {user?.privacy?.showEmail !== false &&
-                user?.email && (
-                  <a
-                    href={`mailto:${user.email}`}
-                    className="
+              {user?.privacy?.showEmail !== false && user?.email && (
+                <a
+                  href={`mailto:${user.email}`}
+                  className="
                       flex
                       items-center
                       gap-2.5
@@ -299,41 +268,40 @@ export function PublicProfileView({
                       ease-in-out
                       active:scale-90
                     "
-                  >
-                    <div
-                      className="
+                >
+                  <div
+                    className="
                         p-2
                         rounded-lg
                         text-primary
                       "
-                      style={{
-                        backgroundColor: `${customAccent}25`,
-                        color: customAccent,
-                      }}
-                    >
-                      <FiMail
-                        className="
+                    style={{
+                      backgroundColor: `${customAccent}25`,
+                      color: customAccent,
+                    }}
+                  >
+                    <FiMail
+                      className="
                           w-4
                           h-4
                         "
-                      />
-                    </div>
+                    />
+                  </div>
 
-                    <span
-                      className="
+                  <span
+                    className="
                         truncate
                       "
-                    >
-                      {user.email}
-                    </span>
-                  </a>
-                )}
+                  >
+                    {user.email}
+                  </span>
+                </a>
+              )}
 
-              {user?.privacy?.showPhone !== false &&
-                user?.phone && (
-                  <a
-                    href={`tel:${user.phone}`}
-                    className="
+              {user?.privacy?.showPhone !== false && user?.phone && (
+                <a
+                  href={`tel:${user.phone}`}
+                  className="
                       flex
                       items-center
                       gap-2.5
@@ -345,35 +313,35 @@ export function PublicProfileView({
                       ease-in-out
                       active:scale-90
                     "
-                  >
-                    <div
-                      className="
+                >
+                  <div
+                    className="
                         p-2
                         rounded-lg
                         text-primary
                       "
-                      style={{
-                        backgroundColor: `${customAccent}25`,
-                        color: customAccent,
-                      }}
-                    >
-                      <FiPhone
-                        className="
+                    style={{
+                      backgroundColor: `${customAccent}25`,
+                      color: customAccent,
+                    }}
+                  >
+                    <FiPhone
+                      className="
                           w-4
                           h-4
                         "
-                      />
-                    </div>
+                    />
+                  </div>
 
-                    <span
-                      className="
+                  <span
+                    className="
                         truncate
                       "
-                    >
-                      {user.phone}
-                    </span>
-                  </a>
-                )}
+                  >
+                    {user.phone}
+                  </span>
+                </a>
+              )}
             </div>
           </div>
         );
@@ -413,18 +381,10 @@ export function PublicProfileView({
         <ProfileHeader
           user={user}
           theme={theme}
-          onOpenExchange={
-            onOpenExchange
-          }
-          onOpenQr={
-            onOpenQr
-          }
-          onOpenShare={
-            onOpenShare
-          }
-          isLivePreview={
-            isLivePreview
-          }
+          onOpenExchange={onOpenExchange}
+          onOpenQr={onOpenQr}
+          onOpenShare={onOpenShare}
+          isLivePreview={isLivePreview}
         />
 
         {/* Dynamic Ordered Sections */}
@@ -433,12 +393,7 @@ export function PublicProfileView({
             space-y-6
           "
         >
-          {sectionOrder.map(
-            (sectionKey) =>
-              renderSection(
-                sectionKey,
-              ),
-          )}
+          {sectionOrder.map((sectionKey) => renderSection(sectionKey))}
         </div>
 
         {/* Profile Footer */}
@@ -467,9 +422,7 @@ export function PublicProfileView({
               text-secondary
             "
           >
-            <span>
-              Powered by
-            </span>
+            <span>Powered by</span>
 
             <span
               className="
@@ -481,9 +434,7 @@ export function PublicProfileView({
               OneMe
             </span>
 
-            <span>
-              • Your identity. One link.
-            </span>
+            <span>• Your identity. One link.</span>
           </div>
         </div>
       </div>

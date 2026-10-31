@@ -31,11 +31,7 @@ export function Card({
   return (
     <Component
       onClick={onClick}
-      className={cn(
-        "rounded-2xl p-6 text-primary",
-        variants[variant],
-        className,
-      )}
+      className={cn("rounded-2xl p-6 text-primary", variants[variant], className)}
       {...motionProps}
       {...props}
     >
@@ -46,7 +42,10 @@ export function Card({
 
 export function CardHeader({ children, className, ...props }) {
   return (
-    <div className={cn("flex flex-col space-y-1.5 pb-4", className)} {...props}>
+    <div
+      className={cn("flex flex-col space-y-1.5 pb-4", className)}
+      {...props}
+    >
       {children}
     </div>
   );
@@ -55,10 +54,7 @@ export function CardHeader({ children, className, ...props }) {
 export function CardTitle({ children, className, ...props }) {
   return (
     <h3
-      className={cn(
-        "text-lg font-semibold tracking-tight text-brand-primary",
-        className,
-      )}
+      className={cn("text-lg font-semibold tracking-tight text-brand-primary", className)}
       {...props}
     >
       {children}
@@ -79,7 +75,10 @@ export function CardDescription({ children, className, ...props }) {
 
 export function CardContent({ children, className, ...props }) {
   return (
-    <div className={cn("pt-0", className)} {...props}>
+    <div
+      className={cn("pt-0", className)}
+      {...props}
+    >
       {children}
     </div>
   );

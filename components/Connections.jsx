@@ -1,4 +1,3 @@
-
 "use client";
 
 import React, { useState } from "react";
@@ -40,11 +39,7 @@ export default function ConnectionsPage() {
     clearAllConnections,
   } = useConnections();
 
-  const {
-    success,
-    info,
-    error: toastError,
-  } = useToast();
+  const { success, info, error: toastError } = useToast();
 
   const [searchQuery, setSearchQuery] = useState("");
   const [exchangeOpen, setExchangeOpen] = useState(false);
@@ -67,16 +62,11 @@ export default function ConnectionsPage() {
   };
 
   const handleExportAll = () => {
-    const bulkVcards = connections
-      .map((conn) => generateVCard(conn))
-      .join("\r\n\r\n");
+    const bulkVcards = connections.map((conn) => generateVCard(conn)).join("\r\n\r\n");
 
-    const blob = new Blob(
-      [bulkVcards],
-      {
-        type: "text/vcard;charset=utf-8;",
-      }
-    );
+    const blob = new Blob([bulkVcards], {
+      type: "text/vcard;charset=utf-8;",
+    });
 
     const link = document.createElement("a");
 
@@ -220,7 +210,10 @@ export default function ConnectionsPage() {
       <FlowInbox />
 
       {loadError && (
-        <p role="alert" className="rounded-2xl border border-light bg-danger-soft p-4 text-sm text-danger">
+        <p
+          role="alert"
+          className="rounded-2xl border border-light bg-danger-soft p-4 text-sm text-danger"
+        >
           {loadError}
         </p>
       )}
@@ -384,7 +377,11 @@ export default function ConnectionsPage() {
                     "
                   >
                     {conn.avatar ? (
-                      <img src={conn.avatar} alt={conn.name} className="h-full w-full object-cover" />
+                      <img
+                        src={conn.avatar}
+                        alt={conn.name}
+                        className="h-full w-full object-cover"
+                      />
                     ) : (
                       <span className="flex h-full w-full items-center justify-center bg-surface-panel font-bold text-accent">
                         {conn.name.slice(0, 1).toUpperCase()}
@@ -409,17 +406,19 @@ export default function ConnectionsPage() {
                       {conn.name}
                     </h3>
 
-                    {conn.title && <p
-                      className="
+                    {conn.title && (
+                      <p
+                        className="
                         text-sm
                         md:text-base
                         text-cyan
                         font-medium
                         truncate
                       "
-                    >
-                      {conn.title}
-                    </p>}
+                      >
+                        {conn.title}
+                      </p>
+                    )}
                   </div>
                 </div>
 
@@ -573,13 +572,9 @@ export default function ConnectionsPage() {
                       gap-2
                     "
                   >
-                    <span>
-                      Via {conn.exchangeMethod}
-                    </span>
+                    <span>Via {conn.exchangeMethod}</span>
 
-                    <span>
-                      {formatDate(conn.dateConnected)}
-                    </span>
+                    <span>{formatDate(conn.dateConnected)}</span>
                   </div>
                 )}
               </div>

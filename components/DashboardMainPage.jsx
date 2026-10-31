@@ -4,7 +4,6 @@ import React, { useEffect, useState } from "react";
 import Link from "next/link";
 import { motion } from "framer-motion";
 
-
 //icons
 import {
   FiEye,
@@ -21,7 +20,6 @@ import {
   FiCheckCircle,
   FiUsers,
 } from "react-icons/fi";
-
 
 //Custom Components and libs
 import { Button } from "@/components/Button";
@@ -214,7 +212,10 @@ export default function DashboardOverviewPage() {
             {copied ? "Copied" : "Copy Link"}
           </Button>
 
-          <Link href={`/@${activeUser?.username || ""}`} target="_blank">
+          <Link
+            href={`/@${activeUser?.username || ""}`}
+            target="_blank"
+          >
             <Button
               variant="primary"
               size="sm"
@@ -236,7 +237,10 @@ export default function DashboardOverviewPage() {
 
       {/* Analytics Overview Grid */}
       {analyticsError && (
-        <p role="alert" className="rounded-2xl border border-light bg-danger-soft p-4 text-sm text-danger">
+        <p
+          role="alert"
+          className="rounded-2xl border border-light bg-danger-soft p-4 text-sm text-danger"
+        >
           {analyticsError}
         </p>
       )}
@@ -265,9 +269,7 @@ export default function DashboardOverviewPage() {
           "
         >
           <div className="flex items-center justify-between text-secondary">
-            <span className="text-sm md:text-base font-semibold">
-              Profile Views
-            </span>
+            <span className="text-sm md:text-base font-semibold">Profile Views</span>
 
             <div className="p-2 rounded-xl bg-cyan-soft text-cyan">
               <FiEye className="w-4 h-4" />
@@ -373,9 +375,7 @@ export default function DashboardOverviewPage() {
           "
         >
           <div className="flex items-center justify-between text-secondary">
-            <span className="text-sm md:text-base font-semibold">
-              Link Clicks
-            </span>
+            <span className="text-sm md:text-base font-semibold">Link Clicks</span>
 
             <div className="p-2 rounded-xl bg-accent/10 text-accent">
               <FiMousePointer className="w-4 h-4" />
@@ -425,9 +425,7 @@ export default function DashboardOverviewPage() {
           "
         >
           <div className="flex items-center justify-between text-secondary">
-            <span className="text-sm md:text-base font-semibold">
-              Resume Downloads
-            </span>
+            <span className="text-sm md:text-base font-semibold">Resume Downloads</span>
 
             <div className="p-2 rounded-xl bg-warning-soft text-warning">
               <FiDownload className="w-4 h-4" />
@@ -509,7 +507,10 @@ export default function DashboardOverviewPage() {
                 gap-3
               "
             >
-              <Link href="/dashboard/profile" className="block">
+              <Link
+                href="/dashboard/profile"
+                className="block"
+              >
                 <div
                   className="
                     p-3.5
@@ -541,9 +542,7 @@ export default function DashboardOverviewPage() {
                     <FiZap className="w-4 h-4" />
                   </div>
 
-                  <div className="text-sm md:text-base font-bold text-primary">
-                    Edit Profile
-                  </div>
+                  <div className="text-sm md:text-base font-bold text-primary">Edit Profile</div>
 
                   <div className="text-xs md:text-sm text-secondary mt-0.5">
                     Bio, skills & media
@@ -551,7 +550,10 @@ export default function DashboardOverviewPage() {
                 </div>
               </Link>
 
-              <Link href="/dashboard/appearance" className="block">
+              <Link
+                href="/dashboard/appearance"
+                className="block"
+              >
                 <div
                   className="
                     p-3.5
@@ -583,9 +585,7 @@ export default function DashboardOverviewPage() {
                     <FiSliders className="w-4 h-4" />
                   </div>
 
-                  <div className="text-sm md:text-base font-bold text-primary">
-                    Theme Studio
-                  </div>
+                  <div className="text-sm md:text-base font-bold text-primary">Theme Studio</div>
 
                   <div className="text-xs md:text-sm text-secondary mt-0.5">
                     Presets & custom tokens
@@ -628,9 +628,7 @@ export default function DashboardOverviewPage() {
                   <FiRadio className="w-4 h-4 animate-pulse" />
                 </div>
 
-                <div className="text-sm md:text-base font-bold text-primary">
-                  OneMe Flow
-                </div>
+                <div className="text-sm md:text-base font-bold text-primary">OneMe Flow</div>
 
                 <div className="text-xs md:text-sm text-secondary mt-0.5">
                   Request a consent-based exchange
@@ -672,16 +670,15 @@ export default function DashboardOverviewPage() {
                   <FiGrid className="w-4 h-4" />
                 </div>
 
-                <div className="text-sm md:text-base font-bold text-primary">
-                  Identity QR
-                </div>
+                <div className="text-sm md:text-base font-bold text-primary">Identity QR</div>
 
-                <div className="text-xs md:text-sm text-secondary mt-0.5">
-                  Download & share
-                </div>
+                <div className="text-xs md:text-sm text-secondary mt-0.5">Download & share</div>
               </button>
 
-              <Link href="/dashboard/projects" className="block">
+              <Link
+                href="/dashboard/projects"
+                className="block"
+              >
                 <div
                   className="
                     p-3.5
@@ -713,17 +710,16 @@ export default function DashboardOverviewPage() {
                     <FiPlus className="w-4 h-4" />
                   </div>
 
-                  <div className="text-sm md:text-base font-bold text-primary">
-                    Add Project
-                  </div>
+                  <div className="text-sm md:text-base font-bold text-primary">Add Project</div>
 
-                  <div className="text-xs md:text-sm text-secondary mt-0.5">
-                    Showcase your work
-                  </div>
+                  <div className="text-xs md:text-sm text-secondary mt-0.5">Showcase your work</div>
                 </div>
               </Link>
 
-              <Link href="/dashboard/connections" className="block">
+              <Link
+                href="/dashboard/connections"
+                className="block"
+              >
                 <div
                   className="
                     p-3.5
@@ -755,13 +751,9 @@ export default function DashboardOverviewPage() {
                     <FiDownload className="w-4 h-4" />
                   </div>
 
-                  <div className="text-sm md:text-base font-bold text-primary">
-                    Connections
-                  </div>
+                  <div className="text-sm md:text-base font-bold text-primary">Connections</div>
 
-                  <div className="text-xs md:text-sm text-secondary mt-0.5">
-                    Export contacts
-                  </div>
+                  <div className="text-xs md:text-sm text-secondary mt-0.5">Export contacts</div>
                 </div>
               </Link>
             </div>
@@ -782,9 +774,7 @@ export default function DashboardOverviewPage() {
           >
             <div className="flex items-center justify-between">
               <div>
-                <h3 className="text-base md:text-lg font-bold text-primary">
-                  Profile Strength
-                </h3>
+                <h3 className="text-base md:text-lg font-bold text-primary">Profile Strength</h3>
 
                 <p className="text-sm md:text-base text-secondary mt-0.5">
                   Complete the basics to help people learn about you.
@@ -842,7 +832,9 @@ export default function DashboardOverviewPage() {
 
           <div className="space-y-4 rounded-3xl border border-subtle bg-glass p-6 backdrop-blur-md">
             <div className="flex items-center justify-between">
-              <h3 className="text-base font-bold text-primary md:text-lg">Most Clicked Link Categories</h3>
+              <h3 className="text-base font-bold text-primary md:text-lg">
+                Most Clicked Link Categories
+              </h3>
               <Link
                 href="/dashboard/analytics"
                 className="text-sm font-medium text-cyan transition-all hover:tracking-wide"
@@ -857,7 +849,9 @@ export default function DashboardOverviewPage() {
                     key={`${item.eventType}-${item.label}-${index}`}
                     className="flex items-center justify-between gap-3 rounded-2xl border border-subtle bg-surface-dark/60 p-3"
                   >
-                    <span className="truncate text-sm font-semibold text-primary">{item.label}</span>
+                    <span className="truncate text-sm font-semibold text-primary">
+                      {item.label}
+                    </span>
                     <span className="shrink-0 font-mono text-sm text-accent">
                       {item.clicks.toLocaleString()} clicks
                     </span>

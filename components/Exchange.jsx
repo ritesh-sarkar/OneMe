@@ -38,20 +38,26 @@ export default function ExchangeStudioPage() {
           {
             icon: FiUsers,
             title: "Invite by username",
-            detail: "Exchange with the verified OneMe member you met by entering their exact username.",
+            detail:
+              "Exchange with the verified OneMe member you met by entering their exact username.",
           },
           {
             icon: FiShield,
             title: "Choose your details",
-            detail: "Select the specific contact fields you consent to share. Nothing is disclosed in a pending request.",
+            detail:
+              "Select the specific contact fields you consent to share. Nothing is disclosed in a pending request.",
           },
           {
             icon: FiCheckCircle,
             title: "Both members approve",
-            detail: "The recipient chooses their own share fields. The connection is created only after they accept.",
+            detail:
+              "The recipient chooses their own share fields. The connection is created only after they accept.",
           },
         ].map(({ icon: Icon, title, detail }) => (
-          <article key={title} className="space-y-3 rounded-3xl border border-subtle bg-glass p-6">
+          <article
+            key={title}
+            className="space-y-3 rounded-3xl border border-subtle bg-glass p-6"
+          >
             <Icon className="h-5 w-5 text-accent" />
             <h2 className="font-bold text-primary">{title}</h2>
             <p className="text-sm leading-relaxed text-secondary">{detail}</p>
@@ -76,7 +82,10 @@ export default function ExchangeStudioPage() {
         </Link>
       </section>
 
-      <ExchangeModal isOpen={modalOpen} onClose={() => setModalOpen(false)} />
+      <ExchangeModal
+        isOpen={modalOpen}
+        onClose={() => setModalOpen(false)}
+      />
     </div>
   );
 }

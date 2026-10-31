@@ -2,22 +2,12 @@
 
 import React from "react";
 
-import {
-  FiAward,
-  FiExternalLink,
-  FiCheckCircle,
-} from "react-icons/fi";
+import { FiAward, FiExternalLink, FiCheckCircle } from "react-icons/fi";
 
 import { Badge } from "@/components/Badge";
 
-export function CertificationsSection({
-  certifications = [],
-  cardClass = "",
-}) {
-  if (
-    !certifications ||
-    certifications.length === 0
-  ) {
+export function CertificationsSection({ certifications = [], cardClass = "" }) {
+  if (!certifications || certifications.length === 0) {
     return null;
   }
 
@@ -48,11 +38,10 @@ export function CertificationsSection({
           gap-3
         "
       >
-        {certifications.map(
-          (cert) => (
-            <div
-              key={cert.id}
-              className={`
+        {certifications.map((cert) => (
+          <div
+            key={cert.id}
+            className={`
                 p-4
                 rounded-xl
                 border
@@ -67,53 +56,53 @@ export function CertificationsSection({
                 justify-between
                 ${cardClass}
               `}
+          >
+            <div
+              className="
+                  space-y-1.5
+                "
             >
               <div
                 className="
-                  space-y-1.5
-                "
-              >
-                <div
-                  className="
                     flex
                     items-start
                     justify-between
                     gap-2
                   "
-                >
-                  <div
-                    className="
+              >
+                <div
+                  className="
                       p-2
                       rounded-lg
                       bg-accent-soft
                       text-accent
                       shrink-0
                     "
-                  >
-                    <FiAward
-                      className="
+                >
+                  <FiAward
+                    className="
                         w-4
                         h-4
                       "
-                    />
-                  </div>
+                  />
+                </div>
 
-                  {cert.badge && (
-                    <Badge
-                      variant="indigo"
-                      size="sm"
-                      className="
+                {cert.badge && (
+                  <Badge
+                    variant="indigo"
+                    size="sm"
+                    className="
                         text-sm
                         md:text-base
                       "
-                    >
-                      {cert.badge}
-                    </Badge>
-                  )}
-                </div>
+                  >
+                    {cert.badge}
+                  </Badge>
+                )}
+              </div>
 
-                <h4
-                  className="
+              <h4
+                className="
                     text-base
                     md:text-lg
                     font-bold
@@ -121,25 +110,25 @@ export function CertificationsSection({
                     pt-1
                     mb-4
                   "
-                >
-                  {cert.name}
-                </h4>
+              >
+                {cert.name}
+              </h4>
 
-                <p
-                  className="
+              <p
+                className="
                     text-sm
                     md:text-base
                     text-secondary
                     font-semibold
                     mb-2
                   "
-                >
-                  {cert.issuer}
-                </p>
-              </div>
+              >
+                {cert.issuer}
+              </p>
+            </div>
 
-              <div
-                className="
+            <div
+              className="
                   flex
                   items-center
                   justify-between
@@ -153,17 +142,15 @@ export function CertificationsSection({
                   font-mono
                   italic
                 "
-              >
-                <span>
-                  Issued {cert.issueDate}
-                </span>
+            >
+              <span>Issued {cert.issueDate}</span>
 
-                {cert.verifyUrl && (
-                  <a
-                    href={cert.verifyUrl}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="
+              {cert.verifyUrl && (
+                <a
+                  href={cert.verifyUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="
                       inline-flex
                       items-center
                       text-sm
@@ -179,23 +166,20 @@ export function CertificationsSection({
                       hover:text-accent
                       hover:tracking-wide
                     "
-                  >
-                    <span>
-                      Verify
-                    </span>
+                >
+                  <span>Verify</span>
 
-                    <FiExternalLink
-                      className="
+                  <FiExternalLink
+                    className="
                         w-3
                         h-3
                       "
-                    />
-                  </a>
-                )}
-              </div>
+                  />
+                </a>
+              )}
             </div>
-          ),
-        )}
+          </div>
+        ))}
       </div>
     </div>
   );

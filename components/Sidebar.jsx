@@ -344,13 +344,7 @@ export function Sidebar() {
                   className={`
                     h-4
                     w-4
-                    ${
-                      isActive
-                        ? "text-primary"
-                        : item.highlight
-                          ? "text-cyan"
-                          : "text-secondary"
-                    }
+                    ${isActive ? "text-primary" : item.highlight ? "text-cyan" : "text-secondary"}
                   `}
                 />
 

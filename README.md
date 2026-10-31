@@ -6,7 +6,7 @@ OneMe is a JavaScript/Next.js personal digital identity and contact-card platfor
 
 ## Implementation status
 
-The account lifecycle has server-backed registration, email verification, email/password and optional Google sign-in, session checks, and password reset using MongoDB/Mongoose, Auth.js (NextAuth), Brevo transactional email, and Upstash Redis rate limiting. Google accounts must report a verified email; sign-in matches or creates the OneMe account using that email. The dashboard requires a valid server session. Authenticated profile, theme, project, career, certification, achievement, resume, and privacy data are stored in MongoDB. Public profile reads require publication and redact contact fields according to privacy controls. Profile photos, banners, and PDF resumes use owner-scoped signed Cloudinary uploads.
+The account lifecycle has server-backed registration, email verification, email/password and optional Google sign-in, session checks, and password reset using MongoDB/Mongoose, Auth.js (NextAuth), Brevo transactional email, and Upstash Redis rate limiting. Signup collects full name, username, email, and an initial password; the email owner verifies the account and sets a different final password before credentials are activated. Google accounts must report a verified email; sign-in matches or creates the OneMe account using that email. New accounts are guided through profile onboarding after sign-in, with a skip option and a dashboard reminder. The dashboard requires a valid server session. Authenticated profile, theme, project, career, certification, achievement, resume, and privacy data are stored in MongoDB. Public profile reads require publication and redact contact fields according to privacy controls. Profile photos, banners, and PDF resumes use owner-scoped signed Cloudinary uploads.
 
 This is still an early implementation, not a production-ready platform:
 
@@ -46,11 +46,12 @@ tests/       Node.js tests for auth validation and helpers
 
 ## Local development
 
-Use the Node.js version supported by the installed Next.js release. Copy `.env.example` to `.env.local` and configure the account-service variables before testing account creation:
+Use the Node.js version supported by the installed Next.js release. Create an ignored `.env.local` file in the repository root and configure the account-service variables before testing account creation. Do not add environment files to Git:
 
 - `MONGODB_URI`
 - `AUTH_SECRET` (a long random secret)
 - `NEXTAUTH_URL` (for local development, `http://localhost:3000`)
+- `NEXT_PUBLIC_APP_URL` (the application origin used to construct email verification and reset links)
 - `GOOGLE_CLIENT_ID` and `GOOGLE_CLIENT_SECRET` to enable Google sign-in. Configure the OAuth redirect URI as `${NEXTAUTH_URL}/api/auth/callback/google`.
 - `BREVO_API_KEY`, `BREVO_SENDER_EMAIL`, and `BREVO_SENDER_NAME`
 - `UPSTASH_REDIS_REST_URL` and `UPSTASH_REDIS_REST_TOKEN`
@@ -81,9 +82,10 @@ npm run build
 - `/dashboard` and `/dashboard/*` — session-protected dashboard UI
 - `/discover` — opt-in directory of published, verified profiles
 - `/exchange` — OneMe Flow mutual-consent exchange
-- `/login`, `/signup`, `/forgot-password`, `/verify-email` — account screens
+- `/login`, `/signup`, `/forgot-password`, `/verify-email`, `/welcome` — account and profile onboarding screens
 - `/api/auth/*` — Auth.js and account lifecycle endpoints
 - `/api/profile` — authenticated profile persistence
+- `/api/onboarding` — authenticated profile setup completion or skip
 - `/api/profiles/[username]` — privacy-filtered public profile data
 - `/api/profiles/[username]/events` — opt-in, rate-limited profile link analytics
 - `/api/analytics` — authenticated owner-only analytics aggregation (7, 30, or 90 days)

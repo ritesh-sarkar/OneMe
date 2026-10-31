@@ -3,15 +3,7 @@
 import React, { useRef, useState } from "react";
 
 //icons
-import {
-  FiBriefcase,
-  FiBookOpen,
-  FiAward,
-  FiPlus,
-  FiTrash2,
-  FiUploadCloud,
-} from "react-icons/fi";
-
+import { FiBriefcase, FiBookOpen, FiAward, FiPlus, FiTrash2, FiUploadCloud } from "react-icons/fi";
 
 // Custom Components
 import { Button } from "@/components/Button";
@@ -190,7 +182,9 @@ export default function ResumePage() {
       }
 
       const formData = new FormData();
-      Object.entries(signature.params).forEach(([key, value]) => formData.append(key, String(value)));
+      Object.entries(signature.params).forEach(([key, value]) =>
+        formData.append(key, String(value)),
+      );
       formData.append("api_key", signature.apiKey);
       formData.append("signature", signature.signature);
       formData.append("file", file);
@@ -265,8 +259,7 @@ export default function ResumePage() {
               sm:text-sm
             "
           >
-            Curate your verified experience, degrees, certifications, and
-            academic milestones.
+            Curate your verified experience, degrees, certifications, and academic milestones.
           </p>
         </div>
       </div>
@@ -276,7 +269,8 @@ export default function ResumePage() {
           <div>
             <h2 className="text-base font-bold text-primary">Resume file</h2>
             <p className="mt-1 text-xs text-secondary">
-              Upload a PDF up to 10 MB. Public visitors can access it only when resume visibility is enabled.
+              Upload a PDF up to 10 MB. Public visitors can access it only when resume visibility is
+              enabled.
             </p>
             {resume.fileName && (
               <p className="mt-2 text-sm text-accent">
@@ -311,7 +305,11 @@ export default function ResumePage() {
         />
       </section>
 
-      <Tabs tabs={RESUME_TABS} activeTab={activeTab} onChange={setActiveTab} />
+      <Tabs
+        tabs={RESUME_TABS}
+        activeTab={activeTab}
+        onChange={setActiveTab}
+      />
 
       {/* Experience Tab */}
       {activeTab === "experience" && (
@@ -1030,7 +1028,11 @@ export default function ResumePage() {
               Cancel
             </Button>
 
-            <Button type="submit" variant="primary" size="sm">
+            <Button
+              type="submit"
+              variant="primary"
+              size="sm"
+            >
               Save
             </Button>
           </div>
@@ -1105,7 +1107,11 @@ export default function ResumePage() {
               Cancel
             </Button>
 
-            <Button type="submit" variant="primary" size="sm">
+            <Button
+              type="submit"
+              variant="primary"
+              size="sm"
+            >
               Save
             </Button>
           </div>
@@ -1180,7 +1186,11 @@ export default function ResumePage() {
               Cancel
             </Button>
 
-            <Button type="submit" variant="primary" size="sm">
+            <Button
+              type="submit"
+              variant="primary"
+              size="sm"
+            >
               Save
             </Button>
           </div>
@@ -1193,7 +1203,10 @@ export default function ResumePage() {
         title="Add Achievement"
         maxWidth="max-w-md"
       >
-        <form onSubmit={handleAddAchievement} className="space-y-4">
+        <form
+          onSubmit={handleAddAchievement}
+          className="space-y-4"
+        >
           <Input
             label="Achievement"
             value={achievementTitle}
@@ -1224,10 +1237,18 @@ export default function ResumePage() {
             required
           />
           <div className="flex justify-end gap-3 pt-2">
-            <Button variant="outline" size="sm" onClick={() => setAchievementModalOpen(false)}>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => setAchievementModalOpen(false)}
+            >
               Cancel
             </Button>
-            <Button type="submit" variant="primary" size="sm">
+            <Button
+              type="submit"
+              variant="primary"
+              size="sm"
+            >
               Save Achievement
             </Button>
           </div>

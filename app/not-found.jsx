@@ -1,9 +1,9 @@
-'use client';
+"use client";
 
-import React from 'react';
-import Link from 'next/link';
-import { FiHome, FiCompass, FiZap } from 'react-icons/fi';
-import { Button } from '@/components/Button';
+import React from "react";
+import Link from "next/link";
+import { FiHome, FiCompass, FiZap } from "react-icons/fi";
+import { Button } from "@/components/Button";
 
 export default function NotFound() {
   return (
@@ -23,12 +23,20 @@ export default function NotFound() {
 
       <div className="flex items-center gap-3">
         <Link href="/">
-          <Button variant="primary" size="md" icon={FiHome}>
+          <Button
+            variant="primary"
+            size="md"
+            icon={FiHome}
+          >
             Return Home
           </Button>
         </Link>
         <Link href="/discover">
-          <Button variant="outline" size="md" icon={FiCompass}>
+          <Button
+            variant="outline"
+            size="md"
+            icon={FiCompass}
+          >
             Discover Profiles
           </Button>
         </Link>

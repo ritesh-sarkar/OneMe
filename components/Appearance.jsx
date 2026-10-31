@@ -1,15 +1,8 @@
-
 "use client";
 
 import React from "react";
 import { motion } from "framer-motion";
-import {
-  FiSliders,
-  FiCheck,
-  FiDroplet,
-  FiType,
-  FiLayers,
-} from "react-icons/fi";
+import { FiSliders, FiCheck, FiDroplet, FiType, FiLayers } from "react-icons/fi";
 
 // Custom Components and libs
 import { THEMES, getThemeById } from "@/libs/themes";
@@ -103,21 +96,13 @@ export default function AppearancePage() {
     updateProfile,
   } = useProfile();
 
-  const {
-    currentThemeId,
-    setTheme,
-    updateCustomOptions,
-  } = useTheme();
+  const { currentThemeId, setTheme, updateCustomOptions } = useTheme();
 
   const { success } = useToast();
 
-  const selectedThemeId =
-    profile.themeId ||
-    currentThemeId ||
-    "cyberpunk";
+  const selectedThemeId = profile.themeId || currentThemeId || "cyberpunk";
 
-  const activeCustomTheme =
-    profile.customTheme || {};
+  const activeCustomTheme = profile.customTheme || {};
 
   const handleSelectTheme = (themeId) => {
     const themeObj = getThemeById(themeId);
@@ -226,8 +211,8 @@ export default function AppearancePage() {
               text-secondary
             "
           >
-            Select an aesthetic preset or customize bespoke visual tokens
-            with real-time live preview.
+            Select an aesthetic preset or customize bespoke visual tokens with real-time live
+            preview.
           </p>
         </div>
       </div>
@@ -285,9 +270,7 @@ export default function AppearancePage() {
                 "
               />
 
-              <span>
-                Readymade Preset Themes ({THEMES.length})
-              </span>
+              <span>Readymade Preset Themes ({THEMES.length})</span>
             </h3>
 
             <div
@@ -299,8 +282,7 @@ export default function AppearancePage() {
               "
             >
               {THEMES.map((theme) => {
-                const isSelected =
-                  selectedThemeId === theme.id;
+                const isSelected = selectedThemeId === theme.id;
 
                 return (
                   <motion.div
@@ -311,9 +293,7 @@ export default function AppearancePage() {
                     whileTap={{
                       scale: 0.98,
                     }}
-                    onClick={() =>
-                      handleSelectTheme(theme.id)
-                    }
+                    onClick={() => handleSelectTheme(theme.id)}
                     className={`
                       p-4
                       rounded-2xl
@@ -460,9 +440,7 @@ export default function AppearancePage() {
                 "
               />
 
-              <span>
-                Accent Color Token
-              </span>
+              <span>Accent Color Token</span>
             </h3>
 
             <div
@@ -473,16 +451,13 @@ export default function AppearancePage() {
               "
             >
               {COLOR_PRESETS.map((color) => {
-                const isCurrent =
-                  activeCustomTheme.accentColor === color.hex;
+                const isCurrent = activeCustomTheme.accentColor === color.hex;
 
                 return (
                   <button
                     key={color.hex}
                     type="button"
-                    onClick={() =>
-                      handleCustomColor(color.hex)
-                    }
+                    onClick={() => handleCustomColor(color.hex)}
                     className={`
                       flex
                       items-center
@@ -520,9 +495,7 @@ export default function AppearancePage() {
                       }}
                     />
 
-                    <span>
-                      {color.label}
-                    </span>
+                    <span>{color.label}</span>
                   </button>
                 );
               })}
@@ -555,9 +528,7 @@ export default function AppearancePage() {
                   "
                 />
 
-                <span>
-                  Typography Style
-                </span>
+                <span>Typography Style</span>
               </label>
 
               <div
@@ -569,16 +540,13 @@ export default function AppearancePage() {
                 "
               >
                 {FONT_OPTIONS.map((font) => {
-                  const isCurrent =
-                    activeCustomTheme.fontFamily === font.value;
+                  const isCurrent = activeCustomTheme.fontFamily === font.value;
 
                   return (
                     <button
                       key={font.value}
                       type="button"
-                      onClick={() =>
-                        handleFontFamily(font.value)
-                      }
+                      onClick={() => handleFontFamily(font.value)}
                       className={`
                         py-2.5
                         px-3
@@ -633,9 +601,7 @@ export default function AppearancePage() {
                   "
                 />
 
-                <span>
-                  Card Layer Style
-                </span>
+                <span>Card Layer Style</span>
               </label>
 
               <div
@@ -647,16 +613,13 @@ export default function AppearancePage() {
                 "
               >
                 {CARD_STYLE_OPTIONS.map((style) => {
-                  const isCurrent =
-                    activeCustomTheme.cardStyle === style.value;
+                  const isCurrent = activeCustomTheme.cardStyle === style.value;
 
                   return (
                     <button
                       key={style.value}
                       type="button"
-                      onClick={() =>
-                        handleCardStyle(style.value)
-                      }
+                      onClick={() => handleCardStyle(style.value)}
                       className={`
                         py-2.5
                         px-3
@@ -727,7 +690,6 @@ export default function AppearancePage() {
                   shrink-0
                 "
               />
-
               Live Theme Preview
             </span>
           </div>

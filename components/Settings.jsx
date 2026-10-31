@@ -82,8 +82,7 @@ export default function SettingsPage() {
             sm:text-sm
           "
         >
-          Manage your identity privacy, search visibility, and verified
-          credentials.
+          Manage your identity privacy, search visibility, and verified credentials.
         </p>
       </div>
 
@@ -144,8 +143,7 @@ export default function SettingsPage() {
                 text-secondary
               "
             >
-              Control which sensitive fields are visible on your public OneMe
-              link.
+              Control which sensitive fields are visible on your public OneMe link.
             </p>
           </div>
         </div>
@@ -231,9 +229,7 @@ export default function SettingsPage() {
               label="OneMe Flow Contact Requests"
               description="Allow verified OneMe members to send you a contact exchange request. You still choose what to share when accepting."
               checked={privacy.allowContactExchange === true}
-              onChange={(value) =>
-                handlePrivacyToggle("allowContactExchange", value)
-              }
+              onChange={(value) => handlePrivacyToggle("allowContactExchange", value)}
             />
           </div>
 
@@ -688,7 +684,11 @@ export default function SettingsPage() {
           <Button
             onClick={() => {
               resetToDemo();
-              success(user ? "Your local profile data has been cleared." : "Profile reset to original demo state.");
+              success(
+                user
+                  ? "Your local profile data has been cleared."
+                  : "Profile reset to original demo state.",
+              );
             }}
             variant="outline"
             size="sm"
@@ -732,7 +732,12 @@ export default function SettingsPage() {
             </div>
           </div>
 
-          <Button onClick={logout} variant="danger" size="sm" icon={FiLogOut}>
+          <Button
+            onClick={logout}
+            variant="danger"
+            size="sm"
+            icon={FiLogOut}
+          >
             Sign Out
           </Button>
         </div>

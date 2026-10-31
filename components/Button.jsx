@@ -73,7 +73,7 @@ export function Button({
       ) : Icon ? (
         <Icon className="w-4 h-4 shrink-0" />
       ) : null}
-      {children} 
+      {children}
       {/* //removed a span tag from the child  */}
       {IconRight && !isLoading && <IconRight className="w-4 h-4 shrink-0" />}
     </motion.button>

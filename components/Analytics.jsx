@@ -3,14 +3,7 @@
 import React, { useEffect, useState } from "react";
 import Link from "next/link";
 import { motion } from "framer-motion";
-import {
-  FiEye,
-  FiMousePointer,
-  FiUsers,
-  FiDownload,
-  FiShield,
-  FiRefreshCw,
-} from "react-icons/fi";
+import { FiEye, FiMousePointer, FiUsers, FiDownload, FiShield, FiRefreshCw } from "react-icons/fi";
 import { Tabs } from "@/components/Tabs";
 import { useProfile } from "@/context/ProfileContext";
 
@@ -77,9 +70,19 @@ export default function AnalyticsPage() {
   const maxView = Math.max(1, ...viewsOverTime.map((item) => item.views));
   const metrics = [
     { label: "Profile Views", value: overview.profileViews, icon: FiEye, tone: "text-accent" },
-    { label: "Daily Unique Visitors", value: overview.uniqueDailyVisitors, icon: FiUsers, tone: "text-success" },
+    {
+      label: "Daily Unique Visitors",
+      value: overview.uniqueDailyVisitors,
+      icon: FiUsers,
+      tone: "text-success",
+    },
     { label: "Link Clicks", value: overview.linkClicks, icon: FiMousePointer, tone: "text-accent" },
-    { label: "Resume Downloads", value: overview.resumeDownloads, icon: FiDownload, tone: "text-warning" },
+    {
+      label: "Resume Downloads",
+      value: overview.resumeDownloads,
+      icon: FiDownload,
+      tone: "text-warning",
+    },
   ];
 
   return (
@@ -93,7 +96,11 @@ export default function AnalyticsPage() {
             Privacy-preserving engagement for your published OneMe profile.
           </p>
         </div>
-        <Tabs tabs={TIMEFRAME_TABS} activeTab={timeframe} onChange={setTimeframe} />
+        <Tabs
+          tabs={TIMEFRAME_TABS}
+          activeTab={timeframe}
+          onChange={setTimeframe}
+        />
       </header>
 
       {profile?.privacy?.allowAnalytics !== true && (
@@ -101,7 +108,10 @@ export default function AnalyticsPage() {
           <FiShield className="mt-0.5 h-5 w-5 shrink-0 text-accent" />
           <p>
             Anonymous analytics are off. Enable them in{" "}
-            <Link href="/dashboard/settings" className="font-semibold text-accent underline">
+            <Link
+              href="/dashboard/settings"
+              className="font-semibold text-accent underline"
+            >
               Settings &amp; Privacy
             </Link>{" "}
             to start counting visits and clicks on your published profile.
@@ -110,7 +120,10 @@ export default function AnalyticsPage() {
       )}
 
       {error && (
-        <div role="alert" className="rounded-2xl border border-light bg-danger-soft p-4 text-sm text-danger">
+        <div
+          role="alert"
+          className="rounded-2xl border border-light bg-danger-soft p-4 text-sm text-danger"
+        >
           {error}
         </div>
       )}
@@ -175,7 +188,9 @@ export default function AnalyticsPage() {
 
       <section className="space-y-4 rounded-3xl border border-subtle bg-glass p-6 backdrop-blur-xl sm:p-8">
         <div>
-          <h2 className="text-base font-bold text-text-primary md:text-lg">Most Clicked Link Categories</h2>
+          <h2 className="text-base font-bold text-text-primary md:text-lg">
+            Most Clicked Link Categories
+          </h2>
           <p className="text-sm text-secondary">
             Click labels are collected without storing destination URLs or referrers.
           </p>
@@ -189,7 +204,9 @@ export default function AnalyticsPage() {
               >
                 <div className="flex min-w-0 items-center gap-3">
                   <FiMousePointer className="h-4 w-4 shrink-0 text-accent" />
-                  <span className="truncate text-sm font-semibold text-text-primary">{item.label}</span>
+                  <span className="truncate text-sm font-semibold text-text-primary">
+                    {item.label}
+                  </span>
                   <span className="hidden shrink-0 text-xs text-tertiary sm:inline">
                     {item.eventType.replace("_", " ")}
                   </span>
@@ -208,8 +225,9 @@ export default function AnalyticsPage() {
       </section>
 
       <p className="text-xs leading-relaxed text-tertiary">
-        Analytics use a keyed, pseudonymous visitor token; raw IP addresses, email addresses, link destinations,
-        referrers, locations, and device details are not stored. Events are retained for up to 90 days.
+        Analytics use a keyed, pseudonymous visitor token; raw IP addresses, email addresses, link
+        destinations, referrers, locations, and device details are not stored. Events are retained
+        for up to 90 days.
       </p>
     </div>
   );

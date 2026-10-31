@@ -149,9 +149,7 @@ export function ShareModal({ isOpen, onClose, user }) {
                   className={`flex flex-col items-center justify-center p-3 rounded-xl border border-subtle bg-glass ${channel.color} hover:text-primary text-secondary transition-all duration-200 group`}
                 >
                   <Icon className="w-5 h-5 mb-1 group-hover:scale-110 transition-transform" />
-                  <span className="text-[11px] font-medium">
-                    {channel.name}
-                  </span>
+                  <span className="text-[11px] font-medium">{channel.name}</span>
                 </a>
               );
             })}

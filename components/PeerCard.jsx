@@ -1,9 +1,9 @@
-'use client';
+"use client";
 
-import React from 'react';
-import { motion } from 'framer-motion';
-import { FiCheckCircle, FiMapPin, FiBriefcase, FiChevronRight } from 'react-icons/fi';
-import { Badge } from '@/components/Badge';
+import React from "react";
+import { motion } from "framer-motion";
+import { FiCheckCircle, FiMapPin, FiBriefcase, FiChevronRight } from "react-icons/fi";
+import { Badge } from "@/components/Badge";
 
 export function PeerCard({ peer, isSelected, onSelect }) {
   return (
@@ -13,8 +13,8 @@ export function PeerCard({ peer, isSelected, onSelect }) {
       onClick={() => onSelect(peer)}
       className={`p-3.5 rounded-xl border transition-all cursor-pointer flex items-center justify-between gap-3 ${
         isSelected
-          ? 'bg-accent-soft border-accent shadow-md glow-indigo'
-          : 'bg-glass hover:bg-surface-panel/80 border-subtle'
+          ? "bg-accent-soft border-accent shadow-md glow-indigo"
+          : "bg-glass hover:bg-surface-panel/80 border-subtle"
       }`}
     >
       <div className="flex items-center gap-3 min-w-0">

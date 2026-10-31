@@ -1,13 +1,13 @@
-import React from 'react'
+import React from "react";
 
-import ProfileEditorPage from '@/components/Profile'
+import ProfileEditorPage from "@/components/Profile";
 
 const page = () => {
   return (
     <div>
       <ProfileEditorPage />
     </div>
-  )
-}
+  );
+};
 
-export default page
+export default page;

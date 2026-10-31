@@ -2,21 +2,10 @@
 
 import React from "react";
 
-import {
-  FiBriefcase,
-  FiCalendar,
-  FiMapPin,
-  FiCheckCircle,
-} from "react-icons/fi";
+import { FiBriefcase, FiCalendar, FiMapPin, FiCheckCircle } from "react-icons/fi";
 
-export function ExperienceTimeline({
-  experience = [],
-  cardClass = "",
-}) {
-  if (
-    !experience ||
-    experience.length === 0
-  ) {
+export function ExperienceTimeline({ experience = [], cardClass = "" }) {
+  if (!experience || experience.length === 0) {
     return null;
   }
 
@@ -52,18 +41,17 @@ export function ExperienceTimeline({
           before:bg-surface-panel
         "
       >
-        {experience.map(
-          (exp) => (
-            <div
-              key={exp.id}
-              className="
+        {experience.map((exp) => (
+          <div
+            key={exp.id}
+            className="
                 relative
                 group
               "
-            >
-              {/* Timeline dot */}
-              <div
-                className="
+          >
+            {/* Timeline dot */}
+            <div
+              className="
                   absolute
                   -left-6
                   top-1.5
@@ -78,10 +66,10 @@ export function ExperienceTimeline({
                   duration-200
                   ease-in-out
                 "
-              />
+            />
 
-              <div
-                className={`
+            <div
+              className={`
                   p-4
                   rounded-xl
                   border
@@ -93,9 +81,9 @@ export function ExperienceTimeline({
                   ease-in-out
                   ${cardClass}
                 `}
-              >
-                <div
-                  className="
+            >
+              <div
+                className="
                     flex
                     flex-col
                     md:flex-row
@@ -103,20 +91,20 @@ export function ExperienceTimeline({
                     justify-between
                     gap-1
                   "
-                >
-                  <h4
-                    className="
+              >
+                <h4
+                  className="
                       text-sm
                       md:text-base
                       font-bold
                       text-text-primary
                     "
-                  >
-                    {exp.role}
-                  </h4>
+                >
+                  {exp.role}
+                </h4>
 
-                  <div
-                    className="
+                <div
+                  className="
                       flex
                       items-center
                       gap-1.5
@@ -125,22 +113,20 @@ export function ExperienceTimeline({
                       text-accent
                       font-mono
                     "
-                  >
-                    <FiCalendar
-                      className="
+                >
+                  <FiCalendar
+                    className="
                         w-3
                         h-3
                       "
-                    />
+                  />
 
-                    <span>
-                      {exp.period}
-                    </span>
-                  </div>
+                  <span>{exp.period}</span>
                 </div>
+              </div>
 
-                <div
-                  className="
+              <div
+                className="
                     flex
                     items-center
                     gap-2
@@ -149,72 +135,65 @@ export function ExperienceTimeline({
                     text-secondary
                     mt-1
                   "
-                >
-                  <span
-                    className="
+              >
+                <span
+                  className="
                       font-medium
                       text-secondary
                     "
-                  >
-                    {exp.company}
-                  </span>
+                >
+                  {exp.company}
+                </span>
 
-                  {exp.location && (
-                    <>
-                      <span>
-                        •
-                      </span>
+                {exp.location && (
+                  <>
+                    <span>•</span>
 
-                      <span
-                        className="
+                    <span
+                      className="
                           flex
                           items-center
                           gap-1
                         "
-                      >
-                        <FiMapPin
-                          className="
+                    >
+                      <FiMapPin
+                        className="
                             w-2.5
                             h-2.5
                           "
-                        />
+                      />
 
-                        {exp.location}
-                      </span>
-                    </>
-                  )}
-                </div>
+                      {exp.location}
+                    </span>
+                  </>
+                )}
+              </div>
 
-                {exp.description && (
-                  <p
-                    className="
+              {exp.description && (
+                <p
+                  className="
                       text-sm
                       md:text-base
                       text-secondary
                       mt-2.5
                       leading-relaxed
                     "
-                  >
-                    {exp.description}
-                  </p>
-                )}
+                >
+                  {exp.description}
+                </p>
+              )}
 
-                {exp.highlights &&
-                  exp.highlights.length > 0 && (
-                    <ul
-                      className="
+              {exp.highlights && exp.highlights.length > 0 && (
+                <ul
+                  className="
                         mt-2.5
                         space-y-1.5
                       "
-                    >
-                      {exp.highlights.map(
-                        (
-                          h,
-                          i,
-                        ) => (
-                          <li
-                            key={i}
-                            className="
+                >
+                  {exp.highlights.map((h, i) => (
+                    <li
+                      key={i}
+                      className="
                               flex
                               items-start
                               gap-2
@@ -222,29 +201,25 @@ export function ExperienceTimeline({
                               md:text-base
                               text-secondary
                             "
-                          >
-                            <FiCheckCircle
-                              className="
+                    >
+                      <FiCheckCircle
+                        className="
                                 w-3.5
                                 h-3.5
                                 text-accent
                                 shrink-0
                                 mt-0.5
                               "
-                            />
+                      />
 
-                            <span>
-                              {h}
-                            </span>
-                          </li>
-                        ),
-                      )}
-                    </ul>
-                  )}
-              </div>
+                      <span>{h}</span>
+                    </li>
+                  ))}
+                </ul>
+              )}
             </div>
-          ),
-        )}
+          </div>
+        ))}
       </div>
     </div>
   );

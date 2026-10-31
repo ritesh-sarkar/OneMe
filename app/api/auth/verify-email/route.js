@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server';
 import { z } from 'zod';
-import { hash } from 'bcryptjs';
+import { compare, hash } from 'bcryptjs';
 import { connectToDatabase } from '@/libs/db';
 import { AuthToken } from '@/libs/models/AuthToken';
 import { User } from '@/libs/models/User';
@@ -41,8 +41,7 @@ export async function POST(request) {
 
   try {
     await connectToDatabase();
-    const passwordHash = await hash(parsed.data.password, 12);
-    const authToken = await AuthToken.findOneAndDelete({
+    const authToken = await AuthToken.findOne({
       tokenHash: hashAuthToken(parsed.data.token),
       purpose: 'verify-email',
       expiresAt: { $gt: new Date() },
@@ -51,8 +50,26 @@ export async function POST(request) {
       return NextResponse.json({ error: 'Invalid or expired verification link.' }, { status: 400 });
     }
 
+    const pendingUser = await User.findOne({
+      _id: authToken.userId,
+      emailVerifiedAt: null,
+    }).select('+passwordHash').lean();
+    if (!pendingUser) {
+      return NextResponse.json({ error: 'Invalid or expired verification link.' }, { status: 400 });
+    }
+    if (await compare(parsed.data.password, pendingUser.passwordHash)) {
+      return NextResponse.json({
+        error: 'For your account security, choose a new password that is different from the one entered during signup.',
+      }, { status: 400 });
+    }
+
+    const passwordHash = await hash(parsed.data.password, 12);
     const user = await User.findOneAndUpdate(
-      { _id: authToken.userId, emailVerifiedAt: null },
+      {
+        _id: authToken.userId,
+        emailVerifiedAt: null,
+        passwordHash: pendingUser.passwordHash,
+      },
       {
         $set: {
           emailVerifiedAt: new Date(),
@@ -64,6 +81,7 @@ export async function POST(request) {
     if (!user) {
       return NextResponse.json({ error: 'Invalid or expired verification link.' }, { status: 400 });
     }
+    await AuthToken.deleteMany({ userId: user._id, purpose: 'verify-email' });
 
     return NextResponse.json({ message: 'Email verified. You can now sign in.' });
   } catch {

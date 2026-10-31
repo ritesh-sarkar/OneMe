@@ -1,16 +1,16 @@
-import { isDisposableEmail, registrationSchema } from './auth-validation.js';
+import { accountIdentitySchema, isDisposableEmail } from './auth-validation.js';
 
 export function getVerifiedGoogleIdentity(profile) {
   if (profile?.email_verified !== true || typeof profile.email !== 'string') return null;
 
   const email = profile.email.trim().toLowerCase();
   const proposedName = typeof profile.name === 'string' ? profile.name : '';
-  let parsed = registrationSchema.safeParse({
+  let parsed = accountIdentitySchema.safeParse({
     name: proposedName,
     email,
   });
   if (!parsed.success) {
-    parsed = registrationSchema.safeParse({
+    parsed = accountIdentitySchema.safeParse({
       name: 'Google Member',
       email,
     });

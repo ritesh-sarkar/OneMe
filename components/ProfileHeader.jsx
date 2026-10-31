@@ -4,22 +4,13 @@ import React from "react";
 import { motion } from "framer-motion";
 
 //icons
-import {
-  FiMapPin,
-  FiCheckCircle,
-  FiDownload,
-  FiShare2,
-  FiGrid,
-  FiZap,
-} from "react-icons/fi";
-
+import { FiMapPin, FiCheckCircle, FiDownload, FiShare2, FiGrid, FiZap } from "react-icons/fi";
 
 //Custom Components and libs
 import { Badge } from "@/components/Badge";
 import { Button } from "@/components/Button";
 import { downloadVCard } from "@/libs/vcard";
 import { useToast } from "@/context/ToastContext";
-
 
 export function ProfileHeader({
   user,
@@ -34,16 +25,10 @@ export function ProfileHeader({
   const handleSaveContact = () => {
     downloadVCard(user);
 
-    success(
-      "Contact downloaded as vCard (.vcf)",
-      "Contact Saved",
-    );
+    success("Contact downloaded as vCard (.vcf)", "Contact Saved");
   };
 
-  const accentColor =
-    user?.customTheme?.accentColor ||
-    theme?.accentColor ||
-    "#00f2fe";
+  const accentColor = user?.customTheme?.accentColor || theme?.accentColor || "#00f2fe";
 
   return (
     <div
@@ -134,10 +119,7 @@ export function ProfileHeader({
               user?.avatar ||
               "https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&q=80&w=600"
             }
-            alt={
-              user?.name ||
-              "Avatar"
-            }
+            alt={user?.name || "Avatar"}
             className="
               w-full
               h-full
@@ -273,30 +255,29 @@ export function ProfileHeader({
           md:gap-2
         "
       >
-        {user?.privacy?.showLocation !== false &&
-          user?.location && (
-            <Badge
-              variant="outline"
-              size="sm"
-              className="
+        {user?.privacy?.showLocation !== false && user?.location && (
+          <Badge
+            variant="outline"
+            size="sm"
+            className="
                 gap-1
                 text-secondary
                 bg-glass
                 text-xs
                 md:text-sm
               "
-            >
-              <FiMapPin
-                className="
+          >
+            <FiMapPin
+              className="
                   w-3
                   h-3
                   text-danger
                 "
-              />
+            />
 
-              {user.location}
-            </Badge>
-          )}
+            {user.location}
+          </Badge>
+        )}
 
         {user?.status && (
           <Badge

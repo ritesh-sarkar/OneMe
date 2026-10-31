@@ -44,7 +44,6 @@ export function FlowDemo() {
             overflow-hidden
           "
         >
-
           {/* Glowing Ambient Halo */}
           <div
             className="
@@ -71,7 +70,6 @@ export function FlowDemo() {
               z-10
             "
           >
-
             {/* Left Description */}
             <div
               className="
@@ -131,11 +129,10 @@ export function FlowDemo() {
                   leading-relaxed
                 "
               >
-                Invite a verified OneMe member by username, select the contact
-                details you consent to share, and wait for them to approve and
-                choose their own details before either connection is saved.
+                Invite a verified OneMe member by username, select the contact details you consent
+                to share, and wait for them to approve and choose their own details before either
+                connection is saved.
               </p>
-
 
               {/* Flow Steps Graphic */}
               <div
@@ -249,7 +246,6 @@ export function FlowDemo() {
                 </Button>
               </div>
             </div>
-
 
             {/* Right Interactive Mock Card */}
             <div

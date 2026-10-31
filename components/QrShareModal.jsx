@@ -1,13 +1,14 @@
-'use client';
+"use client";
 
-import React from 'react';
-import { Modal } from '@/components/Modal';
-import { QrGenerator } from '@/components/QrGenerator';
+import React from "react";
+import { Modal } from "@/components/Modal";
+import { QrGenerator } from "@/components/QrGenerator";
 
 export function QrShareModal({ isOpen, onClose, user }) {
-  const profileUrl = typeof window !== 'undefined'
-    ? `${window.location.origin}/@${user?.username || 'ritesh'}`
-    : `https://oneme.app/@${user?.username || 'ritesh'}`;
+  const profileUrl =
+    typeof window !== "undefined"
+      ? `${window.location.origin}/@${user?.username || "ritesh"}`
+      : `https://oneme.app/@${user?.username || "ritesh"}`;
 
   return (
     <Modal
@@ -20,8 +21,8 @@ export function QrShareModal({ isOpen, onClose, user }) {
       <div className="py-2">
         <QrGenerator
           url={profileUrl}
-          username={user?.username || 'ritesh'}
-          title={`${user?.name || 'Ritesh Sarkar'}'s OneMe QR`}
+          username={user?.username || "ritesh"}
+          title={`${user?.name || "Ritesh Sarkar"}'s OneMe QR`}
         />
       </div>
     </Modal>

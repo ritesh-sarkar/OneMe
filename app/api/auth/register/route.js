@@ -1,7 +1,6 @@
-import { randomBytes } from 'node:crypto';
 import { NextResponse } from 'next/server';
 import { hash } from 'bcryptjs';
-import { registrationSchema, normalizeUsername, isDisposableEmail } from '@/libs/auth-validation';
+import { registrationSchema, isDisposableEmail } from '@/libs/auth-validation';
 import { sendAccountToken } from '@/libs/auth-email';
 import { connectToDatabase } from '@/libs/db';
 import { User } from '@/libs/models/User';
@@ -70,13 +69,11 @@ export async function POST(request) {
       return acceptedResponse();
     }
 
-    const baseUsername = normalizeUsername(parsed.data.name);
-    const username = `${baseUsername}-${randomBytes(3).toString('hex')}`;
-    const passwordHash = await hash(randomBytes(32).toString('base64url'), 12);
+    const passwordHash = await hash(parsed.data.password, 12);
     const user = await User.create({
       name: parsed.data.name,
+      username: parsed.data.username,
       email: parsed.data.email,
-      username,
       passwordHash,
     });
 
@@ -88,7 +85,10 @@ export async function POST(request) {
     }
 
     return acceptedResponse();
-  } catch {
+  } catch (error) {
+    if (error?.code === 11000 && error?.keyPattern?.username) {
+      return NextResponse.json({ error: 'That username is already taken. Choose another one.' }, { status: 409 });
+    }
     return NextResponse.json({ error: 'Account registration is temporarily unavailable.' }, { status: 503 });
   }
 }

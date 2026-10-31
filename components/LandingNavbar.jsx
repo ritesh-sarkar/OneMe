@@ -5,11 +5,8 @@ import { useAuth } from "@/context/AuthContext";
 import Link from "next/link";
 import { motion, AnimatePresence } from "framer-motion";
 
-
 //icons
 import { FiZap, FiMenu, FiX, FiCompass, FiArrowRight } from "react-icons/fi";
-
-
 
 export function LandingNavbar() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
@@ -42,7 +39,6 @@ export function LandingNavbar() {
           justify-between
         "
       >
-
         {/* Brand Logo */}
         <Link
           href="/"
@@ -59,7 +55,10 @@ export function LandingNavbar() {
               h-8
             "
           >
-            <img src="/logo.jpg" alt="OneMe Logo"/>
+            <img
+              src="/logo.jpg"
+              alt="OneMe Logo"
+            />
           </span>
 
           <div
