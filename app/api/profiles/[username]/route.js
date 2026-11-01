@@ -4,6 +4,7 @@ import { connectToDatabase } from '@/libs/db';
 import { ProfileData } from '@/libs/models/ProfileData';
 import { User } from '@/libs/models/User';
 import { createPublicProfilePayload } from '@/libs/public-profile';
+import { normalizePublicUsername } from '@/libs/public-username';
 import { consumeRateLimits, getTrustedClientIp } from '@/libs/rate-limit';
 
 export const runtime = 'nodejs';
@@ -20,7 +21,7 @@ function notFound() {
 
 export async function GET(request, { params }) {
   const { username: rawUsername } = await params;
-  const username = (rawUsername || '').replace(/^@/, '').toLowerCase();
+  const username = normalizePublicUsername(rawUsername);
   if (!/^[a-z0-9][a-z0-9-]{0,29}$/.test(username)) return notFound();
 
   const clientIp = getTrustedClientIp(request);

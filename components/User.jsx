@@ -3,6 +3,7 @@
 import React, { useEffect, useState } from "react";
 import Link from "next/link";
 import { useParams } from "next/navigation";
+import { normalizePublicUsername } from "@/libs/public-username";
 
 // Custom Components and libs
 import { PublicProfileView } from "@/components/PublicProfileView";
@@ -19,7 +20,7 @@ export default function DynamicPublicProfilePage() {
   const rawUsername = params?.username;
 
   //TODO: replace with real data
-  const username = (rawUsername || "").replace(/^@/, "").toLowerCase();
+  const username = normalizePublicUsername(rawUsername);
 
   const [publicProfile, setPublicProfile] = useState(null);
   const [loading, setLoading] = useState(true);

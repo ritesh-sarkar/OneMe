@@ -1,13 +1,14 @@
 import { connectToDatabase } from "@/libs/db";
 import { ProfileData } from "@/libs/models/ProfileData";
 import { User } from "@/libs/models/User";
+import { normalizePublicUsername } from "@/libs/public-username";
 import PublicProfile from "@/components/User";
 
 export const dynamic = "force-dynamic";
 
 export async function generateMetadata({ params }) {
   const { username: rawUsername } = await params;
-  const username = (rawUsername || "").replace(/^@/, "").toLowerCase();
+  const username = normalizePublicUsername(rawUsername);
   if (!/^[a-z0-9][a-z0-9-]{0,29}$/.test(username)) {
     return { title: "Profile not found | OneMe", robots: { index: false, follow: false } };
   }

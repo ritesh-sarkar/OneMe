@@ -14,6 +14,7 @@ import { consumeRateLimits, getTrustedClientIp } from '../libs/rate-limit.js';
 import { readJsonBody } from '../libs/request-body.js';
 import { createEmptyProfileData, profileDataSchema } from '../libs/profile-validation.js';
 import { createPublicProfilePayload } from '../libs/public-profile.js';
+import { normalizePublicUsername } from '../libs/public-username.js';
 import { escapeSearchTerm } from '../libs/discovery.js';
 import { createAnalyticsVisitorHash, profileAnalyticsEventSchema } from '../libs/analytics-validation.js';
 import {
@@ -115,6 +116,13 @@ test('username normalization produces a bounded URL-safe slug', () => {
   assert.equal(normalizeUsername('  Rités h Sarkar! '), 'rites-h-sarkar');
   assert.equal(normalizeUsername('!!!'), 'member');
   assert.ok(normalizeUsername('a'.repeat(100)).length <= 24);
+});
+
+test('public profile usernames safely decode the @-prefixed route segment', () => {
+  assert.equal(normalizePublicUsername('@ritesh-sarkar-c331e2'), 'ritesh-sarkar-c331e2');
+  assert.equal(normalizePublicUsername('%40ritesh-sarkar-c331e2'), 'ritesh-sarkar-c331e2');
+  assert.equal(normalizePublicUsername(undefined), '');
+  assert.equal(normalizePublicUsername('%E0%A4%A'), '');
 });
 
 test('auth tokens are cryptographically random and only expose a digest for storage', () => {
