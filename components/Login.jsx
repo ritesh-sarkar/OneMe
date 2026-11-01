@@ -1,18 +1,17 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { motion } from "framer-motion";
-import { getProviders, signIn } from "next-auth/react";
 
 // Icons
-import { FiMail, FiLock, FiEye, FiEyeOff, FiArrowRight, FiAlertCircle } from "react-icons/fi";
-import { FcGoogle } from "react-icons/fc";
+import { FiMail, FiLock, FiEye, FiEyeOff, FiAlertCircle } from "react-icons/fi";
 
 // Custom Components and libs
 import { Button } from "@/components/Button";
 import { Input } from "@/components/Input";
+import GoogleAuthButton from "@/components/GoogleAuthButton";
 import { useAuth } from "@/context/AuthContext";
 import { useToast } from "@/context/ToastContext";
 
@@ -24,32 +23,12 @@ export default function LoginPage() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [resendMessage, setResendMessage] = useState("");
   const [isResending, setIsResending] = useState(false);
-  const [googleEnabled, setGoogleEnabled] = useState(false);
-  const [providersLoaded, setProvidersLoaded] = useState(false);
 
   const { login } = useAuth();
 
   const { success, error: toastError } = useToast();
 
   const router = useRouter();
-
-  useEffect(() => {
-    let active = true;
-    getProviders()
-      .then((providers) => {
-        if (active) {
-          setGoogleEnabled(Boolean(providers?.google));
-          setProvidersLoaded(true);
-        }
-      })
-      .catch((error) => {
-        console.error("Unable to load sign-in providers.", error?.name || "UnknownError");
-        if (active) setProvidersLoaded(true);
-      });
-    return () => {
-      active = false;
-    };
-  }, []);
 
   const handleLogin = async (e) => {
     if (e) {
@@ -90,28 +69,6 @@ export default function LoginPage() {
       setResendMessage(error.message || "Email service is temporarily unavailable.");
     } finally {
       setIsResending(false);
-    }
-  };
-
-  const handleGoogleSignIn = async () => {
-    setErrorMsg("");
-    setIsSubmitting(true);
-    try {
-      const result = await signIn("google", {
-        callbackUrl: "/dashboard",
-        redirect: false,
-      });
-      if (result?.error || !result?.url) {
-        throw new Error(
-          "Google sign-in is unavailable. Please try again or use email and password.",
-        );
-      }
-      window.location.assign(result.url);
-    } catch (error) {
-      setErrorMsg(error.message || "Google sign-in is temporarily unavailable.");
-      toastError(error.message || "Google sign-in is temporarily unavailable.");
-    } finally {
-      setIsSubmitting(false);
     }
   };
 
@@ -381,37 +338,17 @@ export default function LoginPage() {
             </div>
           </form>
 
-          {providersLoaded && (
-            <>
-              <div className="flex items-center gap-3 text-xs text-tertiary">
-                <span className="h-px flex-1 bg-subtle" />
-                <span>or</span>
-                <span className="h-px flex-1 bg-subtle" />
-              </div>
-              <div className="space-y-2">
-                <Button
-                  type="button"
-                  onClick={handleGoogleSignIn}
-                  disabled={isSubmitting || !googleEnabled}
-                  variant="outline"
-                  size="lg"
-                  icon={FcGoogle}
-                  className="w-full justify-center"
-                >
-                  Continue with Google
-                </Button>
-                {!googleEnabled && (
-                  <p className="text-center text-xs text-tertiary">
-                    Google sign-in is unavailable until an administrator configures OAuth
-                    credentials.
-                  </p>
-                )}
-                <p className="text-center text-xs text-tertiary">
-                  A verified Google account can sign in or create a OneMe account.
-                </p>
-              </div>
-            </>
-          )}
+          <div className="flex items-center gap-3 text-xs text-tertiary">
+            <span className="h-px flex-1 bg-subtle" />
+            <span>or</span>
+            <span className="h-px flex-1 bg-subtle" />
+          </div>
+          <div className="space-y-2">
+            <GoogleAuthButton />
+            <p className="text-center text-xs text-tertiary">
+              A verified Google account can sign in or create a OneMe account.
+            </p>
+          </div>
         </div>
 
         {/* Footer Link */}

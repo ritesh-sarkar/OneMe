@@ -11,6 +11,7 @@ import { FiUser, FiMail, FiAtSign, FiLock } from "react-icons/fi";
 // Custom Components and libs
 import { Button } from "@/components/Button";
 import { Input } from "@/components/Input";
+import GoogleAuthButton from "@/components/GoogleAuthButton";
 import { useAuth } from "@/context/AuthContext";
 import { useToast } from "@/context/ToastContext";
 
@@ -244,6 +245,13 @@ export default function SignupPage() {
               Create Account
             </Button>
           </form>
+
+          <div className="flex items-center gap-3 text-xs text-tertiary">
+            <span className="h-px flex-1 bg-subtle" />
+            <span>or</span>
+            <span className="h-px flex-1 bg-subtle" />
+          </div>
+          <GoogleAuthButton />
         </div>
 
         <p
