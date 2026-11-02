@@ -198,7 +198,7 @@ export default function SignupPage() {
               autoComplete="username"
               minLength={3}
               maxLength={30}
-              pattern="[a-z0-9][a-z0-9-]*[a-z0-9]"
+              pattern="[a-z0-9](?:[a-z0-9]|-)*[a-z0-9]"
               required
               icon={FiAtSign}
             />

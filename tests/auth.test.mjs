@@ -60,6 +60,18 @@ test('registration validates name, username, email, password, and rejects unexpe
   }).success, false);
   assert.equal(registrationSchema.safeParse({
     name: 'Valid Name',
+    username: '-invalid',
+    email: 'user@example.com',
+    password: 'a secure password 123',
+  }).success, false);
+  assert.equal(registrationSchema.safeParse({
+    name: 'Valid Name',
+    username: 'invalid-',
+    email: 'user@example.com',
+    password: 'a secure password 123',
+  }).success, false);
+  assert.equal(registrationSchema.safeParse({
+    name: 'Valid Name',
     username: 'valid-name',
     email: 'user@example.com',
     password: 'short',
