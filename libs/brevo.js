@@ -1,3 +1,5 @@
+import nodemailer from 'nodemailer';
+
 function escapeHtml(value) {
   return value.replace(/[&<>"']/g, (character) => ({
     '&': '&amp;',
@@ -8,12 +10,25 @@ function escapeHtml(value) {
   })[character]);
 }
 
+export function getEmailTransportMode(env = process.env) {
+  const apiKey = env.BREVO_API_KEY;
+  const smtpConfigured = Boolean(
+    env.BREVO_SMTP_HOST &&
+    env.BREVO_SMTP_PORT &&
+    env.BREVO_SMTP_USER &&
+    env.BREVO_SMTP_PASSWORD,
+  );
+
+  if (apiKey && !apiKey.startsWith('xsmtpsib-')) return 'api';
+  if (smtpConfigured) return 'smtp';
+  return 'unconfigured';
+}
+
 export async function sendTransactionalEmail({ to, name, subject, actionUrl, actionLabel, purpose }) {
-  const apiKey = process.env.BREVO_API_KEY;
   const senderEmail = process.env.BREVO_SENDER_EMAIL;
   const senderName = process.env.BREVO_SENDER_NAME;
 
-  if (!apiKey || !senderEmail || !senderName) {
+  if (!senderEmail || !senderName) {
     throw new Error('Transactional email service is not configured.');
   }
 
@@ -39,6 +54,48 @@ export async function sendTransactionalEmail({ to, name, subject, actionUrl, act
     </html>
   `;
 
+  const transportMode = getEmailTransportMode();
+  if (transportMode === 'unconfigured') {
+    throw new Error('Transactional email service is not configured.');
+  }
+
+  if (transportMode === 'smtp') {
+    const port = Number(process.env.BREVO_SMTP_PORT);
+    if (!Number.isInteger(port) || port < 1 || port > 65535) {
+      throw new Error('Transactional email SMTP port is invalid.');
+    }
+
+    const transporter = nodemailer.createTransport({
+      host: process.env.BREVO_SMTP_HOST,
+      port,
+      secure: port === 465,
+      requireTLS: port === 587,
+      auth: {
+        user: process.env.BREVO_SMTP_USER,
+        pass: process.env.BREVO_SMTP_PASSWORD,
+      },
+      connectionTimeout: 8000,
+      greetingTimeout: 8000,
+      socketTimeout: 15000,
+    });
+
+    try {
+      await transporter.sendMail({
+        from: { name: senderName, address: senderEmail },
+        to: [{ name, address: to }],
+        subject,
+        html: htmlContent,
+      });
+    } catch (error) {
+      const code = typeof error?.code === 'string' ? ` (${error.code})` : '';
+      throw new Error(`Brevo SMTP delivery failed${code}.`);
+    } finally {
+      transporter.close();
+    }
+    return;
+  }
+
+  const apiKey = process.env.BREVO_API_KEY;
   let response;
   try {
     response = await fetch('https://api.brevo.com/v3/smtp/email', {
@@ -57,11 +114,12 @@ export async function sendTransactionalEmail({ to, name, subject, actionUrl, act
       cache: 'no-store',
       signal: AbortSignal.timeout(8000),
     });
-  } catch {
-    throw new Error('Transactional email provider could not be reached.');
+  } catch (error) {
+    const reason = error?.name === 'TimeoutError' ? 'timed out' : 'could not be reached';
+    throw new Error(`Brevo API ${reason}.`);
   }
 
   if (!response.ok) {
-    throw new Error('Transactional email provider rejected the message.');
+    throw new Error(`Brevo API rejected the message (HTTP ${response.status}).`);
   }
 }

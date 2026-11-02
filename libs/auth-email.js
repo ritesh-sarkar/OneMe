@@ -40,6 +40,10 @@ export async function sendAccountToken({ user, purpose }) {
       purpose: purpose === 'verify-email' ? 'verify your email address' : 'reset your password',
     });
   } catch (error) {
+    console.error('Account email delivery failed.', {
+      purpose,
+      reason: error instanceof Error ? error.message : 'Unknown error',
+    });
     await AuthToken.deleteOne({ tokenHash });
     throw error;
   }

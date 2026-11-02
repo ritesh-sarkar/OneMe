@@ -53,7 +53,7 @@ Use the Node.js version supported by the installed Next.js release. Create an ig
 - `NEXTAUTH_URL` (for local development, `http://localhost:3000`)
 - `NEXT_PUBLIC_APP_URL` (the application origin used to construct email verification and reset links)
 - `GOOGLE_CLIENT_ID` and `GOOGLE_CLIENT_SECRET` to enable Google sign-in. Configure the OAuth redirect URI as `${NEXTAUTH_URL}/api/auth/callback/google`.
-- `BREVO_API_KEY`, `BREVO_SENDER_EMAIL`, and `BREVO_SENDER_NAME`
+- `BREVO_SENDER_EMAIL` and `BREVO_SENDER_NAME`, plus either `BREVO_API_KEY` (a Brevo API key) or `BREVO_SMTP_HOST`, `BREVO_SMTP_PORT`, `BREVO_SMTP_USER`, and `BREVO_SMTP_PASSWORD` (Brevo SMTP credentials)
 - `UPSTASH_REDIS_REST_URL` and `UPSTASH_REDIS_REST_TOKEN`
 - `CLOUDINARY_CLOUD_NAME`, `CLOUDINARY_API_KEY`, `CLOUDINARY_API_SECRET`, `CLOUDINARY_IMAGE_UPLOAD_PRESET`, and `CLOUDINARY_RESUME_UPLOAD_PRESET`. Configure the signed image preset to enforce a 5 MB maximum and JPEG, PNG, WebP, or AVIF formats. Configure the signed resume preset to enforce a 10 MB maximum and PDF-only uploads.
 - `GEMINI_API_KEY` for server-side profile-copy suggestions; optionally set `GEMINI_MODEL` to select an available Gemini model.

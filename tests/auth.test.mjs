@@ -29,6 +29,7 @@ import { generateVCard } from '../libs/vcard.js';
 import { aiCopyRequestSchema, parseGeneratedAiCopy } from '../libs/ai-validation.js';
 import { markAllNotificationsSchema, notificationActionSchema } from '../libs/notification-validation.js';
 import { getVerifiedGoogleIdentity } from '../libs/google-auth.js';
+import { getEmailTransportMode } from '../libs/brevo.js';
 
 test('registration validates name, username, email, password, and rejects unexpected fields', () => {
   const parsed = registrationSchema.safeParse({
@@ -119,6 +120,24 @@ test('login and password reset emails are validated and normalized', () => {
     password: 'a password',
     ownerId: 'other-user',
   }).success, false);
+});
+
+test('email delivery selects the matching Brevo API or SMTP credential type', () => {
+  assert.equal(getEmailTransportMode({
+    BREVO_API_KEY: 'xkeysib-example',
+  }), 'api');
+  assert.equal(getEmailTransportMode({
+    BREVO_API_KEY: 'xsmtpsib-example',
+    BREVO_SMTP_HOST: 'smtp-relay.brevo.com',
+    BREVO_SMTP_PORT: '587',
+    BREVO_SMTP_USER: 'sender@example.com',
+    BREVO_SMTP_PASSWORD: 'smtp-password',
+  }), 'smtp');
+  assert.equal(getEmailTransportMode({
+    BREVO_SMTP_HOST: 'smtp-relay.brevo.com',
+    BREVO_SMTP_PORT: '587',
+    BREVO_SMTP_USER: 'sender@example.com',
+  }), 'unconfigured');
 });
 
 test('disposable email list rejects temporary mail and permits common providers', () => {
