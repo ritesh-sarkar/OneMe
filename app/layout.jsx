@@ -8,6 +8,7 @@ import { ThemeProvider } from "@/context/ThemeContext";
 import { ProfileProvider } from "@/context/ProfileContext";
 import { ConnectionsProvider } from "@/context/ConnectionsContext";
 import PwaRegister from "@/components/PwaRegister";
+import CustomCursor from "@/components/CustomCursor";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -66,6 +67,7 @@ export default function RootLayout({ children }) {
               <ConnectionsProvider>
                 <ThemeProvider>
                   <PwaRegister />
+                  <CustomCursor />
                   {children}
                 </ThemeProvider>
               </ConnectionsProvider>

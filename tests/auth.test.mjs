@@ -15,6 +15,8 @@ import { readJsonBody } from '../libs/request-body.js';
 import { createEmptyProfileData, profileDataSchema } from '../libs/profile-validation.js';
 import { createPublicProfilePayload } from '../libs/public-profile.js';
 import { normalizePublicUsername } from '../libs/public-username.js';
+import { getCursorTheme } from '../libs/cursor-theme.js';
+import { THEMES } from '../libs/themes.js';
 import { escapeSearchTerm } from '../libs/discovery.js';
 import { createAnalyticsVisitorHash, profileAnalyticsEventSchema } from '../libs/analytics-validation.js';
 import {
@@ -123,6 +125,24 @@ test('public profile usernames safely decode the @-prefixed route segment', () =
   assert.equal(normalizePublicUsername('%40ritesh-sarkar-c331e2'), 'ritesh-sarkar-c331e2');
   assert.equal(normalizePublicUsername(undefined), '');
   assert.equal(normalizePublicUsername('%E0%A4%A'), '');
+});
+
+test('cursor theme palette follows all eight themes and supports custom accents', () => {
+  assert.equal(THEMES.length, 8);
+  for (const theme of THEMES) {
+    assert.deepEqual(getCursorTheme(theme.id), {
+      accent: theme.accentColor,
+      secondary: theme.secondaryColor,
+    });
+  }
+  assert.deepEqual(getCursorTheme('cyberpunk', '#123456'), {
+    accent: '#123456',
+    secondary: THEMES[0].secondaryColor,
+  });
+  assert.deepEqual(getCursorTheme('unknown-theme'), {
+    accent: THEMES[0].accentColor,
+    secondary: THEMES[0].secondaryColor,
+  });
 });
 
 test('auth tokens are cryptographically random and only expose a digest for storage', () => {
