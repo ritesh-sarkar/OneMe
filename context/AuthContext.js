@@ -4,6 +4,8 @@ import React, { createContext, useCallback, useContext, useEffect, useState } fr
 import { signIn, signOut } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
 import { useToast } from '@/context/ToastContext';
+import { getLoginErrorMessage } from '@/libs/auth-rate-limits';
+import { getRegistrationErrorMessage } from '@/libs/registration-error';
 
 const AuthContext = createContext(null);
 
@@ -58,7 +60,7 @@ export function AuthProvider({ children }) {
       if (result?.error || !result?.ok) {
         return {
           success: false,
-          error: 'Unable to sign in with those details. Check your credentials and email verification.',
+          error: getLoginErrorMessage(result?.error),
         };
       }
 
@@ -84,7 +86,14 @@ export function AuthProvider({ children }) {
       });
       const result = await response.json();
       if (!response.ok) {
-        return { success: false, error: result.error || 'Unable to create an account.' };
+        return {
+          success: false,
+          error: getRegistrationErrorMessage({
+            status: response.status,
+            retryAfter: response.headers.get('Retry-After'),
+            message: result.error,
+          }),
+        };
       }
       return { success: true, message: result.message };
     } catch {

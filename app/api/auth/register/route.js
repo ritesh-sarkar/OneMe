@@ -5,6 +5,7 @@ import { sendAccountToken } from '@/libs/auth-email';
 import { connectToDatabase } from '@/libs/db';
 import { User } from '@/libs/models/User';
 import { consumeRateLimits, getTrustedClientIp } from '@/libs/rate-limit';
+import { getRegistrationRateLimitPolicies } from '@/libs/auth-rate-limits';
 import { readJsonBody } from '@/libs/request-body';
 
 export const runtime = 'nodejs';
@@ -32,7 +33,10 @@ export async function POST(request) {
   let disposable;
   try {
     disposable = isDisposableEmail(parsed.data.email);
-  } catch {
+  } catch (error) {
+    console.error('Account registration email validation failed.', {
+      error: error?.name || 'UnknownError',
+    });
     return NextResponse.json({ error: 'Email verification is temporarily unavailable.' }, { status: 503 });
   }
   if (disposable) {
@@ -41,15 +45,19 @@ export async function POST(request) {
 
   const clientIp = getTrustedClientIp(request);
   if (!clientIp) {
+    console.error('Account registration is unavailable because the client IP could not be determined.');
     return NextResponse.json({ error: 'Registration is temporarily unavailable.' }, { status: 503 });
   }
 
-  const limit = await consumeRateLimits(request, [
-    { name: 'register-ip', identity: clientIp, windowSeconds: 3600, limit: 6 },
-    { name: 'register-email', identity: parsed.data.email, windowSeconds: 3600, limit: 3 },
-  ]);
+  const limit = await consumeRateLimits(
+    request,
+    getRegistrationRateLimitPolicies(clientIp, parsed.data.email),
+  );
   if (!limit.ok) {
     if (limit.unavailable) {
+      console.error('Account registration rate-limit check is unavailable.', {
+        reason: limit.reason || 'unknown',
+      });
       return NextResponse.json({ error: 'Registration is temporarily unavailable.' }, { status: 503 });
     }
     return NextResponse.json(
@@ -58,18 +66,21 @@ export async function POST(request) {
     );
   }
 
+  let stage = 'database';
   try {
     await connectToDatabase();
 
     const existing = await User.findOne({ email: parsed.data.email });
     if (existing) {
       if (!existing.emailVerifiedAt) {
+        stage = 'verification_email';
         await sendAccountToken({ user: existing, purpose: 'verify-email' });
       }
       return acceptedResponse();
     }
 
     const passwordHash = await hash(parsed.data.password, 12);
+    stage = 'account_creation';
     const user = await User.create({
       name: parsed.data.name,
       username: parsed.data.username,
@@ -78,6 +89,7 @@ export async function POST(request) {
     });
 
     try {
+      stage = 'verification_email';
       await sendAccountToken({ user, purpose: 'verify-email' });
     } catch (error) {
       await User.deleteOne({ _id: user._id, emailVerifiedAt: null });
@@ -89,6 +101,13 @@ export async function POST(request) {
     if (error?.code === 11000 && error?.keyPattern?.username) {
       return NextResponse.json({ error: 'That username is already taken. Choose another one.' }, { status: 409 });
     }
+    console.error('Account registration failed.', {
+      stage,
+      error: error?.name || 'UnknownError',
+      code: typeof error?.code === 'string' || typeof error?.code === 'number'
+        ? error.code
+        : undefined,
+    });
     return NextResponse.json({ error: 'Account registration is temporarily unavailable.' }, { status: 503 });
   }
 }

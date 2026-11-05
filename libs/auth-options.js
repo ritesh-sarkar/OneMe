@@ -8,6 +8,7 @@ import { getVerifiedGoogleIdentity } from '@/libs/google-auth';
 import { AuthToken } from '@/libs/models/AuthToken';
 import { User } from '@/libs/models/User';
 import { consumeRateLimits, getTrustedClientIp } from '@/libs/rate-limit';
+import { getLoginRateLimitPolicies } from '@/libs/auth-rate-limits';
 
 const providers = [
   CredentialsProvider({
@@ -26,11 +27,14 @@ const providers = [
       const clientIp = getTrustedClientIp(request);
       if (!clientIp) return null;
 
-      const limit = await consumeRateLimits(request, [
-        { name: 'login-ip', identity: clientIp, windowSeconds: 900, limit: 15 },
-        { name: 'login-email', identity: parsed.data.email, windowSeconds: 900, limit: 8 },
-      ]);
-      if (!limit.ok) return null;
+      const limit = await consumeRateLimits(
+        request,
+        getLoginRateLimitPolicies(clientIp, parsed.data.email),
+      );
+      if (!limit.ok) {
+        if (!limit.unavailable) throw new Error('RateLimited');
+        return null;
+      }
 
       await connectToDatabase();
       const user = await User.findOne({ email: parsed.data.email })

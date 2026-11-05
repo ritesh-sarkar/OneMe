@@ -30,6 +30,14 @@ import { aiCopyRequestSchema, parseGeneratedAiCopy } from '../libs/ai-validation
 import { markAllNotificationsSchema, notificationActionSchema } from '../libs/notification-validation.js';
 import { getVerifiedGoogleIdentity } from '../libs/google-auth.js';
 import { getEmailTransportMode } from '../libs/brevo.js';
+import { getRegistrationErrorMessage } from '../libs/registration-error.js';
+import { normalizeMongoUri } from '../libs/db.js';
+import {
+  AUTH_RATE_LIMIT,
+  getLoginErrorMessage,
+  getLoginRateLimitPolicies,
+  getRegistrationRateLimitPolicies,
+} from '../libs/auth-rate-limits.js';
 
 test('registration validates name, username, email, password, and rejects unexpected fields', () => {
   const parsed = registrationSchema.safeParse({
@@ -122,6 +130,77 @@ test('login and password reset emails are validated and normalized', () => {
   }).success, false);
 });
 
+test('registration errors explain rate-limit retry timing and preserve other API messages', () => {
+  assert.equal(getRegistrationErrorMessage({
+    status: 429,
+    retryAfter: '997',
+  }), 'Too many registration attempts. Please try again in 17 minutes.');
+  assert.equal(getRegistrationErrorMessage({
+    status: 429,
+    retryAfter: '30',
+  }), 'Too many registration attempts. Please try again in less than a minute.');
+  assert.equal(getRegistrationErrorMessage({
+    status: 429,
+    retryAfter: null,
+  }), 'Too many registration attempts. Please wait before trying again.');
+  assert.equal(getRegistrationErrorMessage({
+    status: 409,
+    message: 'That username is already taken. Choose another one.',
+  }), 'That username is already taken. Choose another one.');
+});
+
+test('signup and login allow five attempts per IP and email in a five-minute window', () => {
+  assert.deepEqual(AUTH_RATE_LIMIT, { attempts: 5, windowSeconds: 300 });
+  assert.deepEqual(getRegistrationRateLimitPolicies('127.0.0.1', 'user@example.com'), [
+    {
+      name: 'register-ip-v2',
+      identity: '127.0.0.1',
+      windowSeconds: 300,
+      limit: 5,
+    },
+    {
+      name: 'register-email-v2',
+      identity: 'user@example.com',
+      windowSeconds: 300,
+      limit: 5,
+    },
+  ]);
+  assert.deepEqual(getLoginRateLimitPolicies('127.0.0.1', 'user@example.com'), [
+    {
+      name: 'login-ip-v2',
+      identity: '127.0.0.1',
+      windowSeconds: 300,
+      limit: 5,
+    },
+    {
+      name: 'login-email-v2',
+      identity: 'user@example.com',
+      windowSeconds: 300,
+      limit: 5,
+    },
+  ]);
+  assert.equal(getLoginErrorMessage('RateLimited'), 'Too many sign-in attempts. Please wait up to 5 minutes before trying again.');
+  assert.equal(
+    getLoginErrorMessage('CredentialsSignin'),
+    'Unable to sign in with those details. Check your credentials and email verification.',
+  );
+});
+
+test('MongoDB URI normalization removes trailing database slashes and preserves query options', () => {
+  assert.equal(
+    normalizeMongoUri('mongodb://localhost:27017/oneme/'),
+    'mongodb://localhost:27017/oneme',
+  );
+  assert.equal(
+    normalizeMongoUri('mongodb://localhost:27017/oneme///?authSource=admin'),
+    'mongodb://localhost:27017/oneme?authSource=admin',
+  );
+  assert.equal(
+    normalizeMongoUri('mongodb://localhost:27017/?authSource=admin'),
+    'mongodb://localhost:27017?authSource=admin',
+  );
+});
+
 test('email delivery selects the matching Brevo API or SMTP credential type', () => {
   assert.equal(getEmailTransportMode({
     BREVO_API_KEY: 'xkeysib-example',
@@ -204,6 +283,33 @@ test('client IP extraction only trusts Vercel proxy metadata in production', () 
   else process.env.VERCEL = previous.vercel;
 });
 
+test('local development falls back to loopback even if VERCEL is set in the shell', () => {
+  const previous = {
+    nodeEnv: process.env.NODE_ENV,
+    vercel: process.env.VERCEL,
+  };
+  process.env.NODE_ENV = 'development';
+  process.env.VERCEL = '1';
+
+  try {
+    assert.equal(
+      getTrustedClientIp(new Request('http://localhost:3000/api/auth/register')),
+      '127.0.0.1',
+    );
+    assert.equal(
+      getTrustedClientIp(new Request('http://localhost:3000/api/auth/register', {
+        headers: { 'x-forwarded-for': '127.0.0.1' },
+      })),
+      '127.0.0.1',
+    );
+  } finally {
+    if (previous.nodeEnv === undefined) delete process.env.NODE_ENV;
+    else process.env.NODE_ENV = previous.nodeEnv;
+    if (previous.vercel === undefined) delete process.env.VERCEL;
+    else process.env.VERCEL = previous.vercel;
+  }
+});
+
 test('distributed rate limits send hashed identities and report blocked retries', async () => {
   const previous = {
     nodeEnv: process.env.NODE_ENV,
@@ -211,6 +317,7 @@ test('distributed rate limits send hashed identities and report blocked retries'
     redisUrl: process.env.UPSTASH_REDIS_REST_URL,
     redisToken: process.env.UPSTASH_REDIS_REST_TOKEN,
     fetch: globalThis.fetch,
+    consoleError: console.error,
   };
   process.env.NODE_ENV = 'test';
   delete process.env.VERCEL;
@@ -224,6 +331,13 @@ test('distributed rate limits send hashed identities and report blocked retries'
     assert.equal(command[2], 1);
     assert.match(command[3], /^oneme:rate:login-email:[a-f0-9]{64}$/);
     assert.equal(command[3].includes('user@example.com'), false);
+    const script = command[1];
+    const preflightPosition = script.indexOf("redis.call('GET', key)");
+    const rejectedReturnPosition = script.indexOf('return { blocked, retryAfter }');
+    const incrementPosition = script.indexOf("redis.call('INCR', key)");
+    assert.ok(preflightPosition >= 0);
+    assert.ok(rejectedReturnPosition > preflightPosition);
+    assert.ok(incrementPosition > rejectedReturnPosition);
     return new Response(JSON.stringify({ result: results.shift() }), { status: 200 });
   };
 
@@ -232,6 +346,64 @@ test('distributed rate limits send hashed identities and report blocked retries'
     const policy = [{ name: 'login-email', identity: 'user@example.com', windowSeconds: 900, limit: 8 }];
     assert.deepEqual(await consumeRateLimits(request, policy), { ok: true, retryAfter: 1 });
     assert.deepEqual(await consumeRateLimits(request, policy), { ok: false, retryAfter: 25 });
+  } finally {
+    globalThis.fetch = previous.fetch;
+    if (previous.nodeEnv === undefined) delete process.env.NODE_ENV;
+    else process.env.NODE_ENV = previous.nodeEnv;
+    if (previous.vercel === undefined) delete process.env.VERCEL;
+    else process.env.VERCEL = previous.vercel;
+    if (previous.redisUrl === undefined) delete process.env.UPSTASH_REDIS_REST_URL;
+    else process.env.UPSTASH_REDIS_REST_URL = previous.redisUrl;
+    if (previous.redisToken === undefined) delete process.env.UPSTASH_REDIS_REST_TOKEN;
+    else process.env.UPSTASH_REDIS_REST_TOKEN = previous.redisToken;
+  }
+});
+
+test('localhost development bypasses Redis rate limits without changing production behavior', async () => {
+  const previous = {
+    nodeEnv: process.env.NODE_ENV,
+    vercel: process.env.VERCEL,
+    redisUrl: process.env.UPSTASH_REDIS_REST_URL,
+    redisToken: process.env.UPSTASH_REDIS_REST_TOKEN,
+    fetch: globalThis.fetch,
+  };
+  process.env.NODE_ENV = 'development';
+  delete process.env.VERCEL;
+  delete process.env.UPSTASH_REDIS_REST_URL;
+  delete process.env.UPSTASH_REDIS_REST_TOKEN;
+  let fetchCalls = 0;
+  globalThis.fetch = async () => {
+    fetchCalls += 1;
+    throw new Error('Redis should not be called for localhost development.');
+  };
+
+  try {
+    const policy = [{
+      name: 'register-ip-v2',
+      identity: '127.0.0.1',
+      windowSeconds: 300,
+      limit: 5,
+    }];
+    assert.deepEqual(
+      await consumeRateLimits(new Request('http://localhost:3000/api/auth/register'), policy),
+      { ok: true, retryAfter: 1 },
+    );
+    assert.deepEqual(
+      await consumeRateLimits(new Request('http://127.0.0.1:3000/api/auth/register'), policy),
+      { ok: true, retryAfter: 1 },
+    );
+    assert.equal(fetchCalls, 0);
+
+    process.env.NODE_ENV = 'production';
+    const productionResult = await consumeRateLimits(
+      new Request('https://localhost/api/auth/register'),
+      policy,
+    );
+    assert.deepEqual(productionResult, {
+      ok: false,
+      unavailable: true,
+      reason: 'missing_configuration',
+    });
   } finally {
     globalThis.fetch = previous.fetch;
     if (previous.nodeEnv === undefined) delete process.env.NODE_ENV;
@@ -260,15 +432,26 @@ test('distributed rate limits fail closed when the provider is unavailable', asy
   globalThis.fetch = async () => {
     throw new Error('test provider failure');
   };
+  const loggedErrors = [];
+  console.error = (...args) => loggedErrors.push(args);
 
   try {
     const result = await consumeRateLimits(
       new Request('https://example.com'),
       [{ name: 'register-ip', identity: '127.0.0.1', windowSeconds: 60, limit: 2 }],
     );
-    assert.deepEqual(result, { ok: false, unavailable: true });
+    assert.deepEqual(result, {
+      ok: false,
+      unavailable: true,
+      reason: 'request_failed',
+    });
+    assert.deepEqual(loggedErrors[0], [
+      'Rate-limit provider request failed.',
+      { error: 'Error', code: undefined },
+    ]);
   } finally {
     globalThis.fetch = previous.fetch;
+    console.error = previous.consoleError;
     if (previous.nodeEnv === undefined) delete process.env.NODE_ENV;
     else process.env.NODE_ENV = previous.nodeEnv;
     if (previous.vercel === undefined) delete process.env.VERCEL;
