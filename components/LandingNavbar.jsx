@@ -337,28 +337,7 @@ export function LandingNavbar() {
                 "
               >
                 OneMe Flow
-              </a>
-
-              <Link
-                href="/discover"
-                onClick={() => setMobileMenuOpen(false)}
-                className="
-                  py-1
-                  flex
-                  items-center
-                  gap-1.5
-                "
-              >
-                <FiCompass
-                  className="
-                    w-4
-                    h-4
-                    text-cyan
-                  "
-                />
-
-                <span>Discover Profiles</span>
-              </Link>
+              </a>  
             </nav>
 
             <div
