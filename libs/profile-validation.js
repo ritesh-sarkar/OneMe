@@ -13,6 +13,16 @@ const safeLink = z.string().trim().max(2048).refine((value) => {
   }
 }, 'Enter a valid HTTP, HTTPS, or email link.');
 
+const safeProjectLink = z.string().trim().max(2048).refine((value) => {
+  if (!value) return true;
+  try {
+    const url = new URL(value);
+    return ['http:', 'https:'].includes(url.protocol) && Boolean(url.hostname);
+  } catch {
+    return false;
+  }
+}, 'Project links must use a valid HTTP or HTTPS URL.');
+
 const safeImage = z.string().trim().max(2048).refine((value) => {
   if (!value) return true;
   try {
@@ -44,8 +54,8 @@ const projectSchema = z.object({
   description: text(2000),
   technologies: z.array(text(40)).max(30),
   image: safeImage,
-  githubUrl: safeLink,
-  liveUrl: safeLink,
+  githubUrl: safeProjectLink,
+  liveUrl: safeProjectLink,
   status: text(80),
   featured: z.boolean().default(false),
   metrics: text(200),

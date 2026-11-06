@@ -114,22 +114,28 @@ export function ProfileHeader({
             overflow-hidden
           "
         >
-          <img
-            src={
-              user?.avatar ||
-              "https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&q=80&w=600"
-            }
-            alt={user?.name || "Avatar"}
-            className="
-              w-full
-              h-full
-              object-cover
-              rounded-full
-              group-hover:scale-105
-              transition-transform
-              duration-300
-            "
-          />
+          {user?.avatar ? (
+            <img
+              src={user.avatar}
+              alt={user?.name || "Avatar"}
+              className="
+                w-full
+                h-full
+                object-cover
+                rounded-full
+                group-hover:scale-105
+                transition-transform
+                duration-300
+              "
+            />
+          ) : (
+            <span
+              aria-hidden="true"
+              className="flex h-full w-full items-center justify-center rounded-full bg-accent-soft text-3xl font-bold text-accent"
+            >
+              {user?.name?.trim().charAt(0).toUpperCase() || "?"}
+            </span>
+          )}
         </div>
 
         {user?.isVerified && (
@@ -170,6 +176,8 @@ export function ProfileHeader({
           mt-3
           md:mt-4
           space-y-1
+          max-w-full
+          px-3
         "
       >
         <div
@@ -187,6 +195,7 @@ export function ProfileHeader({
               font-bold
               tracking-tight
               text-primary
+              break-words
             "
           >
             {user?.name || ""}
@@ -198,6 +207,7 @@ export function ProfileHeader({
             text-sm
             md:text-base
             font-medium
+            break-all
           "
           style={{
             color: accentColor,
@@ -222,9 +232,10 @@ export function ProfileHeader({
             md:text-base
             font-semibold
             text-primary
+            break-words
           "
         >
-          {user?.title || "Full-Stack Developer"}
+          {user?.title || ""}
         </h2>
 
         {user?.tagline && (
@@ -234,6 +245,7 @@ export function ProfileHeader({
               md:text-sm
               text-secondary
               italic
+              break-words
             "
           >
             &ldquo;

@@ -46,16 +46,12 @@ export default function ProjectsPage() {
     setEditingProjectId(null);
     setFormTitle("");
     setFormDescription("");
-    setFormTechnologies("React, Next.js, Tailwind CSS");
-
-    setFormImage(
-      "https://images.unsplash.com/photo-1551288049-bebda4e38f71?auto=format&fit=crop&q=80&w=800",
-    );
-
-    setFormGithubUrl("https://github.com/riteshsarkar/");
-    setFormLiveUrl("https://demo.app");
-    setFormStatus("Live & Active");
-    setFormMetrics("10k+ users");
+    setFormTechnologies("");
+    setFormImage("");
+    setFormGithubUrl("");
+    setFormLiveUrl("");
+    setFormStatus("");
+    setFormMetrics("");
 
     setModalOpen(true);
   };
@@ -95,7 +91,6 @@ export default function ProjectsPage() {
       liveUrl: formLiveUrl,
       status: formStatus,
       metrics: formMetrics,
-      stars: 120,
     };
 
     if (editingProjectId) {
@@ -425,7 +420,7 @@ export default function ProjectsPage() {
             value={formTitle}
             onChange={(e) => setFormTitle(e.target.value)}
             required
-            placeholder="PulseFlow — Real-time Distributed Analytics"
+            placeholder="Enter project name"
           />
 
           <Textarea
@@ -434,14 +429,14 @@ export default function ProjectsPage() {
             onChange={(e) => setFormDescription(e.target.value)}
             required
             rows={3}
-            placeholder="Explain the problem solved, architectural decisions, and capabilities..."
+            placeholder="Describe the project and your contribution"
           />
 
           <Input
             label="Technologies (comma-separated)"
             value={formTechnologies}
             onChange={(e) => setFormTechnologies(e.target.value)}
-            placeholder="Next.js, React, Tailwind CSS, WebSockets"
+            placeholder="Add technologies used"
           />
 
           <div
@@ -454,16 +449,18 @@ export default function ProjectsPage() {
           >
             <Input
               label="GitHub Repository URL"
+              type="url"
               value={formGithubUrl}
               onChange={(e) => setFormGithubUrl(e.target.value)}
-              placeholder="https://github.com/..."
+              placeholder="https://github.com/your-username"
             />
 
             <Input
               label="Live Application Demo URL"
+              type="url"
               value={formLiveUrl}
               onChange={(e) => setFormLiveUrl(e.target.value)}
-              placeholder="https://..."
+              placeholder="https://your-project.com"
             />
           </div>
 
@@ -477,16 +474,17 @@ export default function ProjectsPage() {
           >
             <Input
               label="Cover Image URL"
+              type="url"
               value={formImage}
               onChange={(e) => setFormImage(e.target.value)}
-              placeholder="https://images.unsplash.com/..."
+              placeholder="https://your-image-url.com"
             />
 
             <Input
               label="Status Tag"
               value={formStatus}
               onChange={(e) => setFormStatus(e.target.value)}
-              placeholder="Live & Active"
+              placeholder="Add a project status"
             />
           </div>
 
@@ -494,7 +492,7 @@ export default function ProjectsPage() {
             label="Key Metric / Traction"
             value={formMetrics}
             onChange={(e) => setFormMetrics(e.target.value)}
-            placeholder="100k+ events/sec or 2.4k npm downloads"
+            placeholder="Add a project metric"
           />
 
           <div

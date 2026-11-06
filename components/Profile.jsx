@@ -590,7 +590,7 @@ export default function ProfileEditorPage() {
                     label="Full Name"
                     value={profile.name || ""}
                     onChange={(e) => handleInputChange("name", e.target.value)}
-                    placeholder="Ritesh Sarkar"
+                    placeholder="Enter your full name"
                   />
                   <Input
                     label="Username / Slug"
@@ -601,20 +601,20 @@ export default function ProfileEditorPage() {
                         e.target.value.toLowerCase().replace(/\s+/g, ""),
                       )
                     }
-                    placeholder="ritesh"
+                    placeholder="Choose a username"
                   />
                 </div>
                 <Input
                   label="Professional Title"
                   value={profile.title || ""}
                   onChange={(e) => handleInputChange("title", e.target.value)}
-                  placeholder="Full-Stack Developer"
+                  placeholder="Add your professional headline"
                 />
                 <Input
                   label="Tagline (Subheader)"
                   value={profile.tagline || ""}
                   onChange={(e) => handleInputChange("tagline", e.target.value)}
-                  placeholder="Building useful things with code."
+                  placeholder="Add a short tagline"
                 />
                 <div
                   className="
@@ -628,13 +628,13 @@ export default function ProfileEditorPage() {
                     label="Location"
                     value={profile.location || ""}
                     onChange={(e) => handleInputChange("location", e.target.value)}
-                    placeholder="Dhaka, Bangladesh"
+                    placeholder="Add your location"
                   />
                   <Input
                     label="Availability Status"
                     value={profile.status || ""}
                     onChange={(e) => handleInputChange("status", e.target.value)}
-                    placeholder="Open to freelance work"
+                    placeholder="Add your availability"
                   />
                 </div>
                 <div
@@ -649,14 +649,14 @@ export default function ProfileEditorPage() {
                     label="Email Address"
                     value={profile.email || ""}
                     readOnly
-                    placeholder="ritesh@sarkar.dev"
+                    placeholder="Enter your email address"
                     helperText="Email changes require a separate verification step."
                   />
                   <Input
                     label="Phone Number"
                     value={profile.phone || ""}
                     onChange={(e) => handleInputChange("phone", e.target.value)}
-                    placeholder="+880 1712-345678"
+                    placeholder="Add your phone number"
                   />
                 </div>
                 <div
@@ -749,7 +749,7 @@ export default function ProfileEditorPage() {
                   rows={6}
                   value={profile.bio || ""}
                   onChange={(e) => handleInputChange("bio", e.target.value)}
-                  placeholder="Write a compelling story about your career, goals, and passions..."
+                  placeholder="Tell people about your background and goals"
                 />
                 <div
                   className="
@@ -971,7 +971,7 @@ export default function ProfileEditorPage() {
                       "
                   >
                     <Input
-                      placeholder="e.g. TypeScript, GraphQL, Docker..."
+                      placeholder="Add a skill"
                       value={newSkillName}
                       onChange={(e) => setNewSkillName(e.target.value)}
                     />
@@ -1131,20 +1131,20 @@ export default function ProfileEditorPage() {
                     label="Button Text"
                     value={profile.customCta?.text || ""}
                     onChange={(e) => handleCustomCtaChange("text", e.target.value)}
-                    placeholder="Hire Me for Projects"
+                    placeholder="Add a call-to-action title"
                   />
                   <Input
                     label="Subtitle"
                     value={profile.customCta?.subtitle || ""}
                     onChange={(e) => handleCustomCtaChange("subtitle", e.target.value)}
-                    placeholder="Available for freelance & full-time"
+                    placeholder="Add a short call-to-action description"
                   />
                 </div>
                 <Input
                   label="Destination URL / Mailto link"
                   value={profile.customCta?.url || ""}
                   onChange={(e) => handleCustomCtaChange("url", e.target.value)}
-                  placeholder="mailto:ritesh@sarkar.dev?subject=Project"
+                  placeholder="https://your-contact-page.com"
                 />
                 <div
                   className="
@@ -1579,7 +1579,7 @@ export default function ProfileEditorPage() {
             </div>
             <Textarea
               label="Describe your background or focus"
-              placeholder="e.g. I am a full-stack developer who builds React & Next.js applications and leads design systems..."
+              placeholder="Describe your background, skills, and goals"
               value={aiPrompt}
               onChange={(e) => setAiPrompt(e.target.value)}
               maxLength={2000}
