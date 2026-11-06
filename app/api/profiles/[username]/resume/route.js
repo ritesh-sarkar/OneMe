@@ -7,6 +7,7 @@ import { connectToDatabase } from '@/libs/db';
 import { FlowSession } from '@/libs/models/FlowSession';
 import { ProfileData } from '@/libs/models/ProfileData';
 import { User } from '@/libs/models/User';
+import { isAllowedCloudinaryResumeUrl } from '@/libs/resume-delivery';
 import { normalizePublicUsername } from '@/libs/public-username';
 import { consumeRateLimits, getTrustedClientIp } from '@/libs/rate-limit';
 
@@ -14,6 +15,7 @@ export const runtime = 'nodejs';
 
 const RESUME_ID_PATTERN = /^oneme\/[a-f0-9]{24}\/resume\/[a-f0-9]{32}\.pdf$/i;
 const MAX_RESUME_BYTES = 10 * 1024 * 1024;
+const RESUME_CONTENT_SECURITY_POLICY = "default-src 'none'; frame-ancestors 'self'";
 
 async function readPdfBody(response) {
   const declaredLength = Number(response.headers.get('content-length'));
@@ -49,16 +51,7 @@ async function readPdfBody(response) {
 async function fetchCloudinaryAsset(url, cloudName) {
   let current = new URL(url);
   for (let redirects = 0; redirects <= 3; redirects += 1) {
-    const isAllowedHost = current.hostname === 'res.cloudinary.com'
-      || current.hostname === 'api.cloudinary.com';
-    if (
-      current.protocol !== 'https:'
-      || !isAllowedHost
-      || (current.hostname === 'res.cloudinary.com'
-        && !current.pathname.startsWith(`/${cloudName}/raw/`))
-      || (current.hostname === 'api.cloudinary.com'
-        && !current.pathname.startsWith(`/v1_1/${cloudName}/download`))
-    ) {
+    if (!isAllowedCloudinaryResumeUrl(current, cloudName)) {
       throw new Error('Cloudinary returned an invalid resume location.');
     }
 
@@ -84,6 +77,8 @@ function errorResponse(message, status) {
     headers: {
       'Cache-Control': 'private, no-store',
       'X-Content-Type-Options': 'nosniff',
+      'X-Frame-Options': 'SAMEORIGIN',
+      'Content-Security-Policy': RESUME_CONTENT_SECURITY_POLICY,
       'Content-Type': 'text/plain; charset=utf-8',
     },
   });
@@ -206,6 +201,7 @@ export async function GET(request, { params }) {
     const authenticatedUpload = storedPath.includes('/raw/authenticated/upload/');
     const deliveryUrl = authenticatedUpload
       ? cloudinary.utils.private_download_url(resume.publicId, 'pdf', {
+        resource_type: 'raw',
         type: 'authenticated',
         expires_at: Math.floor(Date.now() / 1000) + 60,
       })
@@ -240,8 +236,9 @@ export async function GET(request, { params }) {
         'Content-Disposition': `${disposition}; filename="resume.pdf"; filename*=UTF-8''${encodedFilename}`,
         'Content-Length': String(bytes.byteLength),
         'X-Content-Type-Options': 'nosniff',
+        'X-Frame-Options': 'SAMEORIGIN',
         'Referrer-Policy': 'no-referrer',
-        'Content-Security-Policy': "frame-ancestors 'self'",
+        'Content-Security-Policy': RESUME_CONTENT_SECURITY_POLICY,
       },
     });
   } catch (error) {

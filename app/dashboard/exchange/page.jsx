@@ -1,11 +1,9 @@
 import React from "react";
-
-import Exchange from "@/components/Exchange";
-
+import OneMeFlow from "@/components/OneMeFlow";
 const page = () => {
   return (
     <div>
-      <Exchange />
+      <OneMeFlow />
     </div>
   );
 };

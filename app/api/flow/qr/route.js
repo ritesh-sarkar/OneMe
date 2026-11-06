@@ -57,7 +57,7 @@ export async function POST(request) {
       expiresAt,
     });
     return NextResponse.json({
-      url: `/exchange/qr/${token}`,
+      url: `/dashboard/exchange/qr/${token}`,
       expiresAt,
     }, {
       status: 201,

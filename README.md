@@ -56,6 +56,7 @@ Use the Node.js version supported by the installed Next.js release. Create an ig
 - `BREVO_SENDER_EMAIL` and `BREVO_SENDER_NAME`, plus either `BREVO_API_KEY` (a Brevo API key) or `BREVO_SMTP_HOST`, `BREVO_SMTP_PORT`, `BREVO_SMTP_USER`, and `BREVO_SMTP_PASSWORD` (Brevo SMTP credentials)
 - `UPSTASH_REDIS_REST_URL` and `UPSTASH_REDIS_REST_TOKEN`
 - `CLOUDINARY_CLOUD_NAME`, `CLOUDINARY_API_KEY`, `CLOUDINARY_API_SECRET`, `CLOUDINARY_IMAGE_UPLOAD_PRESET`, and `CLOUDINARY_RESUME_UPLOAD_PRESET`. Configure the signed image preset to enforce a 5 MB maximum and JPEG, PNG, WebP, or AVIF formats. Configure the signed resume preset to enforce a 10 MB maximum and PDF-only uploads.
+- Optional for reliable OneMe Flow Nearby connections across restrictive NATs: `ONEME_TURN_URLS` (comma-separated `turn:` or `turns:` URIs) and `ONEME_TURN_SHARED_SECRET` (the shared secret configured on a Coturn-compatible TURN service). The secret stays server-side; OneMe issues short-lived per-session TURN credentials. Without TURN, Nearby uses STUN and may not connect on some networks.
 - `GEMINI_API_KEY` for server-side profile-copy suggestions; optionally set `GEMINI_MODEL` to select an available Gemini model.
 
 Authentication endpoints fail closed when required database, email, or rate-limit services are unavailable. Use test credentials and provider accounts for development; never commit `.env.local` or real secrets.
@@ -81,7 +82,7 @@ npm run build
 - `/[username]` — published public profile with privacy controls
 - `/dashboard` and `/dashboard/*` — session-protected dashboard UI
 - `/discover` — opt-in directory of published, verified profiles
-- `/exchange` — OneMe Flow mutual-consent exchange
+- `/exchange` — OneMe Flow username, QR, and opt-in online WebRTC exchange. Nearby discovery shows available authenticated members; it is not Bluetooth or physical-distance detection.
 - `/login`, `/signup`, `/forgot-password`, `/verify-email`, `/welcome` — account and profile onboarding screens
 - `/api/auth/*` — Auth.js and account lifecycle endpoints
 - `/api/profile` — authenticated profile persistence

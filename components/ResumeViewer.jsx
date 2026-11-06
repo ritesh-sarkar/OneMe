@@ -5,6 +5,12 @@ import { FiDownload, FiFileText, FiEye } from "react-icons/fi";
 
 export function ResumeViewer({ resume, user, cardClass = "" }) {
   if (!resume || (!resume.fileUrl && !resume.summary)) return null;
+  const resumePageUrl = user?.username
+    ? `/${encodeURIComponent(user.username)}/resume`
+    : "";
+  const resumeDownloadUrl = user?.username
+    ? `/api/profiles/${encodeURIComponent(user.username)}/resume?download=1`
+    : "";
 
   return (
     <div className="space-y-4">
@@ -34,10 +40,10 @@ export function ResumeViewer({ resume, user, cardClass = "" }) {
             </div>
           </div>
 
-          {resume.fileUrl && (
+          {resume.fileUrl && resumePageUrl && (
             <div className="flex shrink-0 flex-wrap items-center gap-2">
               <a
-                href={resume.fileUrl}
+                href={resumePageUrl}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="btn-base btn-outline inline-flex items-center gap-2 text-sm"
@@ -46,7 +52,7 @@ export function ResumeViewer({ resume, user, cardClass = "" }) {
                 View resume
               </a>
               <a
-                href={`/api/profiles/${encodeURIComponent(user?.username || "")}/resume?download=1`}
+                href={resumeDownloadUrl}
                 className="btn-base btn-outline inline-flex items-center gap-2 text-sm"
               >
                 <FiDownload className="h-4 w-4" />

@@ -19,14 +19,14 @@ async function fetchOutgoingRequests() {
   return result.outgoing || [];
 }
 
-export function ExchangeModal({ isOpen, onClose, initialUsername = "" }) {
+export function ExchangeModal({ isOpen, onClose, initialUsername = "", initialUser = null }) {
   const { user } = useAuth();
   const userId = user?.id;
   const { profile, projects, achievements, resume } = useProfile();
   const { refreshConnections } = useConnections();
   const { success, error: toastError } = useToast();
-  const [username, setUsername] = useState(initialUsername);
-  const [selectedUser, setSelectedUser] = useState(null);
+  const [username, setUsername] = useState(initialUser?.username || initialUsername);
+  const [selectedUser, setSelectedUser] = useState(initialUser);
   const [searchResults, setSearchResults] = useState([]);
   const [searching, setSearching] = useState(false);
   const [searchMessage, setSearchMessage] = useState("");

@@ -89,7 +89,7 @@ export default function QrExchange({ token }) {
               Sign in before viewing the intended member or initiating an exchange.
             </p>
             <Link
-              href={`/login?callbackUrl=${encodeURIComponent(`/exchange/qr/${token}`)}`}
+              href={`/login?callbackUrl=${encodeURIComponent(`/dashboard/exchange/qr/${token}`)}`}
               className="btn-base btn-primary inline-flex"
             >
               Sign in

@@ -1,5 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
+import { createHmac } from 'node:crypto';
+import { v2 as cloudinary } from 'cloudinary';
 import {
   accountProfileUpdateSchema,
   accountIdentitySchema,
@@ -34,6 +36,13 @@ import { getVerifiedGoogleIdentity } from '../libs/google-auth.js';
 import { getEmailTransportMode } from '../libs/brevo.js';
 import { getRegistrationErrorMessage } from '../libs/registration-error.js';
 import { getSafeReturnPath } from '../libs/return-url.js';
+import {
+  flowNearbyActionSchema,
+  flowNearbyInviteSchema,
+  flowNearbySignalBodySchema,
+} from '../libs/flow-nearby-validation.js';
+import { createNearbyTurnServer, parseNearbyTurnUrls } from '../libs/nearby-ice.js';
+import { isAllowedCloudinaryResumeUrl } from '../libs/resume-delivery.js';
 import { normalizeMongoUri } from '../libs/db.js';
 import {
   AUTH_RATE_LIMIT,
@@ -258,6 +267,7 @@ test('username normalization produces a bounded URL-safe slug', () => {
 
 test('login callback paths cannot redirect away from OneMe', () => {
   assert.equal(getSafeReturnPath('/exchange/qr/secure-token?step=review'), '/exchange/qr/secure-token?step=review');
+  assert.equal(getSafeReturnPath('/dashboard/exchange/qr/secure-token?step=review'), '/dashboard/exchange/qr/secure-token?step=review');
   assert.equal(getSafeReturnPath('//example.com'), '/dashboard');
   assert.equal(getSafeReturnPath('https://example.com'), '/dashboard');
   assert.equal(getSafeReturnPath('/\\example.com'), '/dashboard');
@@ -707,6 +717,7 @@ test('OneMe Flow validates explicit sharing consent and only returns selected co
       value: '+1 555 0100',
     }],
   });
+
   assert.deepEqual(createFlowContactData({
     account,
     profile,
@@ -738,6 +749,100 @@ test('OneMe Flow validates explicit sharing consent and only returns selected co
     projectAndAchievement.sharedFields.map(({ id }) => id),
     ['social:github', 'project:project-1', 'achievement:award-1'],
   );
+});
+
+test('Nearby exchange validates peer IDs, authorized actions, and bounded WebRTC signaling', () => {
+  const sessionId = '507f1f77bcf86cd799439011';
+  const exchangeId = '507f1f77bcf86cd799439012';
+  assert.equal(flowNearbyInviteSchema.safeParse({
+    sessionId,
+    targetSessionId: exchangeId,
+  }).success, true);
+  assert.equal(flowNearbyActionSchema.safeParse({ action: 'connected' }).success, false);
+  assert.equal(flowNearbyActionSchema.safeParse({ action: 'connected', sessionId }).success, true);
+  assert.equal(flowNearbySignalBodySchema.safeParse({
+    action: 'send',
+    sessionId,
+    signalId: '4bf92f82-31d5-4c7f-9f4f-7d6a64c4c6d1',
+    signal: {
+      kind: 'offer',
+      payload: { type: 'offer', sdp: 'v=0' },
+    },
+  }).success, true);
+  assert.equal(flowNearbySignalBodySchema.safeParse({
+    action: 'send',
+    sessionId,
+    signalId: '4bf92f82-31d5-4c7f-9f4f-7d6a64c4c6d1',
+    signal: {
+      kind: 'offer',
+      payload: { type: 'offer', sdp: 'x'.repeat(16_001) },
+    },
+  }).success, false);
+  assert.equal(flowNearbySignalBodySchema.safeParse({
+    action: 'send',
+    sessionId,
+    signalId: '4bf92f82-31d5-4c7f-9f4f-7d6a64c4c6d1',
+    signal: {
+      kind: 'candidate',
+      payload: {
+        candidate: 'candidate:1',
+        sdpMid: '0',
+        sdpMLineIndex: 0,
+        extra: 'unexpected',
+      },
+    },
+  }).success, false);
+});
+
+test('Nearby ICE configuration validates TURN URLs and returns short-lived Coturn credentials', () => {
+  assert.deepEqual(
+    parseNearbyTurnUrls('turn:relay.example.test:3478?transport=udp, turns:relay.example.test:5349'),
+    ['turn:relay.example.test:3478?transport=udp', 'turns:relay.example.test:5349'],
+  );
+  assert.throws(() => parseNearbyTurnUrls('https://relay.example.test'));
+  const secret = 'turn-shared-test-secret';
+  const now = 1_800_000_000_000;
+  const server = createNearbyTurnServer(['turn:relay.example.test:3478'], secret, now);
+  assert.match(server.username, /^1800000600:[a-f0-9]{24}$/);
+  assert.equal(
+    server.credential,
+    createHmac('sha1', secret).update(server.username).digest('base64'),
+  );
+});
+
+test('resume delivery accepts only Cloudinary raw assets and raw authenticated downloads', () => {
+  const previous = cloudinary.config();
+  try {
+    cloudinary.config({
+      cloud_name: 'oneme-test',
+      api_key: 'test-key',
+      api_secret: 'test-secret',
+      secure: true,
+    });
+    const url = cloudinary.utils.private_download_url(
+      'oneme/507f1f77bcf86cd799439011/resume/0123456789abcdef0123456789abcdef.pdf',
+      'pdf',
+      {
+        resource_type: 'raw',
+        type: 'authenticated',
+        expires_at: 1_800_000_060,
+      },
+    );
+    assert.equal(new URL(url).pathname, '/v1_1/oneme-test/raw/download');
+    assert.equal(new URL(url).searchParams.get('type'), 'authenticated');
+    assert.equal(isAllowedCloudinaryResumeUrl(url, 'oneme-test'), true);
+    assert.equal(
+      isAllowedCloudinaryResumeUrl('https://api.cloudinary.com/v1_1/oneme-test/image/download', 'oneme-test'),
+      false,
+    );
+    assert.equal(isAllowedCloudinaryResumeUrl('https://attacker.example/file.pdf', 'oneme-test'), false);
+    assert.equal(
+      isAllowedCloudinaryResumeUrl('https://res.cloudinary.com/oneme-test/raw/authenticated/upload/private.pdf', 'oneme-test'),
+      true,
+    );
+  } finally {
+    cloudinary.config(previous);
+  }
 });
 
 test('vCard export escapes user-controlled line breaks to prevent injected properties', () => {

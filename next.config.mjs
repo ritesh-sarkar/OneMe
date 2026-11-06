@@ -16,16 +16,17 @@ const nextConfig = {
       "style-src 'self' 'unsafe-inline'",
       "img-src 'self' data: blob: https:",
       "font-src 'self' data: https:",
-      `connect-src 'self' https://api.cloudinary.com https://*.cloudinary.com${developmentConnectSources}`,
+      `connect-src 'self' https://api.cloudinary.com https://*.cloudinary.com stun: turn: turns:${developmentConnectSources}`,
       "manifest-src 'self'",
       "worker-src 'self'",
     ];
     if (process.env.NODE_ENV === 'production') {
       contentSecurityPolicy.push('upgrade-insecure-requests');
     }
+    const contentSecurityPolicyValue = contentSecurityPolicy.join('; ');
 
     const securityHeaders = [
-      { key: 'Content-Security-Policy', value: contentSecurityPolicy.join('; ') },
+      { key: 'Content-Security-Policy', value: contentSecurityPolicyValue },
       { key: 'X-Content-Type-Options', value: 'nosniff' },
       { key: 'X-Frame-Options', value: 'DENY' },
       { key: 'Referrer-Policy', value: 'strict-origin-when-cross-origin' },
@@ -39,7 +40,19 @@ const nextConfig = {
       });
     }
 
-    return [{ source: '/:path*', headers: securityHeaders }];
+    return [
+      { source: '/:path*', headers: securityHeaders },
+      {
+        source: '/api/profiles/:username/resume',
+        headers: [
+          {
+            key: 'Content-Security-Policy',
+            value: contentSecurityPolicyValue.replace("frame-ancestors 'none'", "frame-ancestors 'self'"),
+          },
+          { key: 'X-Frame-Options', value: 'SAMEORIGIN' },
+        ],
+      },
+    ];
   },
 };
 
