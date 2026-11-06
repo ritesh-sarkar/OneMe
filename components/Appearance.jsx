@@ -652,6 +652,7 @@ export default function AppearancePage() {
         {/* Right: Live Identity Preview */}
         <div
           className="
+            min-w-0
             lg:col-span-5
             space-y-3
             lg:sticky
@@ -696,8 +697,11 @@ export default function AppearancePage() {
 
           <div
             className="
+              w-full
+              min-w-0
               rounded-[32px]
-              p-3
+              p-2
+              sm:p-3
               bg-surface-dark
               border
               border-subtle
@@ -706,7 +710,11 @@ export default function AppearancePage() {
           >
             <div
               className="
-                h-[620px]
+                h-[65vh]
+                min-h-[400px]
+                max-h-[720px]
+                w-full
+                min-w-0
                 overflow-y-auto
                 rounded-[22px]
                 bg-surface-dark
