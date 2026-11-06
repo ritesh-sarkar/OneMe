@@ -14,7 +14,7 @@ import { createAuthToken, hashAuthToken } from '../libs/auth-tokens.js';
 import { consumeRateLimits, getTrustedClientIp } from '../libs/rate-limit.js';
 import { readJsonBody } from '../libs/request-body.js';
 import { createEmptyProfileData, profileDataSchema } from '../libs/profile-validation.js';
-import { createPublicProfilePayload } from '../libs/public-profile.js';
+import { createPublicProfilePayload, getPublicContactMethods } from '../libs/public-profile.js';
 import { normalizePublicUsername } from '../libs/public-username.js';
 import { getCursorTheme } from '../libs/cursor-theme.js';
 import { THEMES } from '../libs/themes.js';
@@ -24,6 +24,7 @@ import {
   availableFlowFields,
   createFlowContactData,
   createFlowRequestSchema,
+  getFlowFieldOptions,
   respondToFlowSchema,
 } from '../libs/flow-validation.js';
 import { generateVCard } from '../libs/vcard.js';
@@ -32,6 +33,7 @@ import { markAllNotificationsSchema, notificationActionSchema } from '../libs/no
 import { getVerifiedGoogleIdentity } from '../libs/google-auth.js';
 import { getEmailTransportMode } from '../libs/brevo.js';
 import { getRegistrationErrorMessage } from '../libs/registration-error.js';
+import { getSafeReturnPath } from '../libs/return-url.js';
 import { normalizeMongoUri } from '../libs/db.js';
 import {
   AUTH_RATE_LIMIT,
@@ -252,6 +254,13 @@ test('username normalization produces a bounded URL-safe slug', () => {
   assert.equal(normalizeUsername('  Rités h Sarkar! '), 'rites-h-sarkar');
   assert.equal(normalizeUsername('!!!'), 'member');
   assert.ok(normalizeUsername('a'.repeat(100)).length <= 24);
+});
+
+test('login callback paths cannot redirect away from OneMe', () => {
+  assert.equal(getSafeReturnPath('/exchange/qr/secure-token?step=review'), '/exchange/qr/secure-token?step=review');
+  assert.equal(getSafeReturnPath('//example.com'), '/dashboard');
+  assert.equal(getSafeReturnPath('https://example.com'), '/dashboard');
+  assert.equal(getSafeReturnPath('/\\example.com'), '/dashboard');
 });
 
 test('public profile usernames safely decode the @-prefixed route segment', () => {
@@ -533,6 +542,10 @@ test('profile payload validation strips unsafe structures and accepts an empty a
   assert.equal(parsed.data.projects[0].featured, false);
   assert.equal(parsed.data.projects[0].stars, 0);
   assert.equal(parsed.data.profile.skills[0].category, '');
+  assert.equal(profileDataSchema.safeParse({
+    ...emptyProfile,
+    projects: [{ ...validProject, githubUrl: 'javascript:alert(1)' }],
+  }).success, false);
   const credentials = profileDataSchema.safeParse({
     ...emptyProfile,
     certifications: [{
@@ -610,7 +623,15 @@ test('OneMe Flow validates explicit sharing consent and only returns selected co
   }).success, false);
   assert.equal(createFlowRequestSchema.safeParse({
     targetUsername: 'other-member',
-    shareFields: ['email', 'email'],
+    shareFields: ['social:github', 'social:github'],
+  }).success, false);
+  assert.equal(createFlowRequestSchema.safeParse({
+    targetUsername: 'other-member',
+    shareFields: ['project:project-1', 'achievement:award-1'],
+  }).success, true);
+  assert.equal(createFlowRequestSchema.safeParse({
+    targetUsername: 'other-member',
+    shareFields: ['project:project-1', 'email<script>'],
   }).success, false);
   assert.equal(respondToFlowSchema.safeParse({
     action: 'accept',
@@ -621,19 +642,102 @@ test('OneMe Flow validates explicit sharing consent and only returns selected co
     shareFields: [],
   }).success, true);
 
-  const account = { email: 'member@example.com' };
+  const account = {
+    id: '507f1f77bcf86cd799439011',
+    name: 'Member Name',
+    username: 'member',
+    email: 'member@example.com',
+  };
   const profile = {
+    title: 'Engineer',
     phone: '+1 555 0100',
-    socials: [{ label: 'GitHub', platform: 'github', url: 'https://github.com/member' }],
+    socials: [{
+      id: 'github',
+      label: 'GitHub',
+      platform: 'github',
+      url: 'https://github.com/member',
+    }],
     resume: { fileName: 'resume.pdf', fileUrl: 'https://res.cloudinary.com/demo/raw/upload/resume.pdf' },
   };
-  assert.deepEqual(availableFlowFields(account, profile), ['email', 'phone', 'socials', 'resume']);
-  assert.deepEqual(createFlowContactData({ account, profile, fields: ['phone'] }), {
+  const resume = {
+    publicId: 'oneme/507f1f77bcf86cd799439011/resume/0123456789abcdef0123456789abcdef.pdf',
+    fileUrl: profile.resume.fileUrl,
+    fileName: 'resume.pdf',
+  };
+  const data = {
+    resume,
+    projects: [{
+      id: 'project-1',
+      title: 'Personal site',
+      description: 'Portfolio',
+      technologies: ['React'],
+      liveUrl: 'https://project.example',
+    }],
+    achievements: [{
+      id: 'award-1',
+      title: 'Community award',
+      organization: 'Local group',
+      date: '2025',
+      description: 'Award details',
+    }],
+  };
+  assert.deepEqual(
+    availableFlowFields(account, profile, data),
+    [
+      'name',
+      'title',
+      'email',
+      'phone',
+      'social:github',
+      'project:project-1',
+      'achievement:award-1',
+      'resume',
+      'socials',
+    ],
+  );
+  assert.deepEqual(createFlowContactData({ account, profile, fields: ['phone'], data }), {
     email: '',
     phone: '+1 555 0100',
     socials: [],
     resume: { fileName: '', fileUrl: '' },
+    sharedFields: [{
+      id: 'phone',
+      label: 'Phone number',
+      type: 'phone',
+      value: '+1 555 0100',
+    }],
   });
+  assert.deepEqual(createFlowContactData({
+    account,
+    profile,
+    fields: ['resume'],
+    data,
+  }).resume, {
+    fileName: 'resume.pdf',
+    fileUrl: '/api/profiles/member/resume',
+  });
+  const projectField = getFlowFieldOptions(account, profile, data)
+    .find((field) => field.id === 'project:project-1');
+  assert.equal(projectField.label, 'Project · Personal site');
+  assert.equal(projectField.requestLabel, 'Project entry 1');
+  assert.equal(projectField.details.liveUrl, 'https://project.example');
+  const projectAndAchievement = createFlowContactData({
+    account,
+    profile,
+    fields: ['social:github', 'project:project-1', 'achievement:award-1'],
+    data,
+  });
+  assert.equal(projectAndAchievement.email, '');
+  assert.equal(projectAndAchievement.phone, '');
+  assert.deepEqual(projectAndAchievement.socials, [{
+    label: 'GitHub',
+    platform: 'GitHub',
+    url: 'https://github.com/member',
+  }]);
+  assert.deepEqual(
+    projectAndAchievement.sharedFields.map(({ id }) => id),
+    ['social:github', 'project:project-1', 'achievement:award-1'],
+  );
 });
 
 test('vCard export escapes user-controlled line breaks to prevent injected properties', () => {
@@ -748,8 +852,33 @@ test('public profile payload returns only published, privacy-approved contact fi
   assert.equal(publicPayload.resume.summary, data.resume.summary);
   assert.equal(publicPayload.indexable, true);
 
+  data.resume.publicId = 'oneme/507f1f77bcf86cd799439011/resume/0123456789abcdef0123456789abcdef.pdf';
+  data.resume.fileUrl = 'https://res.cloudinary.com/demo/raw/authenticated/upload/oneme/507f1f77bcf86cd799439011/resume/0123456789abcdef0123456789abcdef.pdf';
+  assert.equal(publicPayload.resume.fileUrl, '');
+  const protectedResumePayload = createPublicProfilePayload(account, data);
+  assert.equal(protectedResumePayload.resume.fileUrl, '/profile-owner/resume');
+  assert.equal(protectedResumePayload.resume.fileUrl.includes('cloudinary'), false);
+
   data.profile.isPublished = false;
   assert.equal(createPublicProfilePayload(account, data), null);
+});
+
+test('public direct contact omits empty, whitespace-only, and malformed values', () => {
+  assert.deepEqual(getPublicContactMethods({
+    privacy: { showEmail: true, showPhone: true },
+    email: '   ',
+    phone: ' \t ',
+  }), { email: '', phone: '' });
+  assert.deepEqual(getPublicContactMethods({
+    privacy: { showEmail: true, showPhone: true },
+    email: 'not-an-email',
+    phone: 'call me maybe',
+  }), { email: '', phone: '' });
+  assert.deepEqual(getPublicContactMethods({
+    privacy: { showEmail: true, showPhone: true },
+    email: '  member@example.com ',
+    phone: ' +1 (555) 010-0200 ',
+  }), { email: 'member@example.com', phone: '+1 (555) 010-0200' });
 });
 
 test('public profile payload omits content from sections hidden in the page builder', () => {
