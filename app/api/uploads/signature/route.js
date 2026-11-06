@@ -60,6 +60,7 @@ export async function POST(request) {
     public_id: `${randomBytes(16).toString('hex')}${isResume ? '.pdf' : ''}`,
     timestamp: Math.floor(Date.now() / 1000),
     upload_preset: uploadPreset,
+    ...(isResume ? { type: 'authenticated' } : {}),
   };
   cloudinary.config({ cloud_name: cloudName, api_key: apiKey, api_secret: apiSecret, secure: true });
 

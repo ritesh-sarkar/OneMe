@@ -1,5 +1,19 @@
 import { profileDataSchema } from './profile-validation.js';
 
+export function getPublicContactMethods(user) {
+  const email = user?.privacy?.showEmail !== false && typeof user?.email === 'string'
+    ? user.email.trim()
+    : '';
+  const phone = user?.privacy?.showPhone !== false && typeof user?.phone === 'string'
+    ? user.phone.trim()
+    : '';
+
+  return {
+    email: /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email) ? email : '',
+    phone: /^[+\d().\-\s]{6,40}$/.test(phone) && /\d/.test(phone) ? phone : '',
+  };
+}
+
 export function createPublicProfilePayload(account, storedData) {
   const parsed = profileDataSchema.safeParse(storedData);
   if (!parsed.success || parsed.data.profile.isPublished !== true) return null;
@@ -36,7 +50,9 @@ export function createPublicProfilePayload(account, storedData) {
       ? {
         fileName: data.resume.fileName,
         fileSize: data.resume.fileSize,
-        fileUrl: data.resume.fileUrl,
+        fileUrl: data.resume.publicId
+          ? `/${encodeURIComponent(account.username)}/resume`
+          : '',
         updatedAt: data.resume.updatedAt,
         summary: data.resume.summary,
         downloadCount: data.resume.downloadCount,

@@ -281,6 +281,7 @@ export default function ResumePage() {
         uploadedUrl.protocol !== "https:" ||
         uploadedUrl.hostname !== "res.cloudinary.com" ||
         signature.resourceType !== "raw" ||
+        !uploadedUrl.pathname.includes("/raw/authenticated/upload/") ||
         !result.public_id?.startsWith(expectedFolder) ||
         !/^[a-f0-9]{32}\.pdf$/i.test(result.public_id.slice(expectedFolder.length))
       ) {
@@ -1150,7 +1151,7 @@ export default function ResumePage() {
             value={expRole}
             onChange={(e) => setExpRole(e.target.value)}
             required
-            placeholder="Senior Software Engineer"
+            placeholder="Enter your role or job title"
           />
 
           <Input
@@ -1158,7 +1159,7 @@ export default function ResumePage() {
             value={expCompany}
             onChange={(e) => setExpCompany(e.target.value)}
             required
-            placeholder="Tech Systems Corp"
+            placeholder="Enter the organization name"
           />
 
           <div
@@ -1172,14 +1173,14 @@ export default function ResumePage() {
               label="Period"
               value={expPeriod}
               onChange={(e) => setExpPeriod(e.target.value)}
-              placeholder="2023 — Present"
+              placeholder="Add the time period"
             />
 
             <Input
               label="Location"
               value={expLocation}
               onChange={(e) => setExpLocation(e.target.value)}
-              placeholder="Remote / Dhaka"
+              placeholder="Add a location"
             />
           </div>
 
@@ -1188,7 +1189,7 @@ export default function ResumePage() {
             value={expDesc}
             onChange={(e) => setExpDesc(e.target.value)}
             rows={3}
-            placeholder="Describe key responsibilities and impact..."
+            placeholder="Describe your responsibilities and impact"
           />
 
           <div
@@ -1238,7 +1239,7 @@ export default function ResumePage() {
             value={eduInst}
             onChange={(e) => setEduInst(e.target.value)}
             required
-            placeholder="University Name"
+            placeholder="Enter the institution name"
           />
 
           <Input
@@ -1246,7 +1247,7 @@ export default function ResumePage() {
             value={eduDegree}
             onChange={(e) => setEduDegree(e.target.value)}
             required
-            placeholder="B.Sc. in Computer Science"
+            placeholder="Enter your degree or program"
           />
 
           <div
@@ -1260,14 +1261,14 @@ export default function ResumePage() {
               label="Period"
               value={eduPeriod}
               onChange={(e) => setEduPeriod(e.target.value)}
-              placeholder="2019 — 2023"
+              placeholder="Add the time period"
             />
 
             <Input
               label="Grade / CGPA"
               value={eduGrade}
               onChange={(e) => setEduGrade(e.target.value)}
-              placeholder="3.85 / 4.00"
+              placeholder="Add your grade or honors"
             />
           </div>
 
@@ -1275,7 +1276,7 @@ export default function ResumePage() {
             label="Location"
             value={eduLocation}
             onChange={(e) => setEduLocation(e.target.value)}
-            placeholder="City, country"
+            placeholder="Add a location"
           />
 
           <Textarea
@@ -1283,7 +1284,7 @@ export default function ResumePage() {
             value={eduDescription}
             onChange={(e) => setEduDescription(e.target.value)}
             rows={3}
-            placeholder="Relevant focus, honors, or activities..."
+            placeholder="Add relevant focus, honors, or activities"
           />
 
           <div
@@ -1333,7 +1334,7 @@ export default function ResumePage() {
             value={certName}
             onChange={(e) => setCertName(e.target.value)}
             required
-            placeholder="AWS Solutions Architect"
+            placeholder="Enter the certification name"
           />
 
           <Input
@@ -1341,7 +1342,7 @@ export default function ResumePage() {
             value={certIssuer}
             onChange={(e) => setCertIssuer(e.target.value)}
             required
-            placeholder="Amazon Web Services"
+            placeholder="Enter the issuing organization"
           />
 
           <div
@@ -1355,14 +1356,14 @@ export default function ResumePage() {
               label="Issue Date"
               value={certDate}
               onChange={(e) => setCertDate(e.target.value)}
-              placeholder="Jan 2024"
+              placeholder="Add an issue date"
             />
 
             <Input
               label="Verification URL"
               value={certUrl}
               onChange={(e) => setCertUrl(e.target.value)}
-              placeholder="https://..."
+              placeholder="https://your-verification-page.com"
             />
           </div>
 

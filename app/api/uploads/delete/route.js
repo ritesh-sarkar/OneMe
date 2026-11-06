@@ -51,15 +51,30 @@ export async function POST(request) {
 
   try {
     cloudinary.config({ cloud_name: cloudName, api_key: apiKey, api_secret: apiSecret, secure: true });
-    const result = await cloudinary.uploader.destroy(parsed.data.publicId, {
+    const isResume = parsed.data.publicId.includes('/resume/');
+    const options = {
       invalidate: true,
-      resource_type: parsed.data.publicId.includes('/resume/') ? 'raw' : 'image',
+      resource_type: isResume ? 'raw' : 'image',
+    };
+    let result = await cloudinary.uploader.destroy(parsed.data.publicId, {
+      ...options,
+      ...(isResume ? { type: 'authenticated' } : {}),
     });
+    if (isResume && result.result === 'not found') {
+      result = await cloudinary.uploader.destroy(parsed.data.publicId, {
+        ...options,
+        type: 'upload',
+      });
+    }
     if (result.result !== 'ok' && result.result !== 'not found') {
       return NextResponse.json({ error: 'Image could not be removed.' }, { status: 503 });
     }
     return NextResponse.json({ deleted: result.result === 'ok' });
-  } catch {
+  } catch (error) {
+    console.error('Unable to delete uploaded asset.', {
+      error: error?.name || 'UnknownError',
+      code: typeof error?.http_code === 'number' ? error.http_code : undefined,
+    });
     return NextResponse.json({ error: 'Image could not be removed.' }, { status: 503 });
   }
 }

@@ -68,14 +68,23 @@ export async function PUT(request) {
     }, { status: 400 });
   }
   const { fileUrl, publicId } = parsed.data.resume;
+  const cloudName = process.env.CLOUDINARY_CLOUD_NAME;
+  let resumeUrl = null;
+  try {
+    resumeUrl = fileUrl ? new URL(fileUrl) : null;
+  } catch {
+    return NextResponse.json({ error: 'Resume file is invalid.' }, { status: 400 });
+  }
   if (
     (fileUrl || publicId) &&
     (
       !fileUrl ||
       !publicId?.startsWith(`oneme/${user.id}/resume/`) ||
-      !fileUrl.startsWith('https://res.cloudinary.com/') ||
-      !new URL(fileUrl).pathname.includes(`/raw/upload/`) ||
-      !new URL(fileUrl).pathname.endsWith(`/${publicId}`)
+      resumeUrl?.hostname !== 'res.cloudinary.com' ||
+      !cloudName ||
+      !resumeUrl.pathname.startsWith(`/${cloudName}/raw/`) ||
+      !/\/raw\/(?:authenticated\/)?upload\//.test(resumeUrl.pathname) ||
+      !resumeUrl.pathname.endsWith(`/${publicId}`)
     )
   ) {
     return NextResponse.json({ error: 'Resume file is invalid.' }, { status: 400 });

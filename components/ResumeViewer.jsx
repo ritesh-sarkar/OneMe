@@ -1,7 +1,7 @@
 "use client";
 
 import React from "react";
-import { FiDownload, FiFileText } from "react-icons/fi";
+import { FiDownload, FiFileText, FiEye } from "react-icons/fi";
 
 export function ResumeViewer({ resume, user, cardClass = "" }) {
   if (!resume || (!resume.fileUrl && !resume.summary)) return null;
@@ -35,15 +35,24 @@ export function ResumeViewer({ resume, user, cardClass = "" }) {
           </div>
 
           {resume.fileUrl && (
-            <a
-              href={resume.fileUrl}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="btn-base btn-outline inline-flex shrink-0 items-center gap-2 text-sm"
-            >
-              <FiDownload className="h-4 w-4" />
-              View or download resume
-            </a>
+            <div className="flex shrink-0 flex-wrap items-center gap-2">
+              <a
+                href={resume.fileUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="btn-base btn-outline inline-flex items-center gap-2 text-sm"
+              >
+                <FiEye className="h-4 w-4" />
+                View resume
+              </a>
+              <a
+                href={`/api/profiles/${encodeURIComponent(user?.username || "")}/resume?download=1`}
+                className="btn-base btn-outline inline-flex items-center gap-2 text-sm"
+              >
+                <FiDownload className="h-4 w-4" />
+                Download
+              </a>
+            </div>
           )}
         </div>
 

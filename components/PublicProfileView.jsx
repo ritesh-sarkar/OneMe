@@ -16,6 +16,7 @@ import { CertificationsSection } from "@/components/CertificationsSection";
 import { AchievementsSection } from "@/components/AchievementsSection";
 import { ResumeViewer } from "@/components/ResumeViewer";
 import { CustomCtaBanner } from "@/components/CustomCtaBanner";
+import { getPublicContactMethods } from "@/libs/public-profile";
 
 //icons
 import { FiMail, FiPhone, FiMapPin, FiShield, FiHeart } from "react-icons/fi";
@@ -83,6 +84,10 @@ export function PublicProfileView({
     "resume",
     "contact",
   ];
+  const { email: contactEmail, phone: contactPhone } = getPublicContactMethods(user);
+  const hasContactEmail = Boolean(contactEmail);
+  const hasContactPhone = Boolean(contactPhone);
+  const hasDirectContact = hasContactEmail || hasContactPhone;
 
   // Render individual sections
   const renderSection = (key) => {
@@ -219,7 +224,7 @@ export function PublicProfileView({
         ) : null;
 
       case "contact":
-        return (
+        return hasDirectContact ? (
           <div
             key="contact"
             className="
@@ -253,9 +258,9 @@ export function PublicProfileView({
                 ${computedCardClass}
               `}
             >
-              {user?.privacy?.showEmail !== false && user?.email && (
+              {hasContactEmail && (
                 <a
-                  href={`mailto:${user.email}`}
+                  href={`mailto:${contactEmail}`}
                   className="
                       flex
                       items-center
@@ -293,14 +298,14 @@ export function PublicProfileView({
                         truncate
                       "
                   >
-                    {user.email}
+                    {contactEmail}
                   </span>
                 </a>
               )}
 
-              {user?.privacy?.showPhone !== false && user?.phone && (
+              {hasContactPhone && (
                 <a
-                  href={`tel:${user.phone}`}
+                  href={`tel:${contactPhone.replace(/[^\d+]/g, "")}`}
                   className="
                       flex
                       items-center
@@ -338,13 +343,13 @@ export function PublicProfileView({
                         truncate
                       "
                   >
-                    {user.phone}
+                    {contactPhone}
                   </span>
                 </a>
               )}
             </div>
           </div>
-        );
+        ) : null;
 
       default:
         return null;
