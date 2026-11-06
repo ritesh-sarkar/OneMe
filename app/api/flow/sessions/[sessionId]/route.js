@@ -5,6 +5,7 @@ import { authOptions } from '@/libs/auth-options';
 import { connectToDatabase } from '@/libs/db';
 import {
   createFlowContactData,
+  getFlowFieldOptions,
   respondToFlowSchema,
   availableFlowFields,
 } from '@/libs/flow-validation';
@@ -50,7 +51,7 @@ export async function PATCH(request, { params }) {
   if (!mongoose.isValidObjectId(sessionId)) {
     return NextResponse.json({ error: 'Flow request not found.' }, { status: 404 });
   }
-  const body = await readJsonBody(request, 8 * 1024);
+  const body = await readJsonBody(request, 64 * 1024);
   if (!body.ok) return NextResponse.json({ error: 'Invalid response.' }, { status: body.status });
   const parsed = respondToFlowSchema.safeParse(body.value);
   if (!parsed.success) {
@@ -109,8 +110,14 @@ export async function PATCH(request, { params }) {
       return NextResponse.json({ error: 'A participant has disabled OneMe Flow or unpublished their profile.' }, { status: 409 });
     }
 
-    const recipientFields = availableFlowFields(recipient, recipientProfile);
-    if (!parsed.data.shareFields.every((field) => recipientFields.includes(field))) {
+    const requesterDataSnapshot = requesterRecord?.data || {};
+    const recipientDataSnapshot = recipientRecord?.data || {};
+    const recipientFields = availableFlowFields(recipient, recipientProfile, recipientDataSnapshot);
+    const requesterFields = availableFlowFields(requester, requesterProfile, requesterDataSnapshot);
+    if (
+      !record.requesterFields.every((field) => requesterFields.includes(field))
+      || !parsed.data.shareFields.every((field) => recipientFields.includes(field))
+    ) {
       return NextResponse.json({ error: 'One or more selected details are no longer available.' }, { status: 400 });
     }
 
@@ -118,11 +125,13 @@ export async function PATCH(request, { params }) {
       account: requester,
       profile: requesterProfile,
       fields: record.requesterFields,
+      data: requesterDataSnapshot,
     });
     const recipientData = createFlowContactData({
       account: recipient,
       profile: recipientProfile,
       fields: parsed.data.shareFields,
+      data: recipientDataSnapshot,
     });
 
     const accepted = await FlowSession.findOneAndUpdate(
@@ -131,6 +140,9 @@ export async function PATCH(request, { params }) {
         $set: {
           status: 'accepted',
           recipientFields: parsed.data.shareFields,
+          recipientFieldLabels: getFlowFieldOptions(recipient, recipientProfile, recipientDataSnapshot)
+            .filter((field) => parsed.data.shareFields.includes(field.id))
+            .map(({ id, label, requestLabel }) => ({ id, label: requestLabel || label })),
           requesterData,
           recipientData,
           respondedAt: now,

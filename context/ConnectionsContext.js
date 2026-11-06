@@ -22,6 +22,7 @@ function normalizeConnection(connection) {
     phone: contact.phone || '',
     socials: contact.socials || [],
     resume: contact.resume || null,
+    sharedFields: contact.sharedFields || [],
     notes: 'Shared with your consent using OneMe Flow.',
   };
 }

@@ -1,14 +1,17 @@
 "use client";
 
 import React, { useState } from "react";
-import { FiCheckCircle, FiRadio, FiShield, FiUserCheck } from "react-icons/fi";
+import { FiCheckCircle, FiRadio, FiShield, FiUserCheck, FiGrid } from "react-icons/fi";
 import { LandingFooter } from "@/components/LandingFooter";
 import { LandingNavbar } from "@/components/LandingNavbar";
 import { Button } from "@/components/Button";
 import { ExchangeModal } from "@/components/ExchangeModal";
+import { QrGenerator } from "@/components/QrGenerator";
+import { useAuth } from "@/context/AuthContext";
+import { useToast } from "@/context/ToastContext";
 
 const FLOW_STEPS = [
-  "Enter the verified member's exact username.",
+  "Find a member by username or scan a short-lived OneMe Flow QR code.",
   "Select which contact details you agree to share.",
   "The other member reviews and chooses their own share fields.",
   "A connection is saved only after they accept.",
@@ -16,6 +19,24 @@ const FLOW_STEPS = [
 
 export default function PublicExchangePage() {
   const [modalOpen, setModalOpen] = useState(false);
+  const [qrSession, setQrSession] = useState(null);
+  const [qrBusy, setQrBusy] = useState(false);
+  const { user } = useAuth();
+  const { error: toastError } = useToast();
+
+  const createQrSession = async () => {
+    setQrBusy(true);
+    try {
+      const response = await fetch("/api/flow/qr", { method: "POST" });
+      const result = await response.json();
+      if (!response.ok) throw new Error(result.error || "QR session could not be created.");
+      setQrSession({ ...result, url: new URL(result.url, window.location.origin).toString() });
+    } catch (error) {
+      toastError(error.message || "QR session could not be created.");
+    } finally {
+      setQrBusy(false);
+    }
+  };
 
   return (
     <div className="flex min-h-screen flex-col bg-surface-page text-primary">
@@ -59,15 +80,54 @@ export default function PublicExchangePage() {
               and you can remove a saved connection at any time.
             </p>
           </div>
-          <Button
-            onClick={() => setModalOpen(true)}
-            variant="glow"
-            size="lg"
-            icon={FiUserCheck}
-            className="w-full justify-center"
-          >
-            Start a consent-based exchange
-          </Button>
+          <div className="grid gap-3 sm:grid-cols-2">
+            <Button
+              onClick={() => setModalOpen(true)}
+              variant="glow"
+              size="lg"
+              icon={FiUserCheck}
+              className="w-full justify-center"
+            >
+              Find a member
+            </Button>
+            <Button
+              onClick={createQrSession}
+              disabled={!user || qrBusy}
+              variant="outline"
+              size="lg"
+              icon={FiGrid}
+              className="w-full justify-center"
+            >
+              {qrBusy ? "Creating QR…" : "Create exchange QR"}
+            </Button>
+          </div>
+          {!user && (
+            <p className="text-center text-xs text-secondary">
+              Sign in to create a private, five-minute exchange QR code.
+            </p>
+          )}
+          {qrSession && (
+            <div className="space-y-2 rounded-2xl border border-subtle bg-surface-dark/60 p-4">
+              <QrGenerator
+                url={qrSession.url}
+                title="Scan to request a contact exchange"
+                username={user?.username || "member"}
+              />
+              <p className="text-xs text-secondary">
+                This QR contains only a short-lived exchange reference. Authentication and mutual consent are still required.
+                {" "}Expires {new Date(qrSession.expiresAt).toLocaleTimeString()}.
+              </p>
+            </div>
+          )}
+          <div className="rounded-2xl border border-subtle bg-surface-dark/60 p-4 text-left">
+            <div className="flex items-center gap-2 font-semibold text-primary">
+              <FiRadio className="h-4 w-4 text-accent" />
+              Nearby exchange
+            </div>
+            <p className="mt-1 text-sm text-secondary">
+              Nearby discovery is not enabled yet. This deployment needs authenticated cross-device WebRTC signaling and TURN configuration; no devices are simulated.
+            </p>
+          </div>
           <p className="flex items-center justify-center gap-1.5 text-xs text-tertiary">
             <FiCheckCircle className="h-3.5 w-3.5 text-success" />
             Nothing is shared automatically.

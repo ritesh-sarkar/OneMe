@@ -3,7 +3,12 @@ import { getServerSession } from 'next-auth';
 import { NextResponse } from 'next/server';
 import { authOptions } from '@/libs/auth-options';
 import { connectToDatabase } from '@/libs/db';
-import { createFlowRequestSchema, createFlowCard, availableFlowFields } from '@/libs/flow-validation';
+import {
+  createFlowRequestSchema,
+  createFlowCard,
+  getFlowFieldOptions,
+  availableFlowFields,
+} from '@/libs/flow-validation';
 import { FlowSession } from '@/libs/models/FlowSession';
 import { ProfileData } from '@/libs/models/ProfileData';
 import { User } from '@/libs/models/User';
@@ -66,7 +71,9 @@ export async function GET(request) {
       incoming: incoming.map((item) => ({
         id: item._id.toString(),
         requester: item.requesterCard,
-        shareFields: item.requesterFields,
+        shareFields: item.requesterFieldLabels?.length
+          ? item.requesterFieldLabels
+          : item.requesterFields.map((id) => ({ id, label: id })),
         createdAt: item.createdAt,
         expiresAt: item.expiresAt,
       })),
@@ -91,7 +98,7 @@ export async function POST(request) {
   const limited = await applyRateLimit(request, requesterId, 'flow-create', 12);
   if (limited.response) return limited.response;
 
-  const body = await readJsonBody(request, 8 * 1024);
+  const body = await readJsonBody(request, 64 * 1024);
   if (!body.ok) return NextResponse.json({ error: 'Invalid Flow request.' }, { status: body.status });
   const parsed = createFlowRequestSchema.safeParse(body.value);
   if (!parsed.success) {
@@ -138,7 +145,8 @@ export async function POST(request) {
       return NextResponse.json({ error: 'This account is not accepting OneMe Flow requests.' }, { status: 403 });
     }
 
-    const availableFields = availableFlowFields(requester, requesterProfile);
+    const requesterData = requesterRecord?.data || {};
+    const availableFields = availableFlowFields(requester, requesterProfile, requesterData);
     if (!parsed.data.shareFields.every((field) => availableFields.includes(field))) {
       return NextResponse.json({ error: 'One or more selected details are unavailable in your profile.' }, { status: 400 });
     }
@@ -165,6 +173,9 @@ export async function POST(request) {
       requesterCard: createFlowCard(requester, requesterProfile),
       recipientCard: createFlowCard(recipient, recipientProfile),
       requesterFields: parsed.data.shareFields,
+      requesterFieldLabels: getFlowFieldOptions(requester, requesterProfile, requesterData)
+        .filter((field) => parsed.data.shareFields.includes(field.id))
+        .map(({ id, label, requestLabel }) => ({ id, label: requestLabel || label })),
       expiresAt: new Date(now.getTime() + 7 * 24 * 60 * 60 * 1000),
       purgeAt: new Date(now.getTime() + 7 * 24 * 60 * 60 * 1000),
     });

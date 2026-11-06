@@ -22,6 +22,20 @@ const contactDataSchema = new mongoose.Schema({
     fileName: { type: String, default: '', maxlength: 180 },
     fileUrl: { type: String, default: '', maxlength: 2048 },
   },
+  sharedFields: {
+    type: [{
+      id: { type: String, required: true, maxlength: 200 },
+      label: { type: String, required: true, maxlength: 180 },
+      type: {
+        type: String,
+        enum: ['text', 'email', 'phone', 'url', 'project', 'achievement', 'resume', 'image', 'legacy'],
+        required: true,
+      },
+      value: { type: String, default: '', maxlength: 4000 },
+      details: { type: mongoose.Schema.Types.Mixed, default: null },
+    }],
+    default: [],
+  },
 }, { _id: false });
 
 const flowSessionSchema = new mongoose.Schema(
@@ -32,11 +46,19 @@ const flowSessionSchema = new mongoose.Schema(
     requesterCard: { type: cardSchema, required: true },
     recipientCard: { type: cardSchema, required: true },
     requesterFields: {
-      type: [{ type: String, enum: ['email', 'phone', 'socials', 'resume'] }],
+      type: [{ type: String, maxlength: 200 }],
       required: true,
     },
+    requesterFieldLabels: {
+      type: [{ id: { type: String, maxlength: 200 }, label: { type: String, maxlength: 180 } }],
+      default: [],
+    },
     recipientFields: {
-      type: [{ type: String, enum: ['email', 'phone', 'socials', 'resume'] }],
+      type: [{ type: String, maxlength: 200 }],
+      default: [],
+    },
+    recipientFieldLabels: {
+      type: [{ id: { type: String, maxlength: 200 }, label: { type: String, maxlength: 180 } }],
       default: [],
     },
     requesterData: { type: contactDataSchema, default: null },

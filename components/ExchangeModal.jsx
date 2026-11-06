@@ -10,13 +10,7 @@ import { useAuth } from "@/context/AuthContext";
 import { useConnections } from "@/context/ConnectionsContext";
 import { useProfile } from "@/context/ProfileContext";
 import { useToast } from "@/context/ToastContext";
-
-const FIELD_LABELS = {
-  email: "Email address",
-  phone: "Phone number",
-  socials: "Social profiles",
-  resume: "Resume",
-};
+import { getFlowFieldOptions } from "@/libs/flow-validation";
 
 async function fetchOutgoingRequests() {
   const response = await fetch("/api/flow/sessions", { cache: "no-store" });
@@ -28,30 +22,58 @@ async function fetchOutgoingRequests() {
 export function ExchangeModal({ isOpen, onClose, initialUsername = "" }) {
   const { user } = useAuth();
   const userId = user?.id;
-  const { profile, resume } = useProfile();
+  const { profile, projects, achievements, resume } = useProfile();
   const { refreshConnections } = useConnections();
   const { success, error: toastError } = useToast();
   const [username, setUsername] = useState(initialUsername);
+  const [selectedUser, setSelectedUser] = useState(null);
+  const [searchResults, setSearchResults] = useState([]);
+  const [searching, setSearching] = useState(false);
+  const [searchMessage, setSearchMessage] = useState("");
   const [shareFields, setShareFields] = useState([]);
   const [outgoing, setOutgoing] = useState([]);
   const [loading, setLoading] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
-  const userEmail = user?.email;
-  const profilePhone = profile?.phone;
-  const profileSocials = profile?.socials;
-  const resumeFileUrl = resume?.fileUrl;
-  const availableFields = useMemo(
-    () =>
-      [
-        userEmail && "email",
-        profilePhone && "phone",
-        profileSocials?.some((social) => social.url) && "socials",
-        resumeFileUrl && "resume",
-      ].filter(Boolean),
-    [userEmail, profilePhone, profileSocials, resumeFileUrl],
+  const availableOptions = useMemo(
+    () => getFlowFieldOptions(user, profile, { projects, achievements, resume })
+      .filter((field) => field.id !== "socials"),
+    [user, profile, projects, achievements, resume],
   );
+  const availableFields = useMemo(() => availableOptions.map((field) => field.id), [availableOptions]);
   const canSend = profile?.isPublished === true && profile?.privacy?.allowContactExchange === true;
+
+  useEffect(() => {
+    const query = username.trim().replace(/^@/, "").toLowerCase();
+    if (query.length < 2 || selectedUser?.username === query) return undefined;
+
+    const controller = new AbortController();
+    const timeout = setTimeout(async () => {
+      setSearching(true);
+      setSearchMessage("");
+      try {
+        const response = await fetch(
+          `/api/flow/users?q=${encodeURIComponent(query)}`,
+          { cache: "no-store", signal: controller.signal },
+        );
+        const result = await response.json();
+        if (!response.ok) throw new Error(result.error || "Member search failed.");
+        setSearchResults(result.users || []);
+        setSearchMessage(result.users?.length ? "" : "No available members match that username.");
+      } catch (error) {
+        if (error.name !== "AbortError") {
+          setSearchResults([]);
+          setSearchMessage(error.message || "Member search failed.");
+        }
+      } finally {
+        if (!controller.signal.aborted) setSearching(false);
+      }
+    }, 300);
+    return () => {
+      clearTimeout(timeout);
+      controller.abort();
+    };
+  }, [username, selectedUser?.username]);
 
   const loadRequests = useCallback(async () => {
     if (!userId) return;
@@ -89,6 +111,9 @@ export function ExchangeModal({ isOpen, onClose, initialUsername = "" }) {
 
   const handleClose = () => {
     setUsername(initialUsername);
+    setSelectedUser(null);
+    setSearchResults([]);
+    setSearchMessage("");
     setShareFields([]);
     setErrorMessage("");
     onClose();
@@ -103,13 +128,14 @@ export function ExchangeModal({ isOpen, onClose, initialUsername = "" }) {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          targetUsername: username.trim().replace(/^@/, ""),
+          targetUsername: selectedUser?.username,
           shareFields,
         }),
       });
       const result = await response.json();
       if (!response.ok) throw new Error(result.error || "Flow request could not be sent.");
       setUsername("");
+      setSelectedUser(null);
       setShareFields([]);
       await loadRequests();
       success(
@@ -170,35 +196,107 @@ export function ExchangeModal({ isOpen, onClose, initialUsername = "" }) {
               <label className="block space-y-1.5">
                 <span className="text-sm font-semibold text-text-primary">Member username</span>
                 <span className="block text-xs text-secondary">
-                  Enter the exact OneMe username of the person you met.
+                  Search by username and choose the intended OneMe member.
                 </span>
                 <input
                   value={username}
-                  onChange={(event) => setUsername(event.target.value)}
+                  onChange={(event) => {
+                    setUsername(event.target.value);
+                    setSelectedUser(null);
+                    setSearchResults([]);
+                    setSearchMessage("");
+                    setSearching(false);
+                  }}
                   autoComplete="off"
                   maxLength={31}
-                  placeholder="@username"
+                  placeholder="Search username"
+                  aria-label="Search OneMe usernames"
                   className="w-full rounded-xl border border-subtle bg-surface-dark px-3 py-2.5 text-sm text-text-primary outline-none focus:border-accent"
-                  required
                 />
               </label>
+
+              {searching && <p className="text-xs text-secondary">Searching OneMe members…</p>}
+              {searchResults.length > 0 && (
+                <ul className="max-h-56 space-y-2 overflow-y-auto" aria-label="Matching members">
+                  {searchResults.map((result) => (
+                    <li key={result.username}>
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setUsername(`@${result.username}`);
+                          setSelectedUser(result);
+                          setSearchResults([]);
+                          setSearchMessage("");
+                        }}
+                        className="flex w-full items-center gap-3 rounded-xl border border-subtle bg-glass p-3 text-left hover:border-accent"
+                      >
+                        {result.avatar ? (
+                          <img
+                            src={result.avatar}
+                            alt=""
+                            className="h-10 w-10 shrink-0 rounded-full object-cover"
+                          />
+                        ) : (
+                          <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-accent-soft font-bold text-accent">
+                            {result.name?.trim()?.[0]?.toUpperCase() || "?"}
+                          </span>
+                        )}
+                        <span className="min-w-0">
+                          <span className="block truncate text-sm font-semibold text-text-primary">
+                            {result.name}
+                          </span>
+                          <span className="block truncate text-xs text-secondary">
+                            @{result.username}{result.title ? ` · ${result.title}` : ""}
+                          </span>
+                        </span>
+                      </button>
+                    </li>
+                  ))}
+                </ul>
+              )}
+              {searchMessage && !selectedUser && (
+                <p className="text-xs text-secondary" role="status">{searchMessage}</p>
+              )}
+
+              {selectedUser && (
+                <div className="flex items-center gap-3 rounded-xl border border-accent/40 bg-accent-soft/20 p-3">
+                  <span className="min-w-0">
+                    <span className="block truncate text-sm font-semibold text-text-primary">
+                      Requesting {selectedUser.name}
+                    </span>
+                    <span className="block truncate text-xs text-secondary">
+                      @{selectedUser.username}{selectedUser.title ? ` · ${selectedUser.title}` : ""}
+                    </span>
+                  </span>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setUsername("");
+                      setSelectedUser(null);
+                    }}
+                    className="ml-auto shrink-0 text-xs text-accent underline"
+                  >
+                    Change
+                  </button>
+                </div>
+              )}
 
               <div className="space-y-3 rounded-xl border border-subtle p-3">
                 <p className="text-xs font-semibold uppercase tracking-wide text-secondary">
                   What you agree to share if accepted
                 </p>
-                {availableFields.length > 0 ? (
-                  availableFields.map((field) => (
+                {availableOptions.length > 0 ? (
+                  availableOptions.map((field) => (
                     <Toggle
-                      key={field}
-                      label={FIELD_LABELS[field]}
+                      key={field.id}
+                      label={field.label}
                       description="Shared only if the other member accepts"
-                      checked={shareFields.includes(field)}
+                      checked={shareFields.includes(field.id)}
                       onChange={(checked) =>
                         setShareFields((current) =>
                           checked
-                            ? [...new Set([...current, field])]
-                            : current.filter((item) => item !== field),
+                            ? [...new Set([...current, field.id])]
+                            : current.filter((item) => item !== field.id),
                         )
                       }
                     />
@@ -210,11 +308,31 @@ export function ExchangeModal({ isOpen, onClose, initialUsername = "" }) {
                 )}
               </div>
 
+              {selectedUser && (
+                <div className="rounded-xl border border-accent/30 bg-accent-soft/10 p-3">
+                  <p className="text-xs font-semibold uppercase tracking-wide text-secondary">
+                    Exchange request preview
+                  </p>
+                  <p className="mt-1 text-sm text-text-primary">
+                    To @{selectedUser.username}
+                  </p>
+                  <p className="mt-1 text-xs text-secondary">
+                    You propose to share: {availableOptions
+                      .filter((field) => shareFields.includes(field.id))
+                      .map((field) => field.label)
+                      .join(", ") || "No fields selected"}
+                  </p>
+                  <p className="mt-1 text-xs text-secondary">
+                    Nothing is shared unless the recipient approves and chooses their own fields.
+                  </p>
+                </div>
+              )}
+
               <Button
                 type="submit"
                 disabled={
                   submitting ||
-                  !username.trim() ||
+                  !selectedUser ||
                   shareFields.length === 0 ||
                   !shareFields.every((field) => availableFields.includes(field))
                 }

@@ -8,6 +8,7 @@ import { useAuth } from "@/context/AuthContext";
 import { useConnections } from "@/context/ConnectionsContext";
 import { useProfile } from "@/context/ProfileContext";
 import { useToast } from "@/context/ToastContext";
+import { getFlowFieldOptions } from "@/libs/flow-validation";
 
 const FIELD_LABELS = {
   email: "Email",
@@ -18,7 +19,7 @@ const FIELD_LABELS = {
 
 export default function FlowInbox() {
   const { user } = useAuth();
-  const { profile, resume } = useProfile();
+  const { profile, projects, achievements, resume } = useProfile();
   const { refreshConnections } = useConnections();
   const { success, error: toastError } = useToast();
   const [incoming, setIncoming] = useState([]);
@@ -27,19 +28,15 @@ export default function FlowInbox() {
   const [errorMessage, setErrorMessage] = useState("");
   const [busyId, setBusyId] = useState("");
   const [shareChoices, setShareChoices] = useState({});
-  const userEmail = user?.email;
-  const profilePhone = profile?.phone;
-  const profileSocials = profile?.socials;
-  const resumeFileUrl = resume?.fileUrl;
-  const availableFields = useMemo(
-    () =>
-      [
-        userEmail && "email",
-        profilePhone && "phone",
-        profileSocials?.some((social) => social.url) && "socials",
-        resumeFileUrl && "resume",
-      ].filter(Boolean),
-    [userEmail, profilePhone, profileSocials, resumeFileUrl],
+  const availableOptions = useMemo(
+    () => getFlowFieldOptions(user, profile, { projects, achievements, resume })
+      .filter((field) => field.id !== "socials"),
+    [user, profile, projects, achievements, resume],
+  );
+  const availableFields = useMemo(() => availableOptions.map((field) => field.id), [availableOptions]);
+  const labelByField = useMemo(
+    () => Object.fromEntries(availableOptions.map(({ id, label }) => [id, label])),
+    [availableOptions],
   );
 
   const loadRequests = useCallback(async () => {
@@ -162,20 +159,49 @@ export default function FlowInbox() {
                   className="space-y-4 rounded-2xl border border-subtle bg-surface-dark/60 p-4"
                 >
                   <div className="flex items-start justify-between gap-3">
-                    <div className="min-w-0">
-                      <p className="truncate font-bold text-text-primary">
-                        {request.requester.name}
-                      </p>
-                      <p className="text-sm text-secondary">
-                        @{request.requester.username}
-                        {request.requester.title ? ` · ${request.requester.title}` : ""}
-                      </p>
-                      <p className="mt-1 text-xs text-tertiary">
-                        They chose to share:{" "}
-                        {request.shareFields.map((field) => FIELD_LABELS[field]).join(", ")}
-                      </p>
+                    <div className="flex min-w-0 items-start gap-3">
+                      {request.requester.avatar ? (
+                        <img
+                          src={request.requester.avatar}
+                          alt=""
+                          className="h-10 w-10 shrink-0 rounded-full object-cover"
+                        />
+                      ) : (
+                        <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-accent-soft font-bold text-accent">
+                          {request.requester.name?.trim()?.[0]?.toUpperCase() || "?"}
+                        </span>
+                      )}
+                      <div className="min-w-0">
+                        <a
+                          href={`/${encodeURIComponent(request.requester.username)}`}
+                          className="block truncate font-bold text-text-primary hover:text-accent"
+                        >
+                          {request.requester.name}
+                        </a>
+                        <p className="text-sm text-secondary">
+                          @{request.requester.username}
+                          {request.requester.title ? ` · ${request.requester.title}` : ""}
+                        </p>
+                      </div>
                     </div>
-                    <FiClock className="mt-1 h-4 w-4 shrink-0 text-tertiary" />
+                    <div className="flex shrink-0 flex-col items-end gap-1">
+                      <FiClock className="h-4 w-4 text-tertiary" />
+                      <time className="text-right text-[10px] text-tertiary" dateTime={request.createdAt}>
+                        {new Date(request.createdAt).toLocaleString()}
+                      </time>
+                    </div>
+                  </div>
+                  <div className="rounded-xl border border-subtle bg-glass p-3">
+                    <p className="text-xs font-semibold uppercase tracking-wide text-secondary">
+                      They propose to share
+                    </p>
+                      <p className="mt-1 text-xs text-tertiary">
+                        {request.shareFields.map((field) => (
+                          typeof field === "string"
+                            ? labelByField[field] || FIELD_LABELS[field] || field
+                            : field.label
+                        )).join(", ")}
+                      </p>
                   </div>
 
                   {availableFields.length > 0 ? (
@@ -183,18 +209,18 @@ export default function FlowInbox() {
                       <p className="text-xs font-semibold uppercase tracking-wide text-secondary">
                         Choose what you will share in return
                       </p>
-                      {availableFields.map((field) => (
+                      {availableOptions.map((field) => (
                         <Toggle
-                          key={field}
-                          label={FIELD_LABELS[field]}
+                          key={field.id}
+                          label={field.label}
                           description="Shared only with this accepted connection"
-                          checked={(shareChoices[request.id] || []).includes(field)}
+                          checked={(shareChoices[request.id] || []).includes(field.id)}
                           onChange={(checked) =>
                             setShareChoices((current) => ({
                               ...current,
                               [request.id]: checked
-                                ? [...new Set([...(current[request.id] || []), field])]
-                                : (current[request.id] || []).filter((item) => item !== field),
+                                ? [...new Set([...(current[request.id] || []), field.id])]
+                                : (current[request.id] || []).filter((item) => item !== field.id),
                             }))
                           }
                         />

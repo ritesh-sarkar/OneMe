@@ -555,6 +555,67 @@ export default function ConnectionsPage() {
                   </a>
                 )}
 
+                {conn.sharedFields
+                  ?.filter((field) => ![
+                    "name", "avatar", "email", "phone", "resume", "socials",
+                  ].includes(field.id) && !field.id.startsWith("social:"))
+                  .map((field) => (
+                    <div
+                      key={field.id}
+                      className="min-w-0 rounded-xl border border-subtle bg-surface-dark/40 p-3"
+                    >
+                      <p className="text-xs font-semibold uppercase tracking-wide text-secondary">
+                        {field.label}
+                      </p>
+                      {field.type === "project" ? (
+                        <div className="mt-1 space-y-1">
+                          <p className="break-words text-sm font-semibold text-text-primary">{field.value}</p>
+                          {field.details?.description && (
+                            <p className="whitespace-pre-line break-words text-xs text-secondary">
+                              {field.details.description}
+                            </p>
+                          )}
+                          {field.details?.technologies?.length > 0 && (
+                            <p className="text-xs text-tertiary">
+                              {field.details.technologies.join(" · ")}
+                            </p>
+                          )}
+                          <div className="flex flex-wrap gap-3 text-xs">
+                            {field.details?.liveUrl && (
+                              <a href={field.details.liveUrl} target="_blank" rel="noopener noreferrer" className="text-accent hover:underline">
+                                Live project
+                              </a>
+                            )}
+                            {field.details?.githubUrl && (
+                              <a href={field.details.githubUrl} target="_blank" rel="noopener noreferrer" className="text-accent hover:underline">
+                                Source code
+                              </a>
+                            )}
+                          </div>
+                        </div>
+                      ) : field.type === "achievement" ? (
+                        <div className="mt-1 space-y-1">
+                          <p className="break-words text-sm font-semibold text-text-primary">{field.value}</p>
+                          {field.details?.organization && (
+                            <p className="text-xs text-secondary">{field.details.organization}</p>
+                          )}
+                          {field.details?.date && (
+                            <p className="text-xs text-tertiary">{field.details.date}</p>
+                          )}
+                          {field.details?.description && (
+                            <p className="whitespace-pre-line break-words text-xs text-secondary">
+                              {field.details.description}
+                            </p>
+                          )}
+                        </div>
+                      ) : (
+                        <p className="mt-1 whitespace-pre-line break-words text-sm text-text-primary">
+                          {field.value}
+                        </p>
+                      )}
+                    </div>
+                  ))}
+
                 {conn.exchangeMethod && (
                   <div
                     className="
