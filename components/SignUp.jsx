@@ -182,7 +182,7 @@ export default function SignupPage() {
             <Input
               label="Full Name"
               type="text"
-              placeholder="e.g. John Doe"
+              placeholder="Enter your full name"
               value={name}
               onChange={(e) => setName(e.target.value)}
               required
@@ -192,7 +192,7 @@ export default function SignupPage() {
             <Input
               label="Username"
               type="text"
-              placeholder="john-doe"
+              placeholder="Choose a username"
               value={username}
               onChange={(e) => setUsername(e.target.value.toLowerCase().replace(/[^a-z0-9-]/g, ""))}
               autoComplete="username"
@@ -206,7 +206,7 @@ export default function SignupPage() {
             <Input
               label="Email Address"
               type="email"
-              placeholder="john@example.com"
+              placeholder="Enter your email address"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               required

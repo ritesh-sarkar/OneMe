@@ -179,7 +179,7 @@ export default function ForgotPasswordPage() {
               <Input
                 label="Email Address"
                 type="email"
-                placeholder="you@example.com"
+                placeholder="Enter your email address"
                 value={email}
                 onChange={(event) => setEmail(event.target.value)}
                 autoComplete="email"

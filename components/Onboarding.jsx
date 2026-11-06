@@ -180,7 +180,7 @@ export default function Onboarding() {
 
           <Input
             label="Professional title"
-            placeholder="e.g. Product Designer, Founder, Software Engineer"
+            placeholder="Add your professional title"
             value={title}
             onChange={(event) => setTitle(event.target.value)}
             maxLength={120}
@@ -192,7 +192,7 @@ export default function Onboarding() {
             <textarea
               value={bio}
               onChange={(event) => setBio(event.target.value)}
-              placeholder="What do you do, what are you interested in, and what would you like people to know?"
+              placeholder="Tell people what you do and what you would like them to know"
               maxLength={4000}
               rows={5}
               required
@@ -203,7 +203,7 @@ export default function Onboarding() {
 
           <Input
             label="Location (optional)"
-            placeholder="City, country"
+            placeholder="Add your location"
             value={location}
             onChange={(event) => setLocation(event.target.value)}
             maxLength={120}

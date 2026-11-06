@@ -14,6 +14,7 @@ import { Input } from "@/components/Input";
 import GoogleAuthButton from "@/components/GoogleAuthButton";
 import { useAuth } from "@/context/AuthContext";
 import { useToast } from "@/context/ToastContext";
+import { getSafeReturnPath } from "@/libs/return-url";
 
 export default function LoginPage() {
   const [email, setEmail] = useState("");
@@ -45,7 +46,10 @@ export default function LoginPage() {
     if (res.success) {
       success("Logged in successfully! Welcome to OneMe.", "Authentication Successful");
 
-      router.push("/dashboard");
+      const returnPath = getSafeReturnPath(
+        new URLSearchParams(window.location.search).get("callbackUrl"),
+      );
+      router.push(returnPath);
     } else {
       setErrorMsg(res.error || "Invalid credentials.");
 
@@ -234,7 +238,7 @@ export default function LoginPage() {
             <Input
               label="Email Address"
               type="email"
-              placeholder="john@example.com"
+              placeholder="Enter your email address"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               autoComplete="email"

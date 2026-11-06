@@ -4,6 +4,7 @@ import React, { useEffect, useState } from "react";
 import { getProviders, signIn } from "next-auth/react";
 import { FcGoogle } from "react-icons/fc";
 import { Button } from "@/components/Button";
+import { getSafeReturnPath } from "@/libs/return-url";
 
 export default function GoogleAuthButton() {
   const [providerAvailable, setProviderAvailable] = useState(false);
@@ -34,8 +35,11 @@ export default function GoogleAuthButton() {
     setErrorMessage("");
     setIsSigningIn(true);
     try {
+      const callbackUrl = getSafeReturnPath(
+        new URLSearchParams(window.location.search).get("callbackUrl"),
+      );
       const result = await signIn("google", {
-        callbackUrl: "/dashboard",
+        callbackUrl,
         redirect: false,
       });
       if (result?.error || !result?.url) {
