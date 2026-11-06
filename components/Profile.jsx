@@ -51,6 +51,9 @@ export default function ProfileEditorPage() {
     achievements,
     resume,
     updateProfile,
+    saveStatus,
+    retryProfileSave,
+    saveAccountIdentity,
     updateSectionOrder,
     toggleSectionVisibility,
     resetToDemo,
@@ -73,6 +76,14 @@ export default function ProfileEditorPage() {
   // Form handlers
   const handleInputChange = (field, value) => {
     updateProfile({ [field]: value });
+  };
+  const handleSavePersonalInfo = async () => {
+    try {
+      await saveAccountIdentity({ name: profile.name, username: profile.username });
+      success("Account name and username saved. Profile details are syncing.", "Saved");
+    } catch (saveError) {
+      toastError(saveError.message || "Account profile could not be saved.");
+    }
   };
   const handleCustomCtaChange = (field, value) => {
     updateProfile({
@@ -263,6 +274,37 @@ export default function ProfileEditorPage() {
             Real-time identity editor with individual section saves and instant live
             synchronization.
           </p>
+          <div
+            className="
+                    mt-2
+                    flex
+                    items-center
+                    gap-2
+                    text-xs
+                    text-secondary
+                  "
+            role="status"
+            aria-live="polite"
+          >
+            <span>
+              {saveStatus === "saving" || saveStatus === "dirty"
+                ? "Saving profile changes…"
+                : saveStatus === "error"
+                  ? "Profile changes could not be saved."
+                  : saveStatus === "unavailable"
+                    ? "Saved profile data could not be loaded."
+                    : "Profile changes are saved."}
+            </span>
+            {saveStatus === "error" && (
+              <button
+                type="button"
+                onClick={retryProfileSave}
+                className="cursor-pointer font-semibold text-accent hover:underline"
+              >
+                Retry
+              </button>
+            )}
+          </div>
         </div>
         <div
           className="
@@ -355,7 +397,7 @@ export default function ProfileEditorPage() {
                     Personal Information & Media
                   </h3>
                   <Button
-                    onClick={() => success("Personal information saved successfully!", "Saved")}
+                    onClick={handleSavePersonalInfo}
                     variant="primary"
                     size="sm"
                     icon={FiSave}
@@ -606,8 +648,9 @@ export default function ProfileEditorPage() {
                   <Input
                     label="Email Address"
                     value={profile.email || ""}
-                    onChange={(e) => handleInputChange("email", e.target.value)}
+                    readOnly
                     placeholder="ritesh@sarkar.dev"
+                    helperText="Email changes require a separate verification step."
                   />
                   <Input
                     label="Phone Number"
@@ -626,7 +669,7 @@ export default function ProfileEditorPage() {
                       "
                 >
                   <Button
-                    onClick={() => success("Personal information saved successfully!", "Saved")}
+                    onClick={handleSavePersonalInfo}
                     variant="primary"
                     size="md"
                     icon={FiSave}

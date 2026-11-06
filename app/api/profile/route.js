@@ -86,10 +86,14 @@ export async function PUT(request) {
     await ProfileData.findOneAndUpdate(
       { ownerId: user.id },
       { $set: { data: parsed.data } },
-      { upsert: true, new: true, runValidators: true, setDefaultsOnInsert: true },
+      { upsert: true, returnDocument: 'after', runValidators: true, setDefaultsOnInsert: true },
     );
     return NextResponse.json({ saved: true });
-  } catch {
+  } catch (error) {
+    console.error('Unable to save account profile data.', {
+      error: error?.name || 'UnknownError',
+      code: typeof error?.code === 'string' || typeof error?.code === 'number' ? error.code : undefined,
+    });
     return NextResponse.json({ error: 'Profile could not be saved right now.' }, { status: 503 });
   }
 }

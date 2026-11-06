@@ -139,8 +139,28 @@ function getCloudinaryImagePublicId(url, ownerId) {
   }
 }
 
+function getCredentialImagePublicIds(certifications = [], achievements = [], ownerId) {
+  const imageUrls = [...certifications, ...achievements]
+    .map((item) => item?.image)
+    .filter((image) => typeof image === "string");
+
+  return imageUrls.flatMap((image) => {
+    try {
+      const parsedUrl = new URL(image);
+      if (parsedUrl.protocol !== "https:" || parsedUrl.hostname !== "res.cloudinary.com") return [];
+      const match = parsedUrl.pathname.match(
+        /\/image\/upload\/(?:v\d+\/)?(oneme\/[a-f0-9]{24}\/credentials\/[a-f0-9]{32})(?:\.[a-z0-9]+)?$/i,
+      );
+      return match?.[1]?.startsWith(`oneme/${ownerId}/credentials/`) ? [match[1]] : [];
+    } catch {
+      return [];
+    }
+  });
+}
+
 export function ProfileProvider({ children }) {
-  const { user, isLoading: isAuthLoading } = useAuth();
+  const { user, isLoading: isAuthLoading, refreshSession } = useAuth();
+  const userRef = useRef(user);
   const { error: toastError } = useToast();
   const [profile, setProfile] = useState(DEMO_USER);
   const [projects, setProjects] = useState(DEMO_PROJECTS);
@@ -153,12 +173,18 @@ export function ProfileProvider({ children }) {
   const [loadedOwnerId, setLoadedOwnerId] = useState(null);
   const [dataVersion, setDataVersion] = useState(0);
   const [savedVersion, setSavedVersion] = useState(0);
+  const [saveStatus, setSaveStatus] = useState("saved");
   const saveErrorShown = useRef(false);
-  const savedImages = useRef({ avatar: "", banner: "" });
+  const savedImages = useRef({ avatar: "", banner: "", resume: "", credentials: [] });
   const storageKey = (key) => user ? `${key}_account_${user.id}` : key;
 
   useEffect(() => {
+    userRef.current = user;
+  }, [user]);
+
+  useEffect(() => {
     if (isAuthLoading) return undefined;
+    const account = userRef.current;
     let active = true;
     // Account-specific data is loaded after authentication resolves.
     // eslint-disable-next-line react-hooks/set-state-in-effect
@@ -166,6 +192,7 @@ export function ProfileProvider({ children }) {
     setLoadedOwnerId(null);
     setDataVersion(0);
     setSavedVersion(0);
+    setSaveStatus("saved");
 
     const applyData = (data, account) => {
       setProfile({
@@ -187,7 +214,7 @@ export function ProfileProvider({ children }) {
     };
 
     async function loadProfile() {
-      if (!user) {
+      if (!account) {
         applyData(getDemoProfileData(), null);
         setLoadedOwnerId(DEMO_USER.id);
         setIsLoaded(true);
@@ -198,24 +225,25 @@ export function ProfileProvider({ children }) {
         const response = await fetch("/api/profile", { cache: "no-store" });
         if (!response.ok) throw new Error("Profile data could not be loaded.");
         const result = await response.json();
-        const localData = result.isNew ? getLocalProfileData(user) : null;
+        const localData = result.isNew ? getLocalProfileData(account) : null;
         const data = localData || result.data;
         if (active) {
-          applyData(data, user);
+          applyData(data, account);
           savedImages.current = {
             avatar: data.profile.avatar || "",
             banner: data.profile.banner || "",
             resume: data.resume.publicId || "",
+            credentials: getCredentialImagePublicIds(data.certifications, data.achievements, account.id),
           };
-          setLoadedOwnerId(user.id);
+          setLoadedOwnerId(account.id);
           setDataVersion(localData ? 1 : 0);
           setSavedVersion(0);
         }
       } catch {
         if (active) {
-          const localData = getLocalProfileData(user);
+          const localData = getLocalProfileData(account);
           const fallbackData = localData || {
-            profile: emptyProfileForUser(user),
+            profile: emptyProfileForUser(account),
             projects: [],
             experience: [],
             education: [],
@@ -223,13 +251,19 @@ export function ProfileProvider({ children }) {
             achievements: [],
             resume: EMPTY_RESUME,
           };
-          applyData(fallbackData, user);
+          applyData(fallbackData, account);
           savedImages.current = {
             avatar: fallbackData.profile.avatar || "",
             banner: fallbackData.profile.banner || "",
             resume: fallbackData.resume.publicId || "",
+            credentials: getCredentialImagePublicIds(
+              fallbackData.certifications,
+              fallbackData.achievements,
+              account.id,
+            ),
           };
           setLoadedOwnerId(null);
+          setSaveStatus("unavailable");
           toastError("Your saved profile could not be loaded. Changes may not sync until the service is available.");
         }
       } finally {
@@ -241,7 +275,7 @@ export function ProfileProvider({ children }) {
     return () => {
       active = false;
     };
-  }, [user, isAuthLoading, toastError]);
+  }, [user?.id, isAuthLoading, toastError]);
 
   useEffect(() => {
     if (
@@ -264,6 +298,7 @@ export function ProfileProvider({ children }) {
     };
     let active = true;
     const timer = setTimeout(async () => {
+      setSaveStatus("saving");
       try {
         const response = await fetch("/api/profile", {
           method: "PUT",
@@ -277,10 +312,16 @@ export function ProfileProvider({ children }) {
             avatar: profileSnapshot.profile.avatar || "",
             banner: profileSnapshot.profile.banner || "",
             resume: profileSnapshot.resume.publicId || "",
+            credentials: getCredentialImagePublicIds(
+              profileSnapshot.certifications,
+              profileSnapshot.achievements,
+              user.id,
+            ),
           };
           const previousImages = savedImages.current;
           savedImages.current = nextImages;
           setSavedVersion(versionToSave);
+          setSaveStatus("saved");
           saveErrorShown.current = false;
           for (const kind of ["avatar", "banner", "resume"]) {
             if (previousImages[kind] === nextImages[kind]) continue;
@@ -301,10 +342,23 @@ export function ProfileProvider({ children }) {
               toastError("Profile saved, but an older image could not be removed.");
             }
           }
+          for (const publicId of previousImages.credentials) {
+            if (nextImages.credentials.includes(publicId)) continue;
+            try {
+              const deleteResponse = await fetch("/api/uploads/delete", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ publicId }),
+              });
+              if (!deleteResponse.ok) throw new Error("Old credential image could not be removed.");
+            } catch {
+              toastError("Profile saved, but an old credential image could not be removed.");
+            }
+          }
         }
       } catch {
         if (active) {
-          setSavedVersion(versionToSave);
+          setSaveStatus("error");
           if (!saveErrorShown.current) {
             toastError("Your profile changes could not be saved. Please try again when the service is available.");
             saveErrorShown.current = true;
@@ -335,7 +389,17 @@ export function ProfileProvider({ children }) {
   ]);
 
   const markDirty = () => {
-    if (user) setDataVersion((version) => version + 1);
+    if (user) {
+      setSaveStatus("dirty");
+      saveErrorShown.current = false;
+      setDataVersion((version) => version + 1);
+    }
+  };
+
+  const retryProfileSave = () => {
+    if (!user || loadedOwnerId !== user.id) return;
+    setSaveStatus("dirty");
+    setDataVersion((version) => Math.max(version + 1, savedVersion + 1));
   };
 
   const hasActiveAccountProfile = user
@@ -360,6 +424,27 @@ export function ProfileProvider({ children }) {
       return updated;
     });
     markDirty();
+  };
+
+  const saveAccountIdentity = async ({ name, username }) => {
+    if (!user || profile.id !== user.id) {
+      throw new Error("Sign in to update your account profile.");
+    }
+
+    const response = await fetch("/api/account/profile", {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ name, username }),
+    });
+    const result = await response.json();
+    if (!response.ok) throw new Error(result.error || "Account profile could not be saved.");
+
+    setProfile((current) => ({
+      ...current,
+      name: result.user.name,
+      username: result.user.username,
+    }));
+    await refreshSession();
   };
 
   const updateSectionOrder = (newOrder) => updateProfile({ sectionOrder: newOrder });
@@ -463,9 +548,18 @@ export function ProfileProvider({ children }) {
   };
 
   const addCertification = (newCertification) => {
-    const item = { credentialId: "", ...newCertification, id: `cert_${Date.now()}` };
+    const item = { credentialId: "", image: "", ...newCertification, id: `cert_${Date.now()}` };
     setCertifications((prev) => {
       const updated = [item, ...prev];
+      storage.set(storageKey("user_certifications"), updated);
+      return updated;
+    });
+    markDirty();
+  };
+
+  const updateCertification = (id, updates) => {
+    setCertifications((prev) => {
+      const updated = prev.map((item) => item.id === id ? { ...item, ...updates } : item);
       storage.set(storageKey("user_certifications"), updated);
       return updated;
     });
@@ -482,9 +576,18 @@ export function ProfileProvider({ children }) {
   };
 
   const addAchievement = (newAchievement) => {
-    const item = { ...newAchievement, id: `ach_${Date.now()}` };
+    const item = { image: "", ...newAchievement, id: `ach_${Date.now()}` };
     setAchievements((prev) => {
       const updated = [item, ...prev];
+      storage.set(storageKey("user_achievements"), updated);
+      return updated;
+    });
+    markDirty();
+  };
+
+  const updateAchievement = (id, updates) => {
+    setAchievements((prev) => {
+      const updated = prev.map((item) => item.id === id ? { ...item, ...updates } : item);
       storage.set(storageKey("user_achievements"), updated);
       return updated;
     });
@@ -542,6 +645,9 @@ export function ProfileProvider({ children }) {
         achievements: visibleAchievements,
         resume: visibleResume,
         isLoaded,
+        saveStatus,
+        retryProfileSave,
+        saveAccountIdentity,
         updateProfile,
         updateSectionOrder,
         toggleSectionVisibility,
@@ -555,8 +661,10 @@ export function ProfileProvider({ children }) {
         updateEducation,
         deleteEducation,
         addCertification,
+        updateCertification,
         deleteCertification,
         addAchievement,
+        updateAchievement,
         deleteAchievement,
         updateResume,
         resetToDemo,

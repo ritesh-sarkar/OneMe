@@ -70,22 +70,30 @@ export function CertificationsSection({ certifications = [], cardClass = "" }) {
                     gap-2
                   "
               >
-                <div
-                  className="
-                      p-2
-                      rounded-lg
-                      bg-accent-soft
-                      text-accent
-                      shrink-0
-                    "
-                >
-                  <FiAward
-                    className="
-                        w-4
-                        h-4
-                      "
+                {cert.image ? (
+                  <img
+                    src={cert.image}
+                    alt={`${cert.name} certificate`}
+                    className="h-10 w-10 shrink-0 rounded-lg border border-subtle object-cover"
                   />
-                </div>
+                ) : (
+                  <div
+                    className="
+                        p-2
+                        rounded-lg
+                        bg-accent-soft
+                        text-accent
+                        shrink-0
+                      "
+                  >
+                    <FiAward
+                      className="
+                          w-4
+                          h-4
+                        "
+                    />
+                  </div>
+                )}
 
                 {cert.badge && (
                   <Badge

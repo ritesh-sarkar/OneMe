@@ -303,15 +303,34 @@ export default function DiscoverPage() {
                           shrink-0
                         "
                       >
-                        <img
-                          src={person.avatar}
-                          alt={person.name}
-                          className="
-                            w-full
-                            h-full
-                            object-cover
-                          "
-                        />
+                        {person.avatar ? (
+                          <img
+                            src={person.avatar}
+                            alt={person.name}
+                            className="
+                              w-full
+                              h-full
+                              object-cover
+                            "
+                          />
+                        ) : (
+                          <span
+                            aria-hidden="true"
+                            className="
+                              flex
+                              w-full
+                              h-full
+                              items-center
+                              justify-center
+                              bg-accent-soft
+                              text-accent
+                              text-xl
+                              font-bold
+                            "
+                          >
+                            {person.name?.trim().charAt(0).toUpperCase() || "?"}
+                          </span>
+                        )}
                       </div>
 
                       <div>

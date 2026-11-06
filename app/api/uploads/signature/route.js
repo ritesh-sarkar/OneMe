@@ -10,7 +10,7 @@ import { readJsonBody } from '@/libs/request-body';
 export const runtime = 'nodejs';
 
 const requestSchema = z.object({
-  kind: z.enum(['avatar', 'banner', 'resume']),
+  kind: z.enum(['avatar', 'banner', 'resume', 'credential']),
 }).strict();
 
 export async function POST(request) {
@@ -52,9 +52,10 @@ export async function POST(request) {
   }
 
   const isResume = parsed.data.kind === 'resume';
+  const isCredential = parsed.data.kind === 'credential';
   const params = {
     allowed_formats: isResume ? 'pdf' : 'jpg,png,webp,avif',
-    folder: `oneme/${userId}/${isResume ? 'resume' : 'profile'}`,
+    folder: `oneme/${userId}/${isResume ? 'resume' : isCredential ? 'credentials' : 'profile'}`,
     overwrite: 'false',
     public_id: `${randomBytes(16).toString('hex')}${isResume ? '.pdf' : ''}`,
     timestamp: Math.floor(Date.now() / 1000),

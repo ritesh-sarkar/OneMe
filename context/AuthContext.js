@@ -122,6 +122,7 @@ export function AuthProvider({ children }) {
         login,
         signup,
         logout,
+        refreshSession,
       }}
     >
       {children}

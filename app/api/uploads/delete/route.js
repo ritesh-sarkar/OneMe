@@ -9,7 +9,7 @@ import { readJsonBody } from '@/libs/request-body';
 export const runtime = 'nodejs';
 
 const requestSchema = z.object({
-  publicId: z.string().regex(/^oneme\/[a-f0-9]{24}\/(?:profile\/[a-f0-9]{32}|resume\/[a-f0-9]{32}\.pdf)$/),
+  publicId: z.string().regex(/^oneme\/[a-f0-9]{24}\/(?:profile\/[a-f0-9]{32}|credentials\/[a-f0-9]{32}|resume\/[a-f0-9]{32}\.pdf)$/),
 }).strict();
 
 export async function POST(request) {
@@ -20,7 +20,7 @@ export async function POST(request) {
   const body = await readJsonBody(request);
   if (!body.ok) return NextResponse.json({ error: 'Invalid image deletion request.' }, { status: body.status });
   const parsed = requestSchema.safeParse(body.value);
-  if (!parsed.success || !parsed.data.publicId.startsWith(`oneme/${userId}/profile/`)) {
+  if (!parsed.success || !parsed.data.publicId.startsWith(`oneme/${userId}/`)) {
     return NextResponse.json({ error: 'Image not found.' }, { status: 404 });
   }
 

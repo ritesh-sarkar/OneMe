@@ -3,7 +3,15 @@
 import React, { useRef, useState } from "react";
 
 //icons
-import { FiBriefcase, FiBookOpen, FiAward, FiPlus, FiTrash2, FiUploadCloud } from "react-icons/fi";
+import {
+  FiBriefcase,
+  FiBookOpen,
+  FiAward,
+  FiEdit2,
+  FiPlus,
+  FiTrash2,
+  FiUploadCloud,
+} from "react-icons/fi";
 
 // Custom Components
 import { Button } from "@/components/Button";
@@ -12,6 +20,8 @@ import { Modal } from "@/components/Modal";
 import { Tabs } from "@/components/Tabs";
 import { useProfile } from "@/context/ProfileContext";
 import { useToast } from "@/context/ToastContext";
+import { CredentialImageField } from "@/components/CredentialImageField";
+import { uploadCredentialImage } from "@/libs/client-upload";
 
 const RESUME_TABS = [
   {
@@ -43,12 +53,16 @@ export default function ResumePage() {
     certifications,
     achievements,
     addExperience,
+    updateExperience,
     deleteExperience,
     addEducation,
+    updateEducation,
     deleteEducation,
     addCertification,
+    updateCertification,
     deleteCertification,
     addAchievement,
+    updateAchievement,
     deleteAchievement,
     profile,
     resume,
@@ -68,6 +82,7 @@ export default function ResumePage() {
   const [expPeriod, setExpPeriod] = useState("2024 — Present");
   const [expLocation, setExpLocation] = useState("Remote");
   const [expDesc, setExpDesc] = useState("");
+  const [editingExperienceId, setEditingExperienceId] = useState(null);
 
   // Education modal state
   const [eduModalOpen, setEduModalOpen] = useState(false);
@@ -75,6 +90,9 @@ export default function ResumePage() {
   const [eduDegree, setEduDegree] = useState("");
   const [eduPeriod, setEduPeriod] = useState("2020 — 2024");
   const [eduGrade, setEduGrade] = useState("CGPA 3.9");
+  const [eduLocation, setEduLocation] = useState("");
+  const [eduDescription, setEduDescription] = useState("");
+  const [editingEducationId, setEditingEducationId] = useState(null);
 
   // Certification modal state
   const [certModalOpen, setCertModalOpen] = useState(false);
@@ -82,77 +100,139 @@ export default function ResumePage() {
   const [certIssuer, setCertIssuer] = useState("");
   const [certDate, setCertDate] = useState("2024");
   const [certUrl, setCertUrl] = useState("");
+  const [editingCertificationId, setEditingCertificationId] = useState(null);
+  const [certImage, setCertImage] = useState("");
+  const [certImageFile, setCertImageFile] = useState(null);
+  const [certUploading, setCertUploading] = useState(false);
 
   const [achievementModalOpen, setAchievementModalOpen] = useState(false);
   const [achievementTitle, setAchievementTitle] = useState("");
   const [achievementOrganization, setAchievementOrganization] = useState("");
   const [achievementDate, setAchievementDate] = useState("");
   const [achievementDescription, setAchievementDescription] = useState("");
+  const [editingAchievementId, setEditingAchievementId] = useState(null);
+  const [achievementImage, setAchievementImage] = useState("");
+  const [achievementImageFile, setAchievementImageFile] = useState(null);
+  const [achievementUploading, setAchievementUploading] = useState(false);
 
-  const handleAddExperience = (e) => {
+  const handleSaveExperience = (e) => {
     e.preventDefault();
 
-    addExperience({
+    const item = {
       role: expRole,
       company: expCompany,
       period: expPeriod,
       location: expLocation,
       description: expDesc,
-      highlights: [
-        "Engineered mission-critical web services",
-        "Optimized client-side rendering speed",
-      ],
-    });
+    };
+    if (editingExperienceId) {
+      updateExperience(editingExperienceId, item);
+      success("Work experience updated.");
+    } else {
+      addExperience({ ...item, highlights: [] });
+      success("Work experience entry added!");
+    }
 
     setExpModalOpen(false);
-    success("Work experience entry added!");
+    setEditingExperienceId(null);
   };
 
-  const handleAddEducation = (e) => {
+  const handleSaveEducation = (e) => {
     e.preventDefault();
 
-    addEducation({
+    const item = {
       institution: eduInst,
       degree: eduDegree,
       period: eduPeriod,
       grade: eduGrade,
-      location: "Dhaka, Bangladesh",
-      description: "Specialized in Computer Science & Distributed Systems",
-    });
+      location: eduLocation,
+      description: eduDescription,
+    };
+    if (editingEducationId) {
+      updateEducation(editingEducationId, item);
+      success("Education entry updated.");
+    } else {
+      addEducation(item);
+      success("Education credential added!");
+    }
 
     setEduModalOpen(false);
-    success("Education credential added!");
+    setEditingEducationId(null);
   };
 
-  const handleAddCertification = (e) => {
+  const handleSaveCertification = async (e) => {
     e.preventDefault();
 
-    addCertification({
-      name: certName,
-      issuer: certIssuer,
-      issueDate: certDate,
-      verifyUrl: certUrl || "https://verify.credential.org",
-      badge: `${certIssuer} Certified`,
-    });
+    setCertUploading(true);
+    try {
+      const image = certImageFile
+        ? await uploadCredentialImage(certImageFile, profile.id)
+        : certImage;
+      const certification = {
+        name: certName,
+        issuer: certIssuer,
+        issueDate: certDate,
+        verifyUrl: certUrl,
+        badge: certIssuer ? `${certIssuer} Certified` : "",
+        image,
+      };
 
-    setCertModalOpen(false);
-    success("Certification credential added!");
+      if (editingCertificationId) {
+        updateCertification(editingCertificationId, certification);
+        success("Certification updated.");
+      } else {
+        addCertification(certification);
+        success("Certification credential added!");
+      }
+
+      setCertModalOpen(false);
+      setEditingCertificationId(null);
+      setCertImage("");
+      setCertImageFile(null);
+    } catch (uploadError) {
+      toastError(uploadError.message || "Certification could not be saved.");
+    } finally {
+      setCertUploading(false);
+    }
   };
 
-  const handleAddAchievement = (event) => {
+  const handleSaveAchievement = async (event) => {
     event.preventDefault();
-    addAchievement({
-      title: achievementTitle,
-      organization: achievementOrganization,
-      date: achievementDate,
-      description: achievementDescription,
-    });
-    setAchievementModalOpen(false);
-    setAchievementTitle("");
-    setAchievementOrganization("");
-    setAchievementDate("");
-    setAchievementDescription("");
-    success("Achievement added.");
+
+    setAchievementUploading(true);
+    try {
+      const image = achievementImageFile
+        ? await uploadCredentialImage(achievementImageFile, profile.id)
+        : achievementImage;
+      const achievement = {
+        title: achievementTitle,
+        organization: achievementOrganization,
+        date: achievementDate,
+        description: achievementDescription,
+        image,
+      };
+
+      if (editingAchievementId) {
+        updateAchievement(editingAchievementId, achievement);
+        success("Achievement updated.");
+      } else {
+        addAchievement(achievement);
+        success("Achievement added.");
+      }
+
+      setAchievementModalOpen(false);
+      setEditingAchievementId(null);
+      setAchievementTitle("");
+      setAchievementOrganization("");
+      setAchievementDate("");
+      setAchievementDescription("");
+      setAchievementImage("");
+      setAchievementImageFile(null);
+    } catch (uploadError) {
+      toastError(uploadError.message || "Achievement could not be saved.");
+    } finally {
+      setAchievementUploading(false);
+    }
   };
 
   const handleResumeUpload = async (event) => {
@@ -359,8 +439,11 @@ export default function ResumePage() {
 
             <Button
               onClick={() => {
+                setEditingExperienceId(null);
                 setExpRole("");
                 setExpCompany("");
+                setExpPeriod("2024 — Present");
+                setExpLocation("Remote");
                 setExpDesc("");
                 setExpModalOpen(true);
               }}
@@ -453,6 +536,22 @@ export default function ResumePage() {
                 <button
                   type="button"
                   onClick={() => {
+                    setEditingExperienceId(exp.id);
+                    setExpRole(exp.role || "");
+                    setExpCompany(exp.company || "");
+                    setExpPeriod(exp.period || "");
+                    setExpLocation(exp.location || "");
+                    setExpDesc(exp.description || "");
+                    setExpModalOpen(true);
+                  }}
+                  aria-label={`Edit experience at ${exp.company}`}
+                  className="rounded-xl bg-surface-deep p-2 text-muted transition-colors hover:text-accent"
+                >
+                  <FiEdit2 className="h-4 w-4" />
+                </button>
+                <button
+                  type="button"
+                  onClick={() => {
                     deleteExperience(exp.id);
                     info("Experience entry removed.");
                   }}
@@ -528,8 +627,13 @@ export default function ResumePage() {
 
             <Button
               onClick={() => {
+                setEditingEducationId(null);
                 setEduInst("");
                 setEduDegree("");
+                setEduPeriod("2020 — 2024");
+                setEduGrade("");
+                setEduLocation("");
+                setEduDescription("");
                 setEduModalOpen(true);
               }}
               variant="primary"
@@ -621,6 +725,23 @@ export default function ResumePage() {
                 <button
                   type="button"
                   onClick={() => {
+                    setEditingEducationId(edu.id);
+                    setEduInst(edu.institution || "");
+                    setEduDegree(edu.degree || "");
+                    setEduPeriod(edu.period || "");
+                    setEduGrade(edu.grade || "");
+                    setEduLocation(edu.location || "");
+                    setEduDescription(edu.description || "");
+                    setEduModalOpen(true);
+                  }}
+                  aria-label={`Edit education at ${edu.institution}`}
+                  className="rounded-xl bg-surface-deep p-2 text-muted transition-colors hover:text-accent"
+                >
+                  <FiEdit2 className="h-4 w-4" />
+                </button>
+                <button
+                  type="button"
+                  onClick={() => {
                     deleteEducation(edu.id);
                     info("Education entry removed.");
                   }}
@@ -696,8 +817,13 @@ export default function ResumePage() {
 
             <Button
               onClick={() => {
+                setEditingCertificationId(null);
                 setCertName("");
                 setCertIssuer("");
+                setCertDate("2024");
+                setCertUrl("");
+                setCertImage("");
+                setCertImageFile(null);
                 setCertModalOpen(true);
               }}
               variant="primary"
@@ -731,6 +857,13 @@ export default function ResumePage() {
                   p-5
                 "
               >
+                {cert.image && (
+                  <img
+                    src={cert.image}
+                    alt={`${cert.name} certificate`}
+                    className="h-14 w-14 rounded-xl border border-subtle object-cover"
+                  />
+                )}
                 <div
                   className="
                     flex-1
@@ -768,6 +901,23 @@ export default function ResumePage() {
                   </div>
                 </div>
 
+                <button
+                  type="button"
+                  onClick={() => {
+                    setEditingCertificationId(cert.id);
+                    setCertName(cert.name || "");
+                    setCertIssuer(cert.issuer || "");
+                    setCertDate(cert.issueDate || "");
+                    setCertUrl(cert.verifyUrl || "");
+                    setCertImage(cert.image || "");
+                    setCertImageFile(null);
+                    setCertModalOpen(true);
+                  }}
+                  aria-label={`Edit certification ${cert.name}`}
+                  className="rounded-xl bg-surface-deep p-2 text-muted transition-colors hover:text-accent"
+                >
+                  <FiEdit2 className="h-4 w-4" />
+                </button>
                 <button
                   type="button"
                   onClick={() => {
@@ -826,7 +976,16 @@ export default function ResumePage() {
           >
             <h3 className="text-base font-bold text-primary">Honors & Achievements</h3>
             <Button
-              onClick={() => setAchievementModalOpen(true)}
+              onClick={() => {
+                setEditingAchievementId(null);
+                setAchievementTitle("");
+                setAchievementOrganization("");
+                setAchievementDate("");
+                setAchievementDescription("");
+                setAchievementImage("");
+                setAchievementImageFile(null);
+                setAchievementModalOpen(true);
+              }}
               variant="primary"
               size="sm"
               icon={FiPlus}
@@ -863,12 +1022,15 @@ export default function ResumePage() {
                     text-warning
                   "
                 >
-                  <FiAward
-                    className="
-                      h-5
-                      w-5
-                    "
-                  />
+                  {ach.image ? (
+                    <img
+                      src={ach.image}
+                      alt={`${ach.title} achievement`}
+                      className="h-10 w-10 rounded-lg object-cover"
+                    />
+                  ) : (
+                    <FiAward className="h-5 w-5" />
+                  )}
                 </div>
 
                 <div
@@ -930,6 +1092,23 @@ export default function ResumePage() {
                 <button
                   type="button"
                   onClick={() => {
+                    setEditingAchievementId(ach.id);
+                    setAchievementTitle(ach.title || "");
+                    setAchievementOrganization(ach.organization || "");
+                    setAchievementDate(ach.date || "");
+                    setAchievementDescription(ach.description || "");
+                    setAchievementImage(ach.image || "");
+                    setAchievementImageFile(null);
+                    setAchievementModalOpen(true);
+                  }}
+                  aria-label={`Edit achievement ${ach.title}`}
+                  className="rounded-xl bg-surface-deep p-2 text-muted transition-colors hover:text-accent"
+                >
+                  <FiEdit2 className="h-4 w-4" />
+                </button>
+                <button
+                  type="button"
+                  onClick={() => {
                     deleteAchievement(ach.id);
                     info("Achievement removed.");
                   }}
@@ -956,11 +1135,11 @@ export default function ResumePage() {
       <Modal
         isOpen={expModalOpen}
         onClose={() => setExpModalOpen(false)}
-        title="Add Experience"
+        title={editingExperienceId ? "Edit Experience" : "Add Experience"}
         maxWidth="max-w-md"
       >
         <form
-          onSubmit={handleAddExperience}
+          onSubmit={handleSaveExperience}
           className="
             space-y-4
             py-2
@@ -1021,6 +1200,7 @@ export default function ResumePage() {
             "
           >
             <Button
+              type="button"
               variant="outline"
               size="sm"
               onClick={() => setExpModalOpen(false)}
@@ -1033,7 +1213,7 @@ export default function ResumePage() {
               variant="primary"
               size="sm"
             >
-              Save
+              {editingExperienceId ? "Save changes" : "Save"}
             </Button>
           </div>
         </form>
@@ -1043,11 +1223,11 @@ export default function ResumePage() {
       <Modal
         isOpen={eduModalOpen}
         onClose={() => setEduModalOpen(false)}
-        title="Add Education"
+        title={editingEducationId ? "Edit Education" : "Add Education"}
         maxWidth="max-w-md"
       >
         <form
-          onSubmit={handleAddEducation}
+          onSubmit={handleSaveEducation}
           className="
             space-y-4
             py-2
@@ -1091,6 +1271,21 @@ export default function ResumePage() {
             />
           </div>
 
+          <Input
+            label="Location"
+            value={eduLocation}
+            onChange={(e) => setEduLocation(e.target.value)}
+            placeholder="City, country"
+          />
+
+          <Textarea
+            label="Description"
+            value={eduDescription}
+            onChange={(e) => setEduDescription(e.target.value)}
+            rows={3}
+            placeholder="Relevant focus, honors, or activities..."
+          />
+
           <div
             className="
               flex
@@ -1100,6 +1295,7 @@ export default function ResumePage() {
             "
           >
             <Button
+              type="button"
               variant="outline"
               size="sm"
               onClick={() => setEduModalOpen(false)}
@@ -1112,7 +1308,7 @@ export default function ResumePage() {
               variant="primary"
               size="sm"
             >
-              Save
+              {editingEducationId ? "Save changes" : "Save"}
             </Button>
           </div>
         </form>
@@ -1122,11 +1318,11 @@ export default function ResumePage() {
       <Modal
         isOpen={certModalOpen}
         onClose={() => setCertModalOpen(false)}
-        title="Add Certification"
+        title={editingCertificationId ? "Edit Certification" : "Add Certification"}
         maxWidth="max-w-md"
       >
         <form
-          onSubmit={handleAddCertification}
+          onSubmit={handleSaveCertification}
           className="
             space-y-4
             py-2
@@ -1170,6 +1366,16 @@ export default function ResumePage() {
             />
           </div>
 
+          <CredentialImageField
+            image={certImage}
+            label="Certificate image"
+            onChange={({ file, preview }) => {
+              setCertImageFile(file);
+              setCertImage(preview);
+            }}
+            onError={info}
+          />
+
           <div
             className="
               flex
@@ -1190,8 +1396,9 @@ export default function ResumePage() {
               type="submit"
               variant="primary"
               size="sm"
+              isLoading={certUploading}
             >
-              Save
+              {editingCertificationId ? "Save changes" : "Save"}
             </Button>
           </div>
         </form>
@@ -1200,11 +1407,11 @@ export default function ResumePage() {
       <Modal
         isOpen={achievementModalOpen}
         onClose={() => setAchievementModalOpen(false)}
-        title="Add Achievement"
+        title={editingAchievementId ? "Edit Achievement" : "Add Achievement"}
         maxWidth="max-w-md"
       >
         <form
-          onSubmit={handleAddAchievement}
+          onSubmit={handleSaveAchievement}
           className="space-y-4"
         >
           <Input
@@ -1236,6 +1443,15 @@ export default function ResumePage() {
             rows={4}
             required
           />
+          <CredentialImageField
+            image={achievementImage}
+            label="Achievement image"
+            onChange={({ file, preview }) => {
+              setAchievementImageFile(file);
+              setAchievementImage(preview);
+            }}
+            onError={info}
+          />
           <div className="flex justify-end gap-3 pt-2">
             <Button
               variant="outline"
@@ -1248,8 +1464,9 @@ export default function ResumePage() {
               type="submit"
               variant="primary"
               size="sm"
+              isLoading={achievementUploading}
             >
-              Save Achievement
+              {editingAchievementId ? "Save changes" : "Save Achievement"}
             </Button>
           </div>
         </form>

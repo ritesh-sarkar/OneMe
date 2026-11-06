@@ -159,7 +159,7 @@ export const authOptions = {
 
       await connectToDatabase();
       const currentUser = await User.findById(token.sub)
-        .select('_id username sessionVersion emailVerifiedAt onboardingCompletedAt onboardingSkippedAt')
+        .select('_id name email username sessionVersion emailVerifiedAt onboardingCompletedAt onboardingSkippedAt')
         .lean();
 
       if (
@@ -170,6 +170,8 @@ export const authOptions = {
         return { ...token, invalidSession: true };
       }
 
+      token.name = currentUser.name;
+      token.email = currentUser.email;
       token.username = currentUser.username;
       token.onboardingComplete = Boolean(currentUser.onboardingCompletedAt);
       token.onboardingSkipped = Boolean(currentUser.onboardingSkippedAt);
@@ -179,6 +181,8 @@ export const authOptions = {
       if (token.invalidSession || !token.sub || !session.user) return null;
 
       session.user.id = token.sub;
+      session.user.name = token.name;
+      session.user.email = token.email;
       session.user.username = token.username;
       session.user.onboardingComplete = Boolean(token.onboardingComplete);
       session.user.onboardingSkipped = Boolean(token.onboardingSkipped);

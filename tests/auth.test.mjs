@@ -1,6 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import {
+  accountProfileUpdateSchema,
   accountIdentitySchema,
   emailRequestSchema,
   loginSchema,
@@ -84,6 +85,29 @@ test('registration validates name, username, email, password, and rejects unexpe
     username: 'valid-name',
     email: 'user@example.com',
     password: 'short',
+  }).success, false);
+});
+
+test('account profile updates validate names and unique public username format', () => {
+  const parsed = accountProfileUpdateSchema.safeParse({
+    name: '  Updated Member  ',
+    username: 'updated-member-1',
+  });
+  assert.equal(parsed.success, true);
+  assert.equal(parsed.data.name, 'Updated Member');
+  assert.equal(parsed.data.username, 'updated-member-1');
+  assert.equal(accountProfileUpdateSchema.safeParse({
+    name: 'Valid Name',
+    username: 'invalid username',
+  }).success, false);
+  assert.equal(accountProfileUpdateSchema.safeParse({
+    name: 'A',
+    username: 'valid-member',
+  }).success, false);
+  assert.equal(accountProfileUpdateSchema.safeParse({
+    name: 'Valid Name',
+    username: 'valid-member',
+    role: 'admin',
   }).success, false);
 });
 
@@ -509,6 +533,30 @@ test('profile payload validation strips unsafe structures and accepts an empty a
   assert.equal(parsed.data.projects[0].featured, false);
   assert.equal(parsed.data.projects[0].stars, 0);
   assert.equal(parsed.data.profile.skills[0].category, '');
+  const credentials = profileDataSchema.safeParse({
+    ...emptyProfile,
+    certifications: [{
+      id: 'cert_1',
+      name: 'Design Systems',
+      issuer: 'OneMe QA',
+      issueDate: '2026',
+      credentialId: '',
+      verifyUrl: '',
+      badge: '',
+      image: 'https://res.cloudinary.com/example/image/upload/certificate.png',
+    }],
+    achievements: [{
+      id: 'achievement_1',
+      title: 'Design Showcase',
+      organization: 'OneMe QA',
+      date: '2026',
+      description: 'Demo achievement',
+      image: 'https://res.cloudinary.com/example/image/upload/award.png',
+    }],
+  });
+  assert.equal(credentials.success, true);
+  assert.equal(credentials.data.certifications[0].image.endsWith('certificate.png'), true);
+  assert.equal(credentials.data.achievements[0].image.endsWith('award.png'), true);
 
   assert.equal(profileDataSchema.safeParse({
     ...emptyProfile,

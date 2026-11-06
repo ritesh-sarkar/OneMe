@@ -54,23 +54,31 @@ export function AchievementsSection({ achievements = [], cardClass = "" }) {
                 ${cardClass}
               `}
           >
-            <div
-              className="
-                  p-2.5
-                  rounded-xl
-                  bg-warning-soft
-                  text-warning
-                  shrink-0
-                  mt-0.5
-                "
-            >
-              <FiAward
-                className="
-                    w-4
-                    h-4
-                  "
+            {ach.image ? (
+              <img
+                src={ach.image}
+                alt={`${ach.title} achievement`}
+                className="h-10 w-10 shrink-0 rounded-xl border border-subtle object-cover"
               />
-            </div>
+            ) : (
+              <div
+                className="
+                    p-2.5
+                    rounded-xl
+                    bg-warning-soft
+                    text-warning
+                    shrink-0
+                    mt-0.5
+                  "
+              >
+                <FiAward
+                  className="
+                      w-4
+                      h-4
+                    "
+                />
+              </div>
+            )}
 
             <div
               className="

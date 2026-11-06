@@ -80,6 +80,7 @@ const certificationSchema = z.object({
   credentialId: text(120),
   verifyUrl: safeLink,
   badge: text(100),
+  image: safeImage.default(''),
 }).strict();
 
 const achievementSchema = z.object({
@@ -88,6 +89,7 @@ const achievementSchema = z.object({
   organization: text(120),
   date: text(80),
   description: text(2000),
+  image: safeImage.default(''),
 }).strict();
 
 const customThemeSchema = z.object({

@@ -89,7 +89,7 @@ export async function POST(request) {
     await ProfileData.findOneAndUpdate(
       { ownerId: accountId },
       { $set: { data: updatedData } },
-      { upsert: true, new: true, runValidators: true, setDefaultsOnInsert: true },
+      { upsert: true, returnDocument: 'after', runValidators: true, setDefaultsOnInsert: true },
     );
     await User.updateOne(
       { _id: accountId },

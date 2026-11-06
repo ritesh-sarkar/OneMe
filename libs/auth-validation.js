@@ -18,6 +18,15 @@ const usernameSchema = z.string()
   .max(30, 'Username must be no more than 30 characters.')
   .regex(/^[a-z0-9][a-z0-9-]*[a-z0-9]$/, 'Use letters, numbers, and hyphens; start and end with a letter or number.');
 
+export const accountProfileUpdateSchema = z.object({
+  name: z.string()
+    .trim()
+    .min(2, 'Name must be at least 2 characters.')
+    .max(80, 'Name must be no more than 80 characters.')
+    .refine((value) => !/[\u0000-\u001f\u007f]/.test(value), 'Name contains invalid characters.'),
+  username: usernameSchema,
+}).strict();
+
 export const registrationSchema = z.object({
   name: z.string()
     .trim()
