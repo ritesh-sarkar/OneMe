@@ -144,26 +144,6 @@ export function LandingNavbar() {
             OneMe Flow
           </a>
 
-          <Link
-            href="/discover"
-            className="
-              hover:text-primary
-              transition-colors
-              flex
-              items-center
-              gap-1.5
-            "
-          >
-            <FiCompass
-              className="
-                w-3.5
-                h-3.5
-                text-cyan
-              "
-            />
-
-            <span>Discover</span>
-          </Link>
         </nav>
 
         {/* Action Buttons */}
