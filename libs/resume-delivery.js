@@ -27,6 +27,16 @@ export function isAuthenticatedCloudinaryResumeUrl(value, cloudName, publicId) {
     && url.pathname.endsWith(`/${publicId}`);
 }
 
+export function isPdfResumeFormat(format) {
+  if (format == null) return true;
+  if (typeof format !== 'string') return false;
+  const normalizedFormat = format.trim().toLowerCase();
+  return normalizedFormat === ''
+    || normalizedFormat === 'pdf'
+    || normalizedFormat === 'application/pdf'
+    || normalizedFormat === 'application/x-pdf';
+}
+
 export function createResumePublicId(ownerId, fileToken) {
   if (!/^[a-f0-9]{24}$/i.test(ownerId) || !/^[a-f0-9]{32}$/i.test(fileToken)) {
     throw new Error('Invalid resume asset identity.');

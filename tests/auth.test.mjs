@@ -46,6 +46,7 @@ import {
   createResumePublicId,
   isAllowedCloudinaryResumeUrl,
   isAuthenticatedCloudinaryResumeUrl,
+  isPdfResumeFormat,
 } from '../libs/resume-delivery.js';
 import { normalizeMongoUri } from '../libs/db.js';
 import {
@@ -887,6 +888,15 @@ test('resume delivery accepts only Cloudinary raw assets and raw authenticated d
     );
   } finally {
     cloudinary.config(previous);
+  }
+});
+
+test('resume upload accepts PDF metadata variants but rejects explicit non-PDF formats', () => {
+  for (const format of ['pdf', ' PDF ', 'application/pdf', 'application/x-pdf', '', null, undefined]) {
+    assert.equal(isPdfResumeFormat(format), true, `expected ${String(format)} to be accepted`);
+  }
+  for (const format of ['docx', 'application/msword', 'image/png', 1]) {
+    assert.equal(isPdfResumeFormat(format), false, `expected ${String(format)} to be rejected`);
   }
 });
 

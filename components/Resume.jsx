@@ -22,7 +22,10 @@ import { useProfile } from "@/context/ProfileContext";
 import { useToast } from "@/context/ToastContext";
 import { CredentialImageField } from "@/components/CredentialImageField";
 import { uploadCredentialImage } from "@/libs/client-upload";
-import { isAuthenticatedCloudinaryResumeUrl } from "@/libs/resume-delivery";
+import {
+  isAuthenticatedCloudinaryResumeUrl,
+  isPdfResumeFormat,
+} from "@/libs/resume-delivery";
 
 const RESUME_TABS = [
   {
@@ -252,6 +255,13 @@ export default function ResumePage() {
 
     setResumeUploading(true);
     try {
+      const fileHeader = new TextDecoder().decode(
+        await file.slice(0, 1024).arrayBuffer(),
+      );
+      if (!fileHeader.includes("%PDF-")) {
+        throw new Error("The selected file does not appear to be a valid PDF.");
+      }
+
       const signatureResponse = await fetch("/api/uploads/signature", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -304,7 +314,7 @@ export default function ResumePage() {
       if (result.type !== "authenticated") {
         validationFailures.push("authenticated access");
       }
-      if (typeof result.format !== "string" || result.format.toLowerCase() !== "pdf") {
+      if (!isPdfResumeFormat(result.format)) {
         validationFailures.push("PDF format");
       }
       if (
