@@ -38,14 +38,7 @@ export default function GoogleAuthButton() {
       const callbackUrl = getSafeReturnPath(
         new URLSearchParams(window.location.search).get("callbackUrl"),
       );
-      const result = await signIn("google", {
-        callbackUrl,
-        redirect: false,
-      });
-      if (result?.error || !result?.url) {
-        throw new Error("Google sign-in could not be started. Please try again.");
-      }
-      window.location.assign(result.url);
+      await signIn("google", { callbackUrl });
     } catch (error) {
       setErrorMessage(error.message || "Google sign-in is temporarily unavailable.");
       setIsSigningIn(false);

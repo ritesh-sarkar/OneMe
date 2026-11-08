@@ -155,24 +155,26 @@ export function Topbar() {
           "
         >
           {/* Quick OneMe Flow Trigger */}
-          <Button
-            onClick={() => setExchangeOpen(true)}
-            variant="glow"
-            size="sm"
-            icon={FiZap}
-            className="
-              text-sm
-              md:text-base
-              glow-cyan
-              transition-all
-              duration-200
-              ease-in-out
-              hover:scale-105
-              active:scale-95
-            "
-          >
-            <span>OneMe Flow</span>
-          </Button>
+          <div className="hidden md:block">
+            <Button
+              onClick={() => setExchangeOpen(true)}
+              variant="glow"
+              size="sm"
+              icon={FiZap}
+              className="
+                text-sm
+                md:text-base
+                glow-cyan
+                transition-all
+                duration-200
+                ease-in-out
+                hover:scale-105
+                active:scale-95
+              "
+            >
+              <span>OneMe Flow</span>
+            </Button>
+          </div>
 
           {/* QR Button */}
           <Button

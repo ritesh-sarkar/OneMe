@@ -273,11 +273,27 @@ export default function ResumePage() {
         `https://api.cloudinary.com/v1_1/${encodeURIComponent(signature.cloudName)}/${signature.resourceType}/upload`,
         { method: "POST", body: formData },
       );
-      const result = await uploadResponse.json();
-      const uploadedUrl = new URL(result.secure_url || "");
+      let result;
+      try {
+        result = await uploadResponse.json();
+      } catch {
+        throw new Error("The file provider returned an unreadable upload response.");
+      }
+      if (!uploadResponse.ok) {
+        const providerMessage = typeof result.error?.message === "string"
+          ? result.error.message.slice(0, 240)
+          : "";
+        throw new Error(providerMessage || "The file provider could not upload the resume.");
+      }
+
+      let uploadedUrl;
+      try {
+        uploadedUrl = new URL(result.secure_url || "");
+      } catch {
+        throw new Error("The file provider returned an invalid resume URL.");
+      }
       const expectedFolder = `oneme/${profile.id}/resume/`;
       if (
-        !uploadResponse.ok ||
         uploadedUrl.protocol !== "https:" ||
         uploadedUrl.hostname !== "res.cloudinary.com" ||
         signature.resourceType !== "raw" ||
@@ -285,7 +301,7 @@ export default function ResumePage() {
         !result.public_id?.startsWith(expectedFolder) ||
         !/^[a-f0-9]{32}\.pdf$/i.test(result.public_id.slice(expectedFolder.length))
       ) {
-        throw new Error("The file provider rejected the resume.");
+        throw new Error("The file provider returned an unexpected resume asset. Please try again or contact support.");
       }
 
       updateResume({

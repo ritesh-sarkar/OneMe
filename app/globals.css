@@ -264,10 +264,6 @@
     box-shadow: 0 0 24px color-mix(in srgb, var(--cursor-accent), transparent 80%);
   }
 
-  .oneme-cursor[data-state="interactive"] .oneme-cursor__core {
-    scale: 0.65;
-  }
-
   .oneme-cursor[data-state="card"] .oneme-cursor__ring {
     width: 38px;
     height: 38px;

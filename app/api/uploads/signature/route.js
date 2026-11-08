@@ -6,6 +6,7 @@ import { z } from 'zod';
 import { authOptions } from '@/libs/auth-options';
 import { getTrustedClientIp, consumeRateLimits } from '@/libs/rate-limit';
 import { readJsonBody } from '@/libs/request-body';
+import { createResumePublicId } from '@/libs/resume-delivery';
 
 export const runtime = 'nodejs';
 
@@ -53,11 +54,14 @@ export async function POST(request) {
 
   const isResume = parsed.data.kind === 'resume';
   const isCredential = parsed.data.kind === 'credential';
+  const folder = `oneme/${userId}/${isResume ? 'resume' : isCredential ? 'credentials' : 'profile'}`;
   const params = {
     allowed_formats: isResume ? 'pdf' : 'jpg,png,webp,avif',
-    folder: `oneme/${userId}/${isResume ? 'resume' : isCredential ? 'credentials' : 'profile'}`,
+    ...(isResume ? { asset_folder: folder } : { folder }),
     overwrite: 'false',
-    public_id: `${randomBytes(16).toString('hex')}${isResume ? '.pdf' : ''}`,
+    public_id: isResume
+      ? createResumePublicId(userId, randomBytes(16).toString('hex'))
+      : randomBytes(16).toString('hex'),
     timestamp: Math.floor(Date.now() / 1000),
     upload_preset: uploadPreset,
     ...(isResume ? { type: 'authenticated' } : {}),

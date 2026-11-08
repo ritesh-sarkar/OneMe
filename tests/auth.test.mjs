@@ -42,7 +42,7 @@ import {
   flowNearbySignalBodySchema,
 } from '../libs/flow-nearby-validation.js';
 import { createNearbyTurnServer, parseNearbyTurnUrls } from '../libs/nearby-ice.js';
-import { isAllowedCloudinaryResumeUrl } from '../libs/resume-delivery.js';
+import { createResumePublicId, isAllowedCloudinaryResumeUrl } from '../libs/resume-delivery.js';
 import { normalizeMongoUri } from '../libs/db.js';
 import {
   AUTH_RATE_LIMIT,
@@ -811,6 +811,15 @@ test('Nearby ICE configuration validates TURN URLs and returns short-lived Cotur
 });
 
 test('resume delivery accepts only Cloudinary raw assets and raw authenticated downloads', () => {
+  const resumePublicId = createResumePublicId(
+    '507f1f77bcf86cd799439011',
+    '0123456789abcdef0123456789abcdef',
+  );
+  assert.equal(
+    resumePublicId,
+    'oneme/507f1f77bcf86cd799439011/resume/0123456789abcdef0123456789abcdef.pdf',
+  );
+  assert.throws(() => createResumePublicId('not-an-account-id', 'not-a-token'));
   const previous = cloudinary.config();
   try {
     cloudinary.config({
@@ -820,7 +829,7 @@ test('resume delivery accepts only Cloudinary raw assets and raw authenticated d
       secure: true,
     });
     const url = cloudinary.utils.private_download_url(
-      'oneme/507f1f77bcf86cd799439011/resume/0123456789abcdef0123456789abcdef.pdf',
+      resumePublicId,
       'pdf',
       {
         resource_type: 'raw',
