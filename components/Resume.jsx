@@ -293,19 +293,32 @@ export default function ResumePage() {
       } catch {
         throw new Error("The file provider returned an invalid resume URL.");
       }
+
       const expectedFolder = `oneme/${profile.id}/resume/`;
-      const expectedPublicId = result.public_id;
+      const expectedPublicId = signature.params.public_id;
       const expectedAssetName = expectedPublicId?.slice(expectedFolder.length) || "";
+      const validationFailures = [];
+      if (signature.resourceType !== "raw" || result.resource_type !== "raw") {
+        validationFailures.push("raw resource type");
+      }
+      if (result.type !== "authenticated") {
+        validationFailures.push("authenticated access");
+      }
+      if (typeof result.format !== "string" || result.format.toLowerCase() !== "pdf") {
+        validationFailures.push("PDF format");
+      }
       if (
-        signature.resourceType !== "raw" ||
-        result.resource_type !== "raw" ||
-        result.type !== "authenticated" ||
-        result.format !== "pdf" ||
         !expectedPublicId?.startsWith(expectedFolder) ||
         !/^[a-f0-9]{32}\.pdf$/i.test(expectedAssetName) ||
-        !isAuthenticatedCloudinaryResumeUrl(uploadedUrl, signature.cloudName, expectedPublicId)
+        result.public_id !== expectedPublicId
       ) {
-        throw new Error("The provider uploaded the file with an unexpected account, format, or access setting. Please contact support.");
+        validationFailures.push("account-owned asset ID");
+      }
+      if (!isAuthenticatedCloudinaryResumeUrl(uploadedUrl, signature.cloudName, expectedPublicId)) {
+        validationFailures.push("authenticated Cloudinary delivery URL");
+      }
+      if (validationFailures.length) {
+        throw new Error(`Resume upload validation failed: ${validationFailures.join(", ")}. Please try again or contact support.`);
       }
 
       updateResume({
