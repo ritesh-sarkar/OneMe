@@ -22,6 +22,7 @@ import { useProfile } from "@/context/ProfileContext";
 import { useToast } from "@/context/ToastContext";
 import { CredentialImageField } from "@/components/CredentialImageField";
 import { uploadCredentialImage } from "@/libs/client-upload";
+import { isAuthenticatedCloudinaryResumeUrl } from "@/libs/resume-delivery";
 
 const RESUME_TABS = [
   {
@@ -293,15 +294,18 @@ export default function ResumePage() {
         throw new Error("The file provider returned an invalid resume URL.");
       }
       const expectedFolder = `oneme/${profile.id}/resume/`;
+      const expectedPublicId = result.public_id;
+      const expectedAssetName = expectedPublicId?.slice(expectedFolder.length) || "";
       if (
-        uploadedUrl.protocol !== "https:" ||
-        uploadedUrl.hostname !== "res.cloudinary.com" ||
         signature.resourceType !== "raw" ||
-        !uploadedUrl.pathname.includes("/raw/authenticated/upload/") ||
-        !result.public_id?.startsWith(expectedFolder) ||
-        !/^[a-f0-9]{32}\.pdf$/i.test(result.public_id.slice(expectedFolder.length))
+        result.resource_type !== "raw" ||
+        result.type !== "authenticated" ||
+        result.format !== "pdf" ||
+        !expectedPublicId?.startsWith(expectedFolder) ||
+        !/^[a-f0-9]{32}\.pdf$/i.test(expectedAssetName) ||
+        !isAuthenticatedCloudinaryResumeUrl(uploadedUrl, signature.cloudName, expectedPublicId)
       ) {
-        throw new Error("The file provider returned an unexpected resume asset. Please try again or contact support.");
+        throw new Error("The provider uploaded the file with an unexpected account, format, or access setting. Please contact support.");
       }
 
       updateResume({

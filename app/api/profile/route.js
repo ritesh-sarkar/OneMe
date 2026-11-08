@@ -6,6 +6,7 @@ import { ProfileData } from '@/libs/models/ProfileData';
 import { createEmptyProfileData, profileDataSchema } from '@/libs/profile-validation';
 import { consumeRateLimits, getTrustedClientIp } from '@/libs/rate-limit';
 import { readJsonBody } from '@/libs/request-body';
+import { isAuthenticatedCloudinaryResumeUrl } from '@/libs/resume-delivery';
 
 export const runtime = 'nodejs';
 
@@ -69,22 +70,13 @@ export async function PUT(request) {
   }
   const { fileUrl, publicId } = parsed.data.resume;
   const cloudName = process.env.CLOUDINARY_CLOUD_NAME;
-  let resumeUrl = null;
-  try {
-    resumeUrl = fileUrl ? new URL(fileUrl) : null;
-  } catch {
-    return NextResponse.json({ error: 'Resume file is invalid.' }, { status: 400 });
-  }
   if (
     (fileUrl || publicId) &&
     (
       !fileUrl ||
       !publicId?.startsWith(`oneme/${user.id}/resume/`) ||
-      resumeUrl?.hostname !== 'res.cloudinary.com' ||
       !cloudName ||
-      !resumeUrl.pathname.startsWith(`/${cloudName}/raw/`) ||
-      !/\/raw\/(?:authenticated\/)?upload\//.test(resumeUrl.pathname) ||
-      !resumeUrl.pathname.endsWith(`/${publicId}`)
+      !isAuthenticatedCloudinaryResumeUrl(fileUrl, cloudName, publicId)
     )
   ) {
     return NextResponse.json({ error: 'Resume file is invalid.' }, { status: 400 });

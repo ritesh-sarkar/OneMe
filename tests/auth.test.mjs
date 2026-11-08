@@ -42,7 +42,11 @@ import {
   flowNearbySignalBodySchema,
 } from '../libs/flow-nearby-validation.js';
 import { createNearbyTurnServer, parseNearbyTurnUrls } from '../libs/nearby-ice.js';
-import { createResumePublicId, isAllowedCloudinaryResumeUrl } from '../libs/resume-delivery.js';
+import {
+  createResumePublicId,
+  isAllowedCloudinaryResumeUrl,
+  isAuthenticatedCloudinaryResumeUrl,
+} from '../libs/resume-delivery.js';
 import { normalizeMongoUri } from '../libs/db.js';
 import {
   AUTH_RATE_LIMIT,
@@ -811,8 +815,9 @@ test('Nearby ICE configuration validates TURN URLs and returns short-lived Cotur
 });
 
 test('resume delivery accepts only Cloudinary raw assets and raw authenticated downloads', () => {
+  const resumeOwnerId = '507f1f77bcf86cd799439011';
   const resumePublicId = createResumePublicId(
-    '507f1f77bcf86cd799439011',
+    resumeOwnerId,
     '0123456789abcdef0123456789abcdef',
   );
   assert.equal(
@@ -820,6 +825,26 @@ test('resume delivery accepts only Cloudinary raw assets and raw authenticated d
     'oneme/507f1f77bcf86cd799439011/resume/0123456789abcdef0123456789abcdef.pdf',
   );
   assert.throws(() => createResumePublicId('not-an-account-id', 'not-a-token'));
+  assert.equal(isAuthenticatedCloudinaryResumeUrl(
+    `https://res.cloudinary.com/oneme-test/raw/authenticated/upload/v123/${resumePublicId}`,
+    'oneme-test',
+    resumePublicId,
+  ), true);
+  assert.equal(isAuthenticatedCloudinaryResumeUrl(
+    `https://res.cloudinary.com/oneme-test/raw/authenticated/s--signed-delivery--/v123/${resumePublicId}`,
+    'oneme-test',
+    resumePublicId,
+  ), true);
+  assert.equal(isAuthenticatedCloudinaryResumeUrl(
+    `https://res.cloudinary.com/oneme-test/raw/upload/v123/${resumePublicId}`,
+    'oneme-test',
+    resumePublicId,
+  ), false);
+  assert.equal(isAuthenticatedCloudinaryResumeUrl(
+    `https://attacker.example/oneme-test/raw/authenticated/upload/${resumePublicId}`,
+    'oneme-test',
+    resumePublicId,
+  ), false);
   const previous = cloudinary.config();
   try {
     cloudinary.config({
@@ -828,6 +853,17 @@ test('resume delivery accepts only Cloudinary raw assets and raw authenticated d
       api_secret: 'test-secret',
       secure: true,
     });
+    const cloudinaryDeliveryUrl = cloudinary.url(resumePublicId, {
+      resource_type: 'raw',
+      type: 'authenticated',
+      secure: true,
+      sign_url: true,
+    });
+    assert.equal(isAuthenticatedCloudinaryResumeUrl(
+      cloudinaryDeliveryUrl,
+      'oneme-test',
+      resumePublicId,
+    ), true);
     const url = cloudinary.utils.private_download_url(
       resumePublicId,
       'pdf',

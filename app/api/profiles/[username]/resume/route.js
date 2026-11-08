@@ -7,7 +7,7 @@ import { connectToDatabase } from '@/libs/db';
 import { FlowSession } from '@/libs/models/FlowSession';
 import { ProfileData } from '@/libs/models/ProfileData';
 import { User } from '@/libs/models/User';
-import { isAllowedCloudinaryResumeUrl } from '@/libs/resume-delivery';
+import { isAllowedCloudinaryResumeUrl, isAuthenticatedCloudinaryResumeUrl } from '@/libs/resume-delivery';
 import { normalizePublicUsername } from '@/libs/public-username';
 import { consumeRateLimits, getTrustedClientIp } from '@/libs/rate-limit';
 
@@ -188,27 +188,16 @@ export async function GET(request, { params }) {
     } catch {
       return errorResponse('Resume not found.', 404);
     }
-    const storedPath = storedAssetUrl.pathname;
     if (
-      storedAssetUrl.protocol !== 'https:'
-      || storedAssetUrl.hostname !== 'res.cloudinary.com'
-      || !storedPath.startsWith(`/${cloudName}/raw/`)
-      || !storedPath.endsWith(`/${resume.publicId}`)
-      || !/\/raw\/(?:authenticated\/)?upload\//.test(storedPath)
+      !isAuthenticatedCloudinaryResumeUrl(storedAssetUrl, cloudName, resume.publicId)
     ) {
       return errorResponse('Resume not found.', 404);
     }
-    const authenticatedUpload = storedPath.includes('/raw/authenticated/upload/');
-    const deliveryUrl = authenticatedUpload
-      ? cloudinary.utils.private_download_url(resume.publicId, 'pdf', {
-        resource_type: 'raw',
-        type: 'authenticated',
-        expires_at: Math.floor(Date.now() / 1000) + 60,
-      })
-      : `https://res.cloudinary.com/${encodeURIComponent(cloudName)}/raw/upload/${resume.publicId
-        .split('/')
-        .map(encodeURIComponent)
-        .join('/')}`;
+    const deliveryUrl = cloudinary.utils.private_download_url(resume.publicId, 'pdf', {
+      resource_type: 'raw',
+      type: 'authenticated',
+      expires_at: Math.floor(Date.now() / 1000) + 60,
+    });
     const upstream = await fetchCloudinaryAsset(deliveryUrl, cloudName);
     if (!upstream.ok) {
       return errorResponse(upstream.status === 404 ? 'Resume not found.' : 'Resume delivery failed.', upstream.status === 404 ? 404 : 502);
